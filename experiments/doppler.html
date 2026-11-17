@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How much the ambulance note jumps</title>
+<style>
+
+:root{
+  --dark1:#16224A; --dark2:#0D1120; --dark3:#04060E;
+  --bg:#FAF7F1; --ink:#33302B; --muted:#7E7768;
+  --gold:#E5A50A; --gold-lt:#FFD86E; --viola:#7C5CFF; --acqua:#2DD4BF;
+  --card:#FFFFFF; --card2:#FCFAF6; --bordo:#E7E1D3;
+  --ombra:0 1px 2px rgba(51,48,43,.05), 0 8px 24px rgba(51,48,43,.05);
+  --t-tit:'Bebas Neue','Avenir Next Condensed','Haettenschweiler','Impact',sans-serif;
+  --t-txt:'DM Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --t-num:'DM Mono','SFMono-Regular',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0F131C; --ink:#F1ECE1; --muted:#A49B89;
+    --card:#171C27; --card2:#141924; --bordo:#2B3140;
+    --ombra:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%; overflow-x:hidden}
+h1,h2,h3,p,td,th,summary,.chip{overflow-wrap:break-word}
+body{
+  margin:0; max-width:100%; overflow-x:hidden;
+  background:var(--bg); color:var(--ink);
+  font-family:var(--t-txt); font-size:17px; line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:760px; margin:0 auto; padding:0 18px}
+
+/* ---------- fascia alta scura ---------- */
+header{
+  position:relative; overflow:hidden; color:#F3F0E8;
+  background:
+    radial-gradient(120% 90% at 18% 0%, rgba(124,92,255,.22), rgba(124,92,255,0) 60%),
+    radial-gradient(110% 90% at 88% 12%, rgba(63,106,245,.16), rgba(63,106,245,0) 62%),
+    radial-gradient(140% 120% at 50% 0%, #16224A 0%, #0D1120 52%, #04060E 100%);
+  padding:44px 0 40px;
+}
+header .kicker{
+  font-family:var(--t-num); font-size:12px; letter-spacing:.22em;
+  text-transform:uppercase; color:var(--gold-lt); margin:0 0 12px;
+}
+header h1{
+  font-family:var(--t-tit); font-weight:500; letter-spacing:.012em;
+  font-size:clamp(31px,8.6vw,66px); line-height:.96; margin:0; color:#FFF9EC;
+}
+header h1 .riga2{display:block; color:var(--gold-lt)}
+header .occhiello{margin:16px 0 0; font-size:17px; color:#C9C6BC; max-width:48ch}
+header .meta{
+  margin-top:22px; padding-top:16px; border-top:1px solid rgba(255,255,255,.13);
+  font-family:var(--t-num); font-size:12.5px; letter-spacing:.06em; color:#9BA3B8;
+}
+header .meta b{color:#D9DEEC; font-weight:400}
+
+/* ---------- struttura ---------- */
+section{padding:34px 0 6px}
+h2{
+  font-family:var(--t-tit); font-weight:500; letter-spacing:.02em;
+  font-size:clamp(27px,6.4vw,36px); line-height:1.02; margin:0 0 6px;
+}
+h2 .n{color:var(--gold); margin-right:.4em}
+h3{
+  font-family:var(--t-tit); font-weight:500; letter-spacing:.02em;
+  font-size:23px; line-height:1.06; margin:26px 0 6px;
+}
+.sotto{color:var(--muted); font-size:15.5px; margin:0 0 18px}
+p{margin:0 0 14px}
+.card{
+  background:var(--card); border:1px solid var(--bordo); border-radius:20px;
+  padding:20px; box-shadow:var(--ombra); margin:0 0 16px;
+}
+.card.soft{background:var(--card2)}
+.lab{
+  font-family:var(--t-num); font-size:11.5px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted); display:block; margin:0 0 8px;
+}
+.nota-morbida{
+  margin:12px 0 0; font-size:15px; color:var(--ink);
+  border-left:3px solid var(--gold); padding:2px 0 2px 12px;
+}
+.didascalia{
+  font-family:var(--t-num); font-size:12.5px; line-height:1.6; letter-spacing:.02em;
+  color:var(--muted); margin:10px 2px 2px;
+}
+button{font-family:var(--t-txt)}
+button:focus-visible,input:focus-visible,summary:focus-visible,canvas:focus-visible{
+  outline:3px solid var(--viola); outline-offset:2px;
+}
+
+/* ---------- canvas ---------- */
+.canvas-box{padding:12px 12px 8px}
+canvas{width:100%; height:auto; display:block; border-radius:14px; touch-action:none}
+#scena{cursor:grab}
+#scena.presa{cursor:grabbing}
+
+/* ---------- fila dei numeri ---------- */
+.numeri{display:flex; flex-wrap:wrap; gap:10px; margin:0 0 12px}
+.num{
+  flex:1 1 44%; background:var(--card); border:1px solid var(--bordo);
+  border-radius:18px; padding:12px 14px; box-shadow:var(--ombra);
+}
+.num .v{
+  font-family:var(--t-tit); font-weight:500; font-size:clamp(34px,9vw,46px);
+  line-height:.95; letter-spacing:.01em; display:block;
+}
+.num .v .u{font-size:.34em; color:var(--muted); letter-spacing:.06em; margin-left:.3em}
+.num .q{
+  font-family:var(--t-num); font-size:10.5px; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--muted); display:block; margin-top:6px;
+}
+.num.acc .v{color:var(--gold)}
+.riga-stato{
+  font-family:var(--t-num); font-size:13px; letter-spacing:.05em; color:var(--muted);
+  margin:0 2px 16px; line-height:1.7;
+}
+.riga-stato b{color:var(--ink); font-weight:400}
+
+/* ---------- scheda del salto ---------- */
+.salto{display:flex; flex-wrap:wrap; gap:0; border-radius:18px; overflow:hidden;
+  border:1px solid var(--bordo); background:var(--card2)}
+.salto .cel{flex:1 1 50%; padding:14px 16px; border-bottom:1px solid var(--bordo)}
+.salto .cel:nth-child(odd){border-right:1px solid var(--bordo)}
+.salto .cel:nth-child(n+3){border-bottom:none}
+.salto .cv{font-family:var(--t-tit); font-size:32px; line-height:1; letter-spacing:.01em}
+.salto .cv .u{font-size:.42em; color:var(--muted); margin-left:.25em}
+.salto .cq{font-family:var(--t-num); font-size:10.5px; letter-spacing:.13em;
+  text-transform:uppercase; color:var(--muted); margin-top:6px}
+
+/* ---------- controlli ---------- */
+.atto{
+  font-family:var(--t-num); font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+  color:#8a4b12; background:rgba(229,165,10,.14); border:1px solid rgba(229,165,10,.5);
+  border-radius:999px; padding:5px 12px; display:inline-block; margin:0 0 10px;
+}
+@media (prefers-color-scheme: dark){ .atto{color:var(--gold-lt)} }
+.chips{display:flex; gap:8px; flex-wrap:wrap; margin:0 0 8px}
+.chip{
+  flex:1 1 30%; min-height:50px; cursor:pointer; text-align:left; line-height:1.2;
+  font-family:var(--t-txt); font-size:15.5px; color:var(--ink);
+  background:var(--card2); border:1px solid var(--bordo); border-radius:14px; padding:9px 11px;
+}
+.chip .em{display:block; font-family:var(--t-num); font-size:10.5px;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-top:4px}
+.chip[aria-pressed="true"]{
+  border-color:var(--gold); background:rgba(229,165,10,.10);
+  box-shadow:inset 0 0 0 1px var(--gold);
+}
+.chip[disabled]{opacity:.42; cursor:not-allowed}
+.chip.mini{flex:1 1 18%; text-align:center; min-height:46px; font-family:var(--t-num); font-size:15px}
+.btn{
+  font-family:var(--t-txt); font-size:17px; font-weight:500; cursor:pointer;
+  min-height:52px; padding:12px 22px; border-radius:14px; border:1px solid transparent;
+}
+.btn-primario{
+  background:var(--gold); color:#1B1500; border-color:#c78d05;
+  font-family:var(--t-tit); font-size:26px; letter-spacing:.06em; font-weight:500;
+  width:100%; margin-top:6px;
+}
+.btn-sec{background:transparent; color:var(--ink); border-color:var(--bordo); width:100%; margin-top:10px}
+.riga-btn{display:flex; gap:10px; flex-wrap:wrap}
+.riga-btn .btn-sec{flex:1 1 45%; width:auto}
+.vol{display:flex; align-items:center; gap:12px; margin-top:12px}
+.vol input[type=range]{flex:1; min-height:44px; accent-color:var(--gold)}
+
+/* ---------- tabelle ---------- */
+.tab-scroll{overflow-x:auto; -webkit-overflow-scrolling:touch; margin:0 -4px}
+table{border-collapse:collapse; width:100%; min-width:520px; font-size:15px}
+th,td{padding:9px 10px; text-align:right; border-bottom:1px solid var(--bordo)}
+th:first-child,td:first-child{text-align:left}
+th{font-family:var(--t-num); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted); font-weight:400; vertical-align:bottom}
+td{font-family:var(--t-num); font-size:14.5px}
+td:first-child{font-family:var(--t-txt); font-size:15px}
+tr.qui td{background:rgba(229,165,10,.10)}
+
+/* ---------- formule ---------- */
+pre.conto{
+  font-family:var(--t-num); font-size:13.5px; line-height:1.7; margin:0;
+  white-space:pre-wrap; word-break:break-word; color:var(--ink);
+}
+pre.conto b{color:var(--gold); font-weight:400}
+pre.conto+p, .det-corpo p{margin:14px 0 0; font-size:16px}
+.det-corpo pre.conto{margin:14px 0 0}
+.det-corpo>pre.conto:first-child{margin-top:0}
+pre.conto .k{color:var(--muted)}
+
+/* ---------- details ---------- */
+details{
+  border:1px solid var(--bordo); border-radius:18px; background:var(--card2);
+  padding:0; margin:0 0 12px; overflow:hidden;
+}
+summary{
+  cursor:pointer; list-style:none; padding:15px 18px; min-height:52px;
+  font-family:var(--t-tit); font-size:22px; letter-spacing:.02em; font-weight:500;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+}
+summary::-webkit-details-marker{display:none}
+summary .piu{font-family:var(--t-num); font-size:20px; color:var(--gold)}
+details[open] summary .piu{transform:rotate(45deg)}
+.det-corpo{padding:0 18px 18px}
+
+/* ---------- sezione onesta ---------- */
+.onesta{border-top:3px solid var(--ink); margin-top:14px; padding-top:8px}
+.punto{margin:22px 0 0}
+.punto .tit{font-weight:600; display:block; margin-bottom:2px}
+.punto .nn{font-family:var(--t-num); color:var(--gold); margin-right:.5em}
+.avviso{
+  border:1px solid #D4392B; border-radius:16px; background:rgba(212,57,43,.07);
+  padding:13px 15px; margin:14px 0 0; font-size:15.5px;
+}
+.avviso b{color:#D4392B}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+footer{
+  margin-top:40px; padding:26px 0 46px; border-top:1px solid var(--bordo);
+  font-size:14.5px; color:var(--muted);
+}
+@media (max-width:430px){
+  body{font-size:16px}
+  pre.conto{font-size:12.6px; line-height:1.65}
+  .det-corpo p{font-size:15.5px}
+  .chip{flex:1 1 46%; font-size:15px}
+  .chip.mini{flex:1 1 28%}
+  .num{flex:1 1 100%}
+  .salto .cel{flex:1 1 50%}
+}
+
+</style>
+</head>
+<body>
+<a href="../index.html" style="display:inline-block;margin:14px;font:12px monospace;color:inherit">&larr; All experiments</a>
+
+
+<header>
+  <div class="wrap">
+<div class="lab-hero-ico" style="width:52px;height:52px;color:#8A6A07;margin:0 0 10px"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h.01"/><path d="M8 7a7 7 0 0 1 0 10"/><path d="M11.5 8.5a5 5 0 0 1 0 7"/><path d="M14.5 9.7a3.3 3.3 0 0 1 0 4.6"/></svg></div>
+    <p class="kicker" data-i18n="header_kicker">Laboratorio di fisica &middot; esperimento 2</p>
+    <h1 data-i18n="header_h1">Quanto salta<span class="riga2">la nota dell'ambulanza</span></h1>
+    <p class="occhiello" data-i18n="header_occhiello">Prendi l'ambulanza col dito e spostala. Il tono ti segue. Poi falla passare
+      davvero e guarda di quanto salta la nota: molto meno di quello che hai in testa.</p>
+    <p class="meta" data-i18n="header_meta">Effetto Doppler acustico &middot; <b>Christian Doppler, Praga, 1842</b><br>
+      Prima verifica sul campo: <b>Christophorus Buys Ballot</b>, ferrovia Utrecht&ndash;Maarssen, giugno 1845
+      (il tentativo di febbraio fu abbandonato per grandine e neve)</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ============ SCENA ============ -->
+<section aria-labelledby="h-scena">
+  <h2 id="h-scena" data-i18n="h_scena"><span class="n">1</span>La strada, vista dall'alto</h2>
+  <p class="sotto" data-i18n="scena_sotto">Tu sei la figura ferma sul marciapiede. L'ambulanza tiene una nota sola, 800 hertz.</p>
+
+  <div class="card canvas-box">
+    <canvas id="scena" tabindex="0" role="img" data-i18n-aria="aria_scena"
+      aria-label="Road seen from above with the ambulance, the sound wavefronts and your position on the pavement. Drag it with your finger, or use the left and right arrow keys."></canvas>
+    <p class="didascalia" id="didaScena"></p>
+  </div>
+
+  <div class="numeri">
+    <div class="num acc"><span class="v" id="nFreq">800,0<span class="u">Hz</span></span>
+      <span class="q" data-i18n="q_stai_sentendo">stai sentendo adesso</span></div>
+    <div class="num"><span class="v" id="nSemi">0,00<span class="u">semitoni</span></span>
+      <span class="q" data-i18n="q_scarto_nota">scarto dalla nota vera, 800 Hz</span></div>
+    <div class="num"><span class="v" id="nLamA">39,4<span class="u">cm</span></span>
+      <span class="q" data-i18n="q_onda_davanti">onda davanti al veicolo</span></div>
+    <div class="num"><span class="v" id="nLamD">46,3<span class="u">cm</span></span>
+      <span class="q" data-i18n="q_onda_dietro">onda dietro al veicolo</span></div>
+  </div>
+  <p class="riga-stato" id="rigaStato"></p>
+  <p class="sr" id="live" aria-live="polite"></p>
+
+  <div class="card canvas-box">
+    <span class="lab" data-i18n="lab_traccia">Traccia: frequenza nel tempo</span>
+    <canvas id="traccia" role="img" data-i18n-aria="aria_traccia"
+      aria-label="Graph of the frequency as a function of time during the pass."></canvas>
+    <p class="didascalia" data-i18n="dida_traccia">La curva di ogni passaggio resta disegnata. Cambia distanza, ripassa, e confronta:
+      la picchiata a 2 metri e quella a 20 metri arrivano allo stesso punto, ma con due pendenze diverse.</p>
+  </div>
+</section>
+
+<!-- ============ CONTROLLI ============ -->
+<section aria-labelledby="h-com">
+  <h2 id="h-com" data-i18n="h_com"><span class="n">2</span>I comandi</h2>
+
+  <div class="card">
+    <span class="atto" data-i18n="atto1">Atto 1 &mdash; trascina</span>
+    <p style="margin:0 0 6px" data-i18n="atto1_p">Metti il dito sull'ambulanza e spostala avanti e indietro sulla corsia.
+      Verso di te il suono si alza, via da te si abbassa, fermo il dito la nota torna dov'era.
+      Da tastiera: frecce sinistra e destra.</p>
+  </div>
+
+  <div class="card">
+    <span class="atto" data-i18n="atto2">Atto 2 &mdash; il sorpasso vero</span>
+    <span class="lab" data-i18n="lab_che_passa">Che cosa passa</span>
+    <div class="chips" id="veicoli"></div>
+    <span class="lab" style="margin-top:14px" data-i18n="lab_dove_sei">Dove sei tu</span>
+    <div class="chips" id="posizioni"></div>
+    <span class="lab" style="margin-top:14px" data-i18n="lab_chi_muove">Chi si muove</span>
+    <div class="chips" id="chi"></div>
+    <button class="btn btn-primario" id="btnPassa" data-i18n="btn_passa">PASSA</button>
+    <div class="riga-btn">
+      <button class="btn btn-sec" id="btnVol" aria-pressed="true">Volume realistico</button>
+      <button class="btn btn-sec" id="btnPulisci" data-i18n="btn_pulisci">Pulisci le tracce</button>
+    </div>
+    <p class="nota-morbida" id="notaVol">Il volume che cresce e cala è acceso: è il &laquo;nìii-nòoo&raquo;
+      che hai in testa. Spegnilo e resta solo il cambio di nota.</p>
+
+    <span class="lab" style="margin-top:18px" data-i18n="lab_rallentatore">Rallentatore</span>
+    <div class="chips" id="rallenta"></div>
+    <p class="didascalia" data-i18n="dida_rallentatore">Nel rallentatore l'audio si spegne di proposito: rallentando il tempo si
+      abbasserebbe anche la frequenza, e sentiresti una cosa che col Doppler non c'entra niente.
+      A velocità normale, invece, i cerchi si spengono: viaggiano a 343 metri al secondo e
+      attraversano lo schermo in un terzo di secondo.</p>
+
+    <div class="vol">
+      <button class="btn btn-sec" id="btnAudio" style="width:auto; flex:0 0 auto" aria-pressed="false">Accendi il suono</button>
+      <input type="range" id="vol" min="0" max="100" value="33" data-i18n-aria="aria_volume" aria-label="Volume">
+    </div>
+    <p class="didascalia" data-i18n="dida_volume_iniziale">Il volume parte a un terzo. Con le cuffie, abbassa prima di accendere.
+      Tutto l'esperimento si capisce anche a suono spento: i numeri e i cerchi bastano.</p>
+  </div>
+
+  <div class="card">
+    <span class="atto" data-i18n="atto3">Atto 3 &mdash; rallenta il suono</span>
+    <p style="margin:0 0 10px" data-i18n="atto3_p">Cambia quanto è veloce il suono in questo mondo immaginario e guarda i cerchi
+      accalcarsi davanti al veicolo. Quando la velocità del suono scende fino a quella dell'ambulanza,
+      il denominatore <b>c &minus; v</b> si azzera e il numero diventa un trattino.</p>
+    <div class="chips" id="csuono"></div>
+    <span class="lab" style="margin-top:14px" data-i18n="lab_temperatura">Temperatura dell'aria (Formula 5)</span>
+    <div class="chips" id="temperature"></div>
+    <p class="nota-morbida" id="notaTemp"></p>
+  </div>
+
+  <div class="card soft">
+    <span class="lab" data-i18n="lab_come_disegnato">Come è disegnato</span>
+    <p style="margin:0 0 8px; font-size:15.5px" data-i18n="disegno_p1">I cerchi che vedi sono molto più radi dei fronti veri: la sirena
+      ne emette 800 al secondo, qui ne disegniamo uno ogni 0,12 secondi. Il disegno resta comunque esatto,
+      perché il rapporto fra la spaziatura davanti e quella dietro vale (c &minus; v)/(c + v) e non dipende da
+      quanti cerchi disegni.</p>
+    <p style="margin:0; font-size:15.5px" data-i18n="disegno_p2">Lo schiacciamento a 100 km/h è del 15%: si vede appena, ed è giusto
+      così. Nei libri lo disegnano molto più marcato di com'è. Se lo vuoi vedere davvero grande, usa l'atto 3
+      e rallenta il suono: lì l'esagerazione è dichiarata.</p>
+    <p style="margin:8px 0 0; font-size:15.5px" data-i18n="disegno_p3">Mentre trascini col dito, la frequenza è calcolata con la
+      versione istantanea della formula. Nel sorpasso automatico, invece, il conto tiene conto del tempo che
+      il suono impiega ad arrivare fino a te: è per questo che nell'istante esatto del sorpasso senti ancora
+      805,3 Hz e non 800.</p>
+  </div>
+</section>
+
+<!-- ============ FORMULE ============ -->
+<section aria-labelledby="h-form">
+  <h2 id="h-form" data-i18n="h_form"><span class="n">3</span>Le formule, per rifare i conti a mano</h2>
+  <p class="sotto" data-i18n="form_sotto">Ti serve solo una calcolatrice. Nessun passaggio è nascosto.</p>
+
+  <details open><summary data-i18n="f1_summary">Formula 1 &mdash; la sirena si muove, tu sei fermo<span class="piu">+</span></summary>
+  <div class="det-corpo">
+<pre class="conto" data-i18n="f1_pre1">in avvicinamento
+   <b>f = f0 x c / (c - v)</b>
+in allontanamento
+   <b>f = f0 x c / (c + v)</b></pre>
+    <p data-i18n="f1_p1"><b>f0</b> è la nota vera che la sirena emette, in hertz. Un hertz è un'oscillazione al secondo:
+      qui f0 = 800 Hz. <b>c</b> è la velocità del suono nell'aria, 343 m/s a 20 gradi.
+      <b>v</b> è la velocità dell'ambulanza in metri al secondo; da km/h a m/s si divide per 3,6.</p>
+    <p data-i18n="f1_p2">Guarda dov'è finita la v: al <b>denominatore</b>. È tutta qui la storia di questo esperimento.</p>
+    <p data-i18n="f1_p3">Col caso di partenza (800 Hz, 343 m/s, 100 km/h = 27,778 m/s):</p>
+<pre class="conto" data-i18n="f1_pre2">c - v = 315,222
+343 / 315,222 = 1,08812   x800 = <b>870,50 Hz</b>
+c + v = 370,778
+343 / 370,778 = 0,92508   x800 = <b>740,07 Hz</b></pre>
+  </div></details>
+
+  <details><summary data-i18n="f2_summary">Formula 2 &mdash; il salto del sorpasso, in un colpo solo<span class="piu">+</span></summary>
+  <div class="det-corpo">
+<pre class="conto" data-i18n="f2_pre1">   <b>salto = f0 x 2cv / (c^2 - v^2)</b></pre>
+    <p data-i18n="f2_p1">È la differenza fra le due formule di sopra, scritta in un pezzo solo:</p>
+<pre class="conto" data-i18n="f2_pre2">c/(c-v) - c/(c+v)
+  = c[(c+v) - (c-v)] / [(c-v)(c+v)]
+  = 2cv / (c^2 - v^2)</pre>
+    <p data-i18n="f2_p2">Controprova coi numeri di partenza:</p>
+<pre class="conto" data-i18n="f2_pre3">2 x 343 x 27,778 = 19.055,6
+c^2 - v^2 = 117.649 - 771,6 = 116.877,4
+19.055,6 / 116.877,4 = 0,163039
+0,163039 x 800 = <b>130,43 Hz</b></pre>
+    <p style="margin-bottom:0" data-i18n="f2_p3">Ed è proprio 870,50 &minus; 740,07.</p>
+  </div></details>
+
+  <details><summary data-i18n="f3_summary">Formula 3 &mdash; da hertz a semitoni<span class="piu">+</span></summary>
+  <div class="det-corpo">
+<pre class="conto" data-i18n="f3_pre1">   <b>semitoni = 12 x log2(f2 / f1)</b></pre>
+    <p data-i18n="f3_p1">log2(x) è il logaritmo in base 2: sulla calcolatrice del telefono, log(x) diviso log(2).
+      Un semitono è un tasto del pianoforte, contando anche i neri. Dodici semitoni fanno un'ottava.</p>
+<pre class="conto" data-i18n="f3_pre2">870,50 / 740,07 = 1,17624
+log2(1,17624) = 0,234172
+0,234172 x 12 = <b>2,810 semitoni</b></pre>
+    <p data-i18n="f3_p2">Per il salto del sorpasso si può scrivere tutto in una riga:</p>
+<pre class="conto" data-i18n="f3_pre3">   <b>semitoni = 12 x log2[(c + v) / (c - v)]</b></pre>
+    <p style="margin-bottom:0" data-i18n="f3_p3">f0 è sparita. La sirena può suonare qualunque nota: lo spostamento in semitoni
+      è sempre lo stesso. È per questo che nel 1845, al posto degli strumenti di misura, bastavano dei musicisti.</p>
+  </div></details>
+
+  <details><summary data-i18n="f4_summary">Formula 4 &mdash; ti muovi tu, la sorgente è ferma<span class="piu">+</span></summary>
+  <div class="det-corpo">
+<pre class="conto" data-i18n="f4_pre1">ti avvicini
+   <b>f = f0 x (c + u) / c</b>
+ti allontani
+   <b>f = f0 x (c - u) / c</b></pre>
+    <p data-i18n="f4_p1">Qui la velocità sta al <b>numeratore</b>. Non è la stessa formula di prima. Stessa velocità,
+      stessa aria, stessa nota, risultato diverso:</p>
+<pre class="conto" data-i18n="f4_pre2">sirena in moto   <b>870,50 Hz</b>
+tu in moto       <b>864,79 Hz</b>
+differenza         5,71 Hz</pre>
+    <p style="margin-bottom:0" data-i18n="f4_p2">Cinque hertz e mezzo, un nono di semitono. Non è un arrotondamento: nel primo caso
+      l'onda nell'aria è davvero più corta, nel secondo resta lunga 42,9 cm e sei tu che ne incontri di più al
+      secondo. L'aria fa da arbitro e sa benissimo chi si sta muovendo rispetto a lei.</p>
+  </div></details>
+
+  <details><summary data-i18n="f5_summary">Formula 5 &mdash; la velocità del suono dipende dalla temperatura<span class="piu">+</span></summary>
+  <div class="det-corpo">
+<pre class="conto" data-i18n="f5_pre1">   <b>c = 331,3 x radice(1 + T/273,15)</b>  m/s</pre>
+    <p data-i18n="f5_p1">T in gradi Celsius, aria secca. 273,15 è lo zero assoluto in gradi Celsius, cambiato di segno.</p>
+<pre class="conto" data-i18n="f5_pre2"> 0 gradi  ->  331,3 m/s
+20 gradi  ->  343,2 m/s
+35 gradi  ->  351,9 m/s</pre>
+    <p data-i18n="f5_p2">Vale a qualunque quota, purché l'aria sia a quella temperatura: la pressione non entra.</p>
+    <p style="margin-bottom:0" data-i18n="f5_p3"><b>Assunzione dichiarata.</b> Come riferimento questo esperimento usa il valore tondo
+      da manuale, c = 343 m/s a 20 gradi; la formula qui sopra, a 20 gradi, dà 343,2. Sul salto la differenza è
+      meno di un decimo di hertz: 130,43 contro 130,35. Il numero tondo serve solo a farti rifare i conti a mano
+      senza impazzire.</p>
+  </div></details>
+
+  <details><summary data-i18n="f6_summary">Formula 6 &mdash; perché tutto succede nell'attimo del sorpasso<span class="piu">+</span></summary>
+  <div class="det-corpo">
+    <p data-i18n="f6_p1">Conta solo la parte della velocità puntata verso di te:</p>
+<pre class="conto" data-i18n="f6_pre1">   <b>v_verso_te = v x x / radice(x^2 + d^2)</b></pre>
+    <p data-i18n="f6_p2"><b>x</b> è di quanti metri l'ambulanza è indietro (negativo) o avanti (positivo) rispetto a te;
+      <b>d</b> è quanti metri sei lontano dalla corsia. Poi si mette v_verso_te al posto di v:</p>
+<pre class="conto" data-i18n="f6_pre2">   <b>f = f0 x c / (c + v_verso_te)</b></pre>
+    <p style="margin-bottom:0" data-i18n="f6_p3">Quando ti è di fianco, x = 0, quindi v_verso_te = 0: in quell'istante non si avvicina
+      né si allontana. La picchiata dura all'incirca 2d/v secondi: a 5 metri dalla corsia e a 100 km/h, il 70% del
+      salto ti passa addosso in <b>0,36 secondi</b>.</p>
+  </div></details>
+
+  <details><summary data-i18n="f7_summary">Formula 7 &mdash; dove il modello si rompe da solo<span class="piu">+</span></summary>
+  <div class="det-corpo">
+<pre class="conto" data-i18n="f7_pre1">numero di Mach:   <b>M = v / c</b></pre>
+    <p data-i18n="f7_p1">Se v = c il denominatore (c &minus; v) diventa zero e la formula dà infinito. In natura non esistono note
+      infinitamente acute: è il modello che ti sta dicendo, da solo, che oltre quel punto non vale più.</p>
+    <p data-i18n="f7_p2">In aria a 20 gradi il punto è 343 m/s, cioè 1235 km/h. Oltre, il fronte d'onda diventa un cono, con
+      semiapertura data da</p>
+<pre class="conto" data-i18n="f7_pre2">   <b>sin(theta) = c/v = 1/M</b></pre>
+    <p style="margin-bottom:0" data-i18n="f7_p3">Nell'atto 3 non è l'ambulanza ad accelerare: è il suono che rallenta. Quello che conta
+      è il rapporto v/c, e ci si arriva da tutte e due le parti.</p>
+  </div></details>
+</section>
+
+<!-- ============ CASI ============ -->
+<section aria-labelledby="h-casi">
+  <h2 id="h-casi" data-i18n="h_casi"><span class="n">4</span>I casi, coi conti già fatti</h2>
+  <p class="sotto" data-i18n="casi_sotto">Questa tabella la calcola la pagina, con la velocità del suono che hai scelto tu.
+    Il caso in evidenza è quello selezionato adesso.</p>
+  <div class="card">
+    <div class="tab-scroll">
+      <table>
+        <thead><tr>
+          <th data-i18n="th_che_passa">Che cosa passa</th><th data-i18n="th_kmh">km/h</th><th data-i18n="th_ms">m/s</th>
+          <th data-i18n="th_avvic">in avvicinamento</th><th data-i18n="th_allont">in allontanamento</th><th data-i18n="th_salto">salto</th><th data-i18n="th_semitoni">semitoni</th>
+        </tr></thead>
+        <tbody id="tabCasi"></tbody>
+      </table>
+    </div>
+    <p class="didascalia" id="tabNota"></p>
+  </div>
+
+  <div class="card">
+    <span class="lab" data-i18n="lab_salto_asim">Il salto non è simmetrico</span>
+    <div class="tab-scroll">
+      <table>
+        <thead><tr><th>&nbsp;</th><th data-i18n="th_hertz">hertz</th><th data-i18n="th_scarto_hz">scarto in Hz</th><th data-i18n="th_scarto_semi">scarto in semitoni</th></tr></thead>
+        <tbody id="tabAsim"></tbody>
+      </table>
+    </div>
+    <p class="didascalia" data-i18n="dida_asim">I due pezzi sommati fanno il salto totale. Il rapporto fra loro è 1,176:
+      lo stesso numero del rapporto fra le due frequenze.</p>
+  </div>
+
+  <div class="card">
+    <span class="lab" data-i18n="lab_tre_conti">Tre conti che vale la pena tenere</span>
+    <div class="tab-scroll">
+      <table>
+        <thead><tr><th data-i18n="th_domanda">Domanda</th><th data-i18n="th_risposta">Risposta</th></tr></thead>
+        <tbody id="tabExtra"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <details><summary data-i18n="bb_summary">Buys Ballot, giugno 1845: il conto regge ancora<span class="piu">+</span></summary>
+  <div class="det-corpo">
+    <p data-i18n="bb_intro">Sulla ferrovia fra Utrecht e Maarssen, Buys Ballot mise dei trombettisti su un carro pianale con
+      l'ordine di tenere una nota sola, e altri musicisti a bordo strada a scrivere quale nota sentivano.
+      Niente strumenti di misura: orecchie allenate.</p>
+    <div class="tab-scroll">
+      <table>
+        <thead><tr><th>&nbsp;</th><th data-i18n="th_calcolo">calcolo</th><th data-i18n="th_nota_vera">nota vera</th><th data-i18n="th_scarto">scarto</th><th data-i18n="th_semitoni">semitoni</th></tr></thead>
+        <tbody id="tabBB"></tbody>
+      </table>
+    </div>
+    <p class="didascalia" data-i18n="bb_dida">Un sol a 392 Hz, treno a circa 70 km/h, aria di giugno a 15 gradi
+      (c = 340,3 m/s con la Formula 5). Gli scarti sono sotto la soglia dell'orecchio: quello che i
+      musicisti scrissero, un sol diesis e un fa diesis, è esattamente quello che dà la formula.</p>
+  </div></details>
+</section>
+
+<!-- ============ PARAGONE ============ -->
+<section aria-labelledby="h-corpo">
+  <h2 id="h-corpo" data-i18n="h_corpo"><span class="n">5</span>Provalo col corpo</h2>
+  <div class="card">
+    <p><span data-i18n="corpo_voce_pre"><b>Con la voce.</b> Canta una nota. Poi cantala tre tasti di pianoforte più su, quelli neri compresi:
+      da un do a un mi bemolle. Quel salto lì, anzi un pochino meno, è tutto quello che fa l'ambulanza a
+      cento all'ora. Se la nota di partenza fosse 800 Hz, quella di arrivo sarebbe</span>
+      <b id="notaArrivo"></b><span data-i18n="corpo_voce_post"> hertz.</span></p>
+    <p data-i18n="corpo_tempo"><b>Col tempo.</b> Fallo in un terzo di secondo. Fra un battito del tuo cuore a riposo e il successivo
+      passa circa un secondo: la picchiata ne occupa poco più di un terzo.</p>
+    <p style="margin:0" data-i18n="corpo_mani"><b>Con le mani.</b> Tienile aperte a 39 centimetri: è lunga così l'onda davanti
+      all'ambulanza. Portale a 46: è lunga così dietro. Quella differenza di sette centimetri, la larghezza
+      del tuo palmo, è tutto lo schiacciamento di cui stiamo parlando.</p>
+  </div>
+</section>
+
+<!-- ============ SORPRESA ============ -->
+<section aria-labelledby="h-sor">
+  <h2 id="h-sor" data-i18n="h_sor"><span class="n">6</span>La sorpresa</h2>
+  <p class="sotto" data-i18n="sor_sotto">Il salto è molto più piccolo di come lo ricordi. E non è simmetrico.</p>
+  <div class="card">
+    <p data-i18n="sor_p1">A cento all'ora l'ambulanza sposta la nota di <b>2,81 semitoni</b> in tutto: meno di tre tasti di
+      pianoforte. Il &laquo;nìii-nòoo&raquo; drammatico che hai in testa è per la maggior parte il volume che
+      cresce e cala, non l'altezza che cambia. Qui sopra c'è l'interruttore che toglie il volume e lascia solo
+      la frequenza: quasi nessuno riconosce quello che sente.</p>
+    <p data-i18n="sor_p2">Dentro questa sorpresa ce n'è una seconda, più fine. Non sali di metà e scendi di metà: sali di 1,46
+      semitoni e scendi di 1,35, settanta hertz in su e solo sessanta in giù. E la ragione non è quella che
+      verrebbe da dire. Le due variazioni del denominatore sono identiche in percentuale: togliere 27,778 da
+      343 lo fa calare dell'8,098%, aggiungerlo lo fa crescere dell'8,098%. L'asimmetria nasce dopo, nella
+      divisione: dividere per un numero più piccolo fa crescere il risultato più di quanto dividere per un
+      numero altrettanto più grande lo faccia calare, +8,81% contro &minus;7,49%. È il genere di dettaglio
+      che si legge solo rifacendo il conto.</p>
+    <p data-i18n="sor_p3">E se vuoi il salto epico, quello di un'ottava intera, serve che la sorgente corra a un terzo esatto
+      della velocità del suono: <b>411,6 chilometri all'ora</b>. È una frazione pura, non dipende da quanto
+      vale c: da (c+v)/(c&minus;v) = 2 esce 3v = c e basta. Nessuna automobile ci arriva. Un aereo di linea sì.</p>
+    <p style="margin:0" data-i18n="sor_p4">L'ultima è la più elegante, e non riguarda l'orecchio ma la matematica. Quando v
+      arriva a 343 m/s il denominatore diventa zero e la formula dà infinito. Quello zero è la formula che ti
+      sta dicendo, da sola, che oltre quel punto non vale più. Doppler la scrive nel 1842. Ernst Mach
+      fotografa l'onda d'urto di un proiettile supersonico nel 1887. Un aereo ci passa attraverso in volo nel
+      1947. Il denominatore lo aveva annunciato con centocinque anni di anticipo.</p>
+  </div>
+</section>
+
+<!-- ============ ONESTA ============ -->
+<section aria-labelledby="h-non" class="onesta">
+  <h2 id="h-non" data-i18n="h_non"><span class="n">7</span>Che cosa questo modello non dice</h2>
+  <p class="sotto" data-i18n="non_sotto">Non è un'appendice. È la parte in cui l'esperimento ti dice dove finisce.</p>
+
+  <div class="punto"><span class="tit" data-i18n="pt1_tit"><span class="nn">01</span>L'aria non è ferma e non è sempre uguale.</span>
+    <span data-i18n="pt1_body">Col vento la risposta cambia, ma meno di quanto temeresti: con trenta chilometri orari a favore gli
+    870,5 Hz diventano 868,7, perché il vento sposta insieme il suono e il punto da cui parte, e i due effetti
+    quasi si annullano. La temperatura conta di più: lo stesso sorpasso dà 136,4 Hz di salto a cinque gradi
+    sotto zero e 127,1 a trentacinque, sette per cento di differenza senza che l'ambulanza cambi niente.
+    E il suono in strada non viaggia dritto: gli strati d'aria a temperature diverse lo incurvano, ed è per
+    questo che di notte, quando l'aria fredda sta in basso, senti i treni da molto più lontano.</span></div>
+
+  <div class="punto"><span class="tit" data-i18n="pt2_tit"><span class="nn">02</span>La sirena non tiene una nota.</span>
+    <span data-i18n="pt2_body">Le sirene vere ondeggiano o alternano due toni, apposta per farsi notare: lo spostamento Doppler si somma
+    a un'altezza che stava già cambiando per conto suo. È esattamente per questo che nel 1845 Buys Ballot mise
+    su un vagone dei trombettisti con l'ordine di tenere una nota sola. Gli 800 Hz fissi di questo esperimento
+    sono una comodità dichiarata, non una sirena reale.</span></div>
+
+  <div class="punto"><span class="tit" data-i18n="pt3_tit"><span class="nn">03</span>Altezza e frequenza non sono la stessa cosa.</span>
+    <span data-i18n="pt3_body">L'altezza è quello che il tuo cervello ricostruisce, e dipende un poco anche dal volume e dal timbro. Un
+    orecchio allenato distingue variazioni di frequenza dell'ordine di mezzo per cento; il salto della
+    bicicletta è del tre per cento, quindi in teoria udibile, ma nella strada vera è sepolto sotto il
+    cambiamento di volume.</span></div>
+
+  <div class="punto"><span class="tit" data-i18n="pt4_tit"><span class="nn">04</span>Dove il modello si rompe davvero.</span>
+    <span data-i18n="pt4_body">Sopra i 343 m/s la Formula 1 dà numeri negativi, che non significano niente. Non è che la fisica finisca:
+    è che queste equazioni assumono che il suono sia una piccola increspatura dell'aria, e a quelle velocità
+    l'increspatura non è più piccola. Diventa un'onda d'urto, e serve una matematica diversa. La formula non
+    ti dice cosa succede oltre il muro del suono. Ti dice soltanto, onestamente, che lei lì si ferma.</span></div>
+
+  <div class="punto"><span class="tit" data-i18n="pt5_tit"><span class="nn">05</span>Con la luce la faccenda cambia natura.</span>
+    <span data-i18n="pt5_body">Per il suono conta chi si muove rispetto all'aria, e infatti muovere la sorgente dà 870,50 Hz mentre
+    muovere te ne dà 864,79. Per la luce non c'è nessun'aria: conta soltanto la velocità relativa, e la
+    formula è un'altra, con una radice quadrata dentro. In più la luce ha un effetto che il suono non ha
+    proprio: una sorgente che ti passa esattamente di fianco ti manda comunque luce più rossa del dovuto. Nel
+    suono, in quell'istante, senti la nota vera. Con la luce no. Quel pezzo in più si chiama Doppler
+    trasversale, viene dalla dilatazione del tempo, e Ives e Stilwell lo misurarono nel 1938.</span></div>
+
+  <div class="punto"><span class="tit" data-i18n="pt6_tit"><span class="nn">06</span>Quello che nessuno oggi sa.</span>
+    <span data-i18n="pt6_body">Se porti la stessa aritmetica sulle galassie lontane, la loro luce arriva spostata verso il rosso tanto
+    più quanto sono distanti: è la legge di Hubble, e da lì si misura la velocità di espansione dell'universo.
+    Due avvertenze. La prima riguarda le parole. Di solito lo si racconta così: non sono le galassie a correre
+    attraverso lo spazio, è lo spazio stesso a distendersi e a stirare l'onda mentre viaggia. È un racconto
+    comodo e diffuso, ma non è un fatto misurabile a parte: in relatività generale stabilire "di chi è il
+    movimento" dipende da come si scelgono le coordinate, e lo stesso rossore si ottiene anche sommando tanti
+    piccoli spostamenti Doppler lungo il cammino della luce. Quello che si misura è il rossore; la storia che
+    gli si mette attorno è linguaggio, e conviene sapere quando si sta usando l'uno e quando l'altra. La
+    seconda riguarda il numero: il valore della costante di Hubble oggi non è deciso. Dalla luce dell'universo
+    primordiale si ottiene 67,4 ± 0,5 chilometri al secondo per megaparsec; dalle stelle vicine e dalle
+    supernove circa 73,0 ± 1,0. Le due misure non si toccano. Il telescopio spaziale James Webb ha rimisurato
+    quelle stelle, e il risultato dipende da quale indicatore di distanza si usa: le misure basate sulle
+    Cefeidi continuano a dare il valore alto, altre basate su tipi di stelle diversi danno valori più vicini a
+    quello dell'universo primordiale. La questione non è chiusa, e non c'è ancora accordo nemmeno su quale
+    delle misure locali sia da preferire.</span></div>
+
+  <div class="punto"><span class="tit" data-i18n="pt7_tit"><span class="nn">07</span>E la lezione più utile viene dall'uomo che ha scritto la formula.</span>
+    <span data-i18n="pt7_body">Doppler la pubblicò nel 1842 per spiegare perché certe stelle appaiono rosse e certe altre azzurre. La
+    formula era giusta. La spiegazione era sbagliata di un fattore duemilaquattrocento, e bastava fare il
+    conto per accorgersene. Per spostare la luce dal verde (550 nanometri) al rosso (700) servono circa
+    <b>71.000 chilometri al secondo</b>: z = 700/550 &minus; 1 = 0,273, e da (1+z)² = (1+β)/(1&minus;β) esce
+    β = 0,2366. Le stelle si muovono a qualche decina di chilometri al secondo, β = 0,0001. Si può avere
+    ragione sulla matematica e torto su cosa se ne fa.</span></div>
+
+  <div class="avviso" data-i18n="avviso_txt"><b>Una cosa che questa pagina non fa.</b> Non misura niente. Calcola. Se vuoi una misura
+    vera ti serve un microfono, un veicolo che tiene una nota sola e un modo per sapere quanto va forte:
+    allora il confronto fra il tuo numero e questo qui diventa interessante.</div>
+</section>
+
+
+
+
+</main>
+<footer style="padding:24px;text-align:center;font:12px monospace;opacity:.7">physics-experiments-lab &middot; MIT License &middot; Copyright (c) 2026 Capitan AI</footer>
+<script>
+(function(){
+"use strict";
+
+/* =======================================================================
+   NUCLEO FISICO  (scritto e verificato per primo, isolato dal disegno)
+   ======================================================================= */
+var SEMI = 12;
+var SEMI_RAPPORTO = 1.059463;   /* 2 elevato 1/12 */
+var C_RIF = 343;                /* valore tondo da manuale, aria a 20 gradi */
+
+function cAria(T){ return 331.3 * Math.sqrt(1 + T / 273.15); }
+function fAvv(f0, c, v){ return f0 * c / (c - v); }
+function fAll(f0, c, v){ return f0 * c / (c + v); }
+function salto(f0, c, v){ return f0 * 2 * c * v / (c * c - v * v); }
+function semitoni(f2, f1){ return SEMI * Math.log2(f2 / f1); }
+function fOssAvv(f0, c, u){ return f0 * (c + u) / c; }
+function fOssAll(f0, c, u){ return f0 * (c - u) / c; }
+
+/* istante di emissione del suono che senti al tempo t (radice col meno) */
+function tEmissione(t, c, v, d){
+  var den = c * c - v * v;
+  return (c * c * t - Math.sqrt(c * c * v * v * t * t + d * d * den)) / den;
+}
+/* sorgente in moto uniforme: frequenza percepita al tempo t di ascolto */
+function fPassaggio(t, f0, c, v, d){
+  var te = tEmissione(t, c, v, d);
+  var r  = Math.sqrt(v * v * te * te + d * d);
+  var vr = v * v * te / r;
+  return f0 * c / (c + vr);
+}
+/* versione istantanea, per il trascinamento a mano (velocita non uniforme) */
+function fIstantanea(f0, c, v, x, d){
+  var r = Math.sqrt(x * x + d * d);
+  var vr = (r === 0) ? 0 : v * x / r;
+  if (Math.abs(vr) >= c) return NaN;
+  return f0 * c / (c + vr);
+}
+/* osservatore in moto, sorgente ferma */
+function fOssIstantanea(f0, c, u, x, d){
+  var r = Math.sqrt(x * x + d * d);
+  var ur = (r === 0) ? 0 : -u * x / r;
+  return f0 * (c + ur) / c;
+}
+
+/* =======================================================================
+   TESTI  (tutte le stringhe visibili all'utente, per lingua)
+   ======================================================================= */
+/* TESTI.en/fr/es/de sono copie dell'italiano in attesa della traduzione  */
+var TESTI = {
+  it: {
+    /* ---- header ---- */
+    header_kicker: "Laboratorio di fisica &middot; esperimento 2",
+    header_h1: "Quanto salta<span class=\"riga2\">la nota dell'ambulanza</span>",
+    header_occhiello: "Prendi l'ambulanza col dito e spostala. Il tono ti segue. Poi falla passare davvero e guarda di quanto salta la nota: molto meno di quello che hai in testa.",
+    header_meta: "Effetto Doppler acustico &middot; <b>Christian Doppler, Praga, 1842</b><br> Prima verifica sul campo: <b>Christophorus Buys Ballot</b>, ferrovia Utrecht&ndash;Maarssen, giugno 1845 (il tentativo di febbraio fu abbandonato per grandine e neve)",
+
+    /* ---- sezione 1: la scena ---- */
+    h_scena: "<span class=\"n\">1</span>La strada, vista dall'alto",
+    scena_sotto: "Tu sei la figura ferma sul marciapiede. L'ambulanza tiene una nota sola, 800 hertz.",
+    aria_scena: "Strada vista dall'alto con l'ambulanza, i fronti d'onda del suono e la tua posizione sul marciapiede. Trascinala col dito, oppure usa le frecce sinistra e destra.",
+    q_stai_sentendo: "stai sentendo adesso",
+    q_scarto_nota: "scarto dalla nota vera, 800 Hz",
+    q_onda_davanti: "onda davanti al veicolo",
+    q_onda_dietro: "onda dietro al veicolo",
+    lab_traccia: "Traccia: frequenza nel tempo",
+    aria_traccia: "Grafico della frequenza in funzione del tempo durante il passaggio.",
+    dida_traccia: "La curva di ogni passaggio resta disegnata. Cambia distanza, ripassa, e confronta: la picchiata a 2 metri e quella a 20 metri arrivano allo stesso punto, ma con due pendenze diverse.",
+
+    /* ---- sezione 2: i comandi ---- */
+    h_com: "<span class=\"n\">2</span>I comandi",
+    atto1: "Atto 1 &mdash; trascina",
+    atto1_p: "Metti il dito sull'ambulanza e spostala avanti e indietro sulla corsia. Verso di te il suono si alza, via da te si abbassa, fermo il dito la nota torna dov'era. Da tastiera: frecce sinistra e destra.",
+    atto2: "Atto 2 &mdash; il sorpasso vero",
+    lab_che_passa: "Che cosa passa",
+    lab_dove_sei: "Dove sei tu",
+    lab_chi_muove: "Chi si muove",
+    btn_passa: "PASSA",
+    btn_vol_on: "Volume realistico",
+    btn_vol_off: "Volume costante",
+    btn_pulisci: "Pulisci le tracce",
+    nota_vol_on: "Il volume che cresce e cala è acceso: è il «nìii-nòoo» che hai in testa. Spegnilo e resta solo il cambio di nota.",
+    nota_vol_off: "Volume costante. Adesso quello che senti è <b>solo</b> il Doppler. Quasi nessuno riconosce quello che sente: era quasi tutto volume.",
+    lab_rallentatore: "Rallentatore",
+    dida_rallentatore: "Nel rallentatore l'audio si spegne di proposito: rallentando il tempo si abbasserebbe anche la frequenza, e sentiresti una cosa che col Doppler non c'entra niente. A velocità normale, invece, i cerchi si spengono: viaggiano a 343 metri al secondo e attraversano lo schermo in un terzo di secondo.",
+    btn_audio_off: "Accendi il suono",
+    btn_audio_on: "Spegni il suono",
+    aria_volume: "Volume",
+    dida_volume_iniziale: "Il volume parte a un terzo. Con le cuffie, abbassa prima di accendere. Tutto l'esperimento si capisce anche a suono spento: i numeri e i cerchi bastano.",
+    atto3: "Atto 3 &mdash; rallenta il suono",
+    atto3_p: "Cambia quanto è veloce il suono in questo mondo immaginario e guarda i cerchi accalcarsi davanti al veicolo. Quando la velocità del suono scende fino a quella dell'ambulanza, il denominatore <b>c &minus; v</b> si azzera e il numero diventa un trattino.",
+    lab_temperatura: "Temperatura dell'aria (Formula 5)",
+    lab_come_disegnato: "Come è disegnato",
+    disegno_p1: "I cerchi che vedi sono molto più radi dei fronti veri: la sirena ne emette 800 al secondo, qui ne disegniamo uno ogni 0,12 secondi. Il disegno resta comunque esatto, perché il rapporto fra la spaziatura davanti e quella dietro vale (c &minus; v)/(c + v) e non dipende da quanti cerchi disegni.",
+    disegno_p2: "Lo schiacciamento a 100 km/h è del 15%: si vede appena, ed è giusto così. Nei libri lo disegnano molto più marcato di com'è. Se lo vuoi vedere davvero grande, usa l'atto 3 e rallenta il suono: lì l'esagerazione è dichiarata.",
+    disegno_p3: "Mentre trascini col dito, la frequenza è calcolata con la versione istantanea della formula. Nel sorpasso automatico, invece, il conto tiene conto del tempo che il suono impiega ad arrivare fino a te: è per questo che nell'istante esatto del sorpasso senti ancora 805,3 Hz e non 800.",
+
+    /* ---- sezione 3: le formule ---- */
+    h_form: "<span class=\"n\">3</span>Le formule, per rifare i conti a mano",
+    form_sotto: "Ti serve solo una calcolatrice. Nessun passaggio è nascosto.",
+
+    f1_summary: "Formula 1 &mdash; la sirena si muove, tu sei fermo<span class=\"piu\">+</span>",
+    f1_pre1: "in avvicinamento\n   <b>f = f0 x c / (c - v)</b>\nin allontanamento\n   <b>f = f0 x c / (c + v)</b>",
+    f1_p1: "<b>f0</b> è la nota vera che la sirena emette, in hertz. Un hertz è un'oscillazione al secondo: qui f0 = 800 Hz. <b>c</b> è la velocità del suono nell'aria, 343 m/s a 20 gradi. <b>v</b> è la velocità dell'ambulanza in metri al secondo; da km/h a m/s si divide per 3,6.",
+    f1_p2: "Guarda dov'è finita la v: al <b>denominatore</b>. È tutta qui la storia di questo esperimento.",
+    f1_p3: "Col caso di partenza (800 Hz, 343 m/s, 100 km/h = 27,778 m/s):",
+    f1_pre2: "c - v = 315,222\n343 / 315,222 = 1,08812   x800 = <b>870,50 Hz</b>\nc + v = 370,778\n343 / 370,778 = 0,92508   x800 = <b>740,07 Hz</b>",
+
+    f2_summary: "Formula 2 &mdash; il salto del sorpasso, in un colpo solo<span class=\"piu\">+</span>",
+    f2_pre1: "   <b>salto = f0 x 2cv / (c^2 - v^2)</b>",
+    f2_p1: "È la differenza fra le due formule di sopra, scritta in un pezzo solo:",
+    f2_pre2: "c/(c-v) - c/(c+v)\n  = c[(c+v) - (c-v)] / [(c-v)(c+v)]\n  = 2cv / (c^2 - v^2)",
+    f2_p2: "Controprova coi numeri di partenza:",
+    f2_pre3: "2 x 343 x 27,778 = 19.055,6\nc^2 - v^2 = 117.649 - 771,6 = 116.877,4\n19.055,6 / 116.877,4 = 0,163039\n0,163039 x 800 = <b>130,43 Hz</b>",
+    f2_p3: "Ed è proprio 870,50 &minus; 740,07.",
+
+    f3_summary: "Formula 3 &mdash; da hertz a semitoni<span class=\"piu\">+</span>",
+    f3_pre1: "   <b>semitoni = 12 x log2(f2 / f1)</b>",
+    f3_p1: "log2(x) è il logaritmo in base 2: sulla calcolatrice del telefono, log(x) diviso log(2). Un semitono è un tasto del pianoforte, contando anche i neri. Dodici semitoni fanno un'ottava.",
+    f3_pre2: "870,50 / 740,07 = 1,17624\nlog2(1,17624) = 0,234172\n0,234172 x 12 = <b>2,810 semitoni</b>",
+    f3_p2: "Per il salto del sorpasso si può scrivere tutto in una riga:",
+    f3_pre3: "   <b>semitoni = 12 x log2[(c + v) / (c - v)]</b>",
+    f3_p3: "f0 è sparita. La sirena può suonare qualunque nota: lo spostamento in semitoni è sempre lo stesso. È per questo che nel 1845, al posto degli strumenti di misura, bastavano dei musicisti.",
+
+    f4_summary: "Formula 4 &mdash; ti muovi tu, la sorgente è ferma<span class=\"piu\">+</span>",
+    f4_pre1: "ti avvicini\n   <b>f = f0 x (c + u) / c</b>\nti allontani\n   <b>f = f0 x (c - u) / c</b>",
+    f4_p1: "Qui la velocità sta al <b>numeratore</b>. Non è la stessa formula di prima. Stessa velocità, stessa aria, stessa nota, risultato diverso:",
+    f4_pre2: "sirena in moto   <b>870,50 Hz</b>\ntu in moto       <b>864,79 Hz</b>\ndifferenza         5,71 Hz",
+    f4_p2: "Cinque hertz e mezzo, un nono di semitono. Non è un arrotondamento: nel primo caso l'onda nell'aria è davvero più corta, nel secondo resta lunga 42,9 cm e sei tu che ne incontri di più al secondo. L'aria fa da arbitro e sa benissimo chi si sta muovendo rispetto a lei.",
+
+    f5_summary: "Formula 5 &mdash; la velocità del suono dipende dalla temperatura<span class=\"piu\">+</span>",
+    f5_pre1: "   <b>c = 331,3 x radice(1 + T/273,15)</b>  m/s",
+    f5_p1: "T in gradi Celsius, aria secca. 273,15 è lo zero assoluto in gradi Celsius, cambiato di segno.",
+    f5_pre2: " 0 gradi  ->  331,3 m/s\n20 gradi  ->  343,2 m/s\n35 gradi  ->  351,9 m/s",
+    f5_p2: "Vale a qualunque quota, purché l'aria sia a quella temperatura: la pressione non entra.",
+    f5_p3: "<b>Assunzione dichiarata.</b> Come riferimento questo esperimento usa il valore tondo da manuale, c = 343 m/s a 20 gradi; la formula qui sopra, a 20 gradi, dà 343,2. Sul salto la differenza è meno di un decimo di hertz: 130,43 contro 130,35. Il numero tondo serve solo a farti rifare i conti a mano senza impazzire.",
+
+    f6_summary: "Formula 6 &mdash; perché tutto succede nell'attimo del sorpasso<span class=\"piu\">+</span>",
+    f6_p1: "Conta solo la parte della velocità puntata verso di te:",
+    f6_pre1: "   <b>v_verso_te = v x x / radice(x^2 + d^2)</b>",
+    f6_p2: "<b>x</b> è di quanti metri l'ambulanza è indietro (negativo) o avanti (positivo) rispetto a te; <b>d</b> è quanti metri sei lontano dalla corsia. Poi si mette v_verso_te al posto di v:",
+    f6_pre2: "   <b>f = f0 x c / (c + v_verso_te)</b>",
+    f6_p3: "Quando ti è di fianco, x = 0, quindi v_verso_te = 0: in quell'istante non si avvicina né si allontana. La picchiata dura all'incirca 2d/v secondi: a 5 metri dalla corsia e a 100 km/h, il 70% del salto ti passa addosso in <b>0,36 secondi</b>.",
+
+    f7_summary: "Formula 7 &mdash; dove il modello si rompe da solo<span class=\"piu\">+</span>",
+    f7_pre1: "numero di Mach:   <b>M = v / c</b>",
+    f7_p1: "Se v = c il denominatore (c &minus; v) diventa zero e la formula dà infinito. In natura non esistono note infinitamente acute: è il modello che ti sta dicendo, da solo, che oltre quel punto non vale più.",
+    f7_p2: "In aria a 20 gradi il punto è 343 m/s, cioè 1235 km/h. Oltre, il fronte d'onda diventa un cono, con semiapertura data da",
+    f7_pre2: "   <b>sin(theta) = c/v = 1/M</b>",
+    f7_p3: "Nell'atto 3 non è l'ambulanza ad accelerare: è il suono che rallenta. Quello che conta è il rapporto v/c, e ci si arriva da tutte e due le parti.",
+
+    /* ---- sezione 4: i casi ---- */
+    h_casi: "<span class=\"n\">4</span>I casi, coi conti già fatti",
+    casi_sotto: "Questa tabella la calcola la pagina, con la velocità del suono che hai scelto tu. Il caso in evidenza è quello selezionato adesso.",
+    th_che_passa: "Che cosa passa",
+    th_kmh: "km/h",
+    th_ms: "m/s",
+    th_avvic: "in avvicinamento",
+    th_allont: "in allontanamento",
+    th_salto: "salto",
+    th_semitoni: "semitoni",
+    lab_salto_asim: "Il salto non è simmetrico",
+    th_hertz: "hertz",
+    th_scarto_hz: "scarto in Hz",
+    th_scarto_semi: "scarto in semitoni",
+    riga_avvic: "in avvicinamento",
+    riga_allont: "in allontanamento",
+    riga_salto_tot: "<b>salto totale</b>",
+    dida_asim: "I due pezzi sommati fanno il salto totale. Il rapporto fra loro è 1,176: lo stesso numero del rapporto fra le due frequenze.",
+    lab_tre_conti: "Tre conti che vale la pena tenere",
+    th_domanda: "Domanda",
+    th_risposta: "Risposta",
+    bb_summary: "Buys Ballot, giugno 1845: il conto regge ancora<span class=\"piu\">+</span>",
+    bb_intro: "Sulla ferrovia fra Utrecht e Maarssen, Buys Ballot mise dei trombettisti su un carro pianale con l'ordine di tenere una nota sola, e altri musicisti a bordo strada a scrivere quale nota sentivano. Niente strumenti di misura: orecchie allenate.",
+    th_calcolo: "calcolo",
+    th_nota_vera: "nota vera",
+    th_scarto: "scarto",
+    bb_dida: "Un sol a 392 Hz, treno a circa 70 km/h, aria di giugno a 15 gradi (c = 340,3 m/s con la Formula 5). Gli scarti sono sotto la soglia dell'orecchio: quello che i musicisti scrissero, un sol diesis e un fa diesis, è esattamente quello che dà la formula.",
+
+    /* ---- sezione 5: provalo col corpo ---- */
+    h_corpo: "<span class=\"n\">5</span>Provalo col corpo",
+    corpo_voce_pre: "<b>Con la voce.</b> Canta una nota. Poi cantala tre tasti di pianoforte più su, quelli neri compresi: da un do a un mi bemolle. Quel salto lì, anzi un pochino meno, è tutto quello che fa l'ambulanza a cento all'ora. Se la nota di partenza fosse 800 Hz, quella di arrivo sarebbe",
+    corpo_voce_post: " hertz.",
+    corpo_tempo: "<b>Col tempo.</b> Fallo in un terzo di secondo. Fra un battito del tuo cuore a riposo e il successivo passa circa un secondo: la picchiata ne occupa poco più di un terzo.",
+    corpo_mani: "<b>Con le mani.</b> Tienile aperte a 39 centimetri: è lunga così l'onda davanti all'ambulanza. Portale a 46: è lunga così dietro. Quella differenza di sette centimetri, la larghezza del tuo palmo, è tutto lo schiacciamento di cui stiamo parlando.",
+
+    /* ---- sezione 6: la sorpresa ---- */
+    h_sor: "<span class=\"n\">6</span>La sorpresa",
+    sor_sotto: "Il salto è molto più piccolo di come lo ricordi. E non è simmetrico.",
+    sor_p1: "A cento all'ora l'ambulanza sposta la nota di <b>2,81 semitoni</b> in tutto: meno di tre tasti di pianoforte. Il «nìii-nòoo» drammatico che hai in testa è per la maggior parte il volume che cresce e cala, non l'altezza che cambia. Qui sopra c'è l'interruttore che toglie il volume e lascia solo la frequenza: quasi nessuno riconosce quello che sente.",
+    sor_p2: "Dentro questa sorpresa ce n'è una seconda, più fine. Non sali di metà e scendi di metà: sali di 1,46 semitoni e scendi di 1,35, settanta hertz in su e solo sessanta in giù. E la ragione non è quella che verrebbe da dire. Le due variazioni del denominatore sono identiche in percentuale: togliere 27,778 da 343 lo fa calare dell'8,098%, aggiungerlo lo fa crescere dell'8,098%. L'asimmetria nasce dopo, nella divisione: dividere per un numero più piccolo fa crescere il risultato più di quanto dividere per un numero altrettanto più grande lo faccia calare, +8,81% contro &minus;7,49%. È il genere di dettaglio che si legge solo rifacendo il conto.",
+    sor_p3: "E se vuoi il salto epico, quello di un'ottava intera, serve che la sorgente corra a un terzo esatto della velocità del suono: <b>411,6 chilometri all'ora</b>. È una frazione pura, non dipende da quanto vale c: da (c+v)/(c&minus;v) = 2 esce 3v = c e basta. Nessuna automobile ci arriva. Un aereo di linea sì.",
+    sor_p4: "L'ultima è la più elegante, e non riguarda l'orecchio ma la matematica. Quando v arriva a 343 m/s il denominatore diventa zero e la formula dà infinito. Quello zero è la formula che ti sta dicendo, da sola, che oltre quel punto non vale più. Doppler la scrive nel 1842. Ernst Mach fotografa l'onda d'urto di un proiettile supersonico nel 1887. Un aereo ci passa attraverso in volo nel 1947. Il denominatore lo aveva annunciato con centocinque anni di anticipo.",
+
+    /* ---- sezione 7: che cosa non dice ---- */
+    h_non: "<span class=\"n\">7</span>Che cosa questo modello non dice",
+    non_sotto: "Non è un'appendice. È la parte in cui l'esperimento ti dice dove finisce.",
+
+    pt1_tit: "<span class=\"nn\">01</span>L'aria non è ferma e non è sempre uguale.",
+    pt1_body: "Col vento la risposta cambia, ma meno di quanto temeresti: con trenta chilometri orari a favore gli 870,5 Hz diventano 868,7, perché il vento sposta insieme il suono e il punto da cui parte, e i due effetti quasi si annullano. La temperatura conta di più: lo stesso sorpasso dà 136,4 Hz di salto a cinque gradi sotto zero e 127,1 a trentacinque, sette per cento di differenza senza che l'ambulanza cambi niente. E il suono in strada non viaggia dritto: gli strati d'aria a temperature diverse lo incurvano, ed è per questo che di notte, quando l'aria fredda sta in basso, senti i treni da molto più lontano.",
+
+    pt2_tit: "<span class=\"nn\">02</span>La sirena non tiene una nota.",
+    pt2_body: "Le sirene vere ondeggiano o alternano due toni, apposta per farsi notare: lo spostamento Doppler si somma a un'altezza che stava già cambiando per conto suo. È esattamente per questo che nel 1845 Buys Ballot mise su un vagone dei trombettisti con l'ordine di tenere una nota sola. Gli 800 Hz fissi di questo esperimento sono una comodità dichiarata, non una sirena reale.",
+
+    pt3_tit: "<span class=\"nn\">03</span>Altezza e frequenza non sono la stessa cosa.",
+    pt3_body: "L'altezza è quello che il tuo cervello ricostruisce, e dipende un poco anche dal volume e dal timbro. Un orecchio allenato distingue variazioni di frequenza dell'ordine di mezzo per cento; il salto della bicicletta è del tre per cento, quindi in teoria udibile, ma nella strada vera è sepolto sotto il cambiamento di volume.",
+
+    pt4_tit: "<span class=\"nn\">04</span>Dove il modello si rompe davvero.",
+    pt4_body: "Sopra i 343 m/s la Formula 1 dà numeri negativi, che non significano niente. Non è che la fisica finisca: è che queste equazioni assumono che il suono sia una piccola increspatura dell'aria, e a quelle velocità l'increspatura non è più piccola. Diventa un'onda d'urto, e serve una matematica diversa. La formula non ti dice cosa succede oltre il muro del suono. Ti dice soltanto, onestamente, che lei lì si ferma.",
+
+    pt5_tit: "<span class=\"nn\">05</span>Con la luce la faccenda cambia natura.",
+    pt5_body: "Per il suono conta chi si muove rispetto all'aria, e infatti muovere la sorgente dà 870,50 Hz mentre muovere te ne dà 864,79. Per la luce non c'è nessun'aria: conta soltanto la velocità relativa, e la formula è un'altra, con una radice quadrata dentro. In più la luce ha un effetto che il suono non ha proprio: una sorgente che ti passa esattamente di fianco ti manda comunque luce più rossa del dovuto. Nel suono, in quell'istante, senti la nota vera. Con la luce no. Quel pezzo in più si chiama Doppler trasversale, viene dalla dilatazione del tempo, e Ives e Stilwell lo misurarono nel 1938.",
+
+    pt6_tit: "<span class=\"nn\">06</span>Quello che nessuno oggi sa.",
+    pt6_body: "Se porti la stessa aritmetica sulle galassie lontane, la loro luce arriva spostata verso il rosso tanto più quanto sono distanti: è la legge di Hubble, e da lì si misura la velocità di espansione dell'universo. Due avvertenze. La prima riguarda le parole. Di solito lo si racconta così: non sono le galassie a correre attraverso lo spazio, è lo spazio stesso a distendersi e a stirare l'onda mentre viaggia. È un racconto comodo e diffuso, ma non è un fatto misurabile a parte: in relatività generale stabilire \"di chi è il movimento\" dipende da come si scelgono le coordinate, e lo stesso rossore si ottiene anche sommando tanti piccoli spostamenti Doppler lungo il cammino della luce. Quello che si misura è il rossore; la storia che gli si mette attorno è linguaggio, e conviene sapere quando si sta usando l'uno e quando l'altra. La seconda riguarda il numero: il valore della costante di Hubble oggi non è deciso. Dalla luce dell'universo primordiale si ottiene 67,4 ± 0,5 chilometri al secondo per megaparsec; dalle stelle vicine e dalle supernove circa 73,0 ± 1,0. Le due misure non si toccano. Il telescopio spaziale James Webb ha rimisurato quelle stelle, e il risultato dipende da quale indicatore di distanza si usa: le misure basate sulle Cefeidi continuano a dare il valore alto, altre basate su tipi di stelle diversi danno valori più vicini a quello dell'universo primordiale. La questione non è chiusa, e non c'è ancora accordo nemmeno su quale delle misure locali sia da preferire.",
+
+    pt7_tit: "<span class=\"nn\">07</span>E la lezione più utile viene dall'uomo che ha scritto la formula.",
+    pt7_body: "Doppler la pubblicò nel 1842 per spiegare perché certe stelle appaiono rosse e certe altre azzurre. La formula era giusta. La spiegazione era sbagliata di un fattore duemilaquattrocento, e bastava fare il conto per accorgersene. Per spostare la luce dal verde (550 nanometri) al rosso (700) servono circa <b>71.000 chilometri al secondo</b>: z = 700/550 &minus; 1 = 0,273, e da (1+z)² = (1+β)/(1&minus;β) esce β = 0,2366. Le stelle si muovono a qualche decina di chilometri al secondo, β = 0,0001. Si può avere ragione sulla matematica e torto su cosa se ne fa.",
+
+    avviso_txt: "<b>Una cosa che questa pagina non fa.</b> Non misura niente. Calcola. Se vuoi una misura vera ti serve un microfono, un veicolo che tiene una nota sola e un modo per sapere quanto va forte: allora il confronto fra il tuo numero e questo qui diventa interessante.",
+
+    /* ---- footer ---- */
+    footer_p1: "Esperimento 2 di dieci. Fisica standard, niente di originale: Doppler 1842, verifica di Buys Ballot 1845, fotografia dell'onda d'urto di Mach 1887, Doppler trasversale di Ives e Stilwell 1938.",
+    footer_p2: "Costanti usate: 331,3 m/s (aria a 0 gradi), 273,15, 3,6 (da km/h a m/s), 1,059463 (rapporto di un semitono), 12 semitoni per ottava. Valori di partenza: 800 Hz, 100 km/h, 5 metri, 20 gradi. Nient'altro.",
+
+    /* ---- scheda del salto (inserita via JS) ---- */
+    salto_card_lab: "Il salto del sorpasso, a distanza zero dalla corsia",
+    salto_tit_sorgente: "si muove la sirena, formula 1",
+    salto_tit_osservatore: "ti muovi tu, formula 4",
+    salto_q_avvic: "in avvicinamento",
+    salto_q_allont: "in allontanamento",
+    salto_q_totale: "salto totale",
+    salto_q_semitoni: "salto in semitoni",
+    salto_dida: "Sono i valori di riferimento, quelli che si rifanno a mano con la Formula 1. Passando a 2, 5 o 20 metri dalla corsia non li tocchi mai davvero: più sei lontano, meno ci arrivi vicino.",
+
+    /* ---- chip: veicoli ---- */
+    veic_bici_n: "Bicicletta in discesa", veic_bici_e: "20 km/h",
+    veic_amb50_n: "Ambulanza nel traffico", veic_amb50_e: "50 km/h",
+    veic_amb100_n: "Ambulanza in tangenziale", veic_amb100_e: "100 km/h",
+    veic_frecciarossa_n: "Frecciarossa in linea", veic_frecciarossa_e: "300 km/h",
+    veic_record_n: "Treno del record, 2007", veic_record_e: "574,8 km/h",
+
+    /* ---- chip: posizioni ---- */
+    pos_bordo_n: "Bordo del marciapiede", pos_bordo_e: "2 metri",
+    pos_fondo_n: "Fondo del marciapiede", pos_fondo_e: "5 metri",
+    pos_balcone_n: "Balcone del secondo piano", pos_balcone_e: "20 metri",
+
+    /* ---- chip: chi si muove ---- */
+    chi_sirena_n: "Si muove la sirena", chi_sirena_e: "formula 1",
+    chi_tu_n: "Ti muovi tu", chi_tu_e: "formula 4",
+
+    /* ---- chip: velocità del suono ---- */
+    suono_aria_n: "Aria vera", suono_aria_e: "343 m/s",
+    suono_lento_n: "Lento",
+    suono_100_e: "100 m/s", suono_50_e: "50 m/s", suono_40_e: "40 m/s", suono_30_e: "30 m/s",
+    suono_come_veicolo_n: "Come il veicolo", suono_come_veicolo_e: "c = v",
+    suono_lentissimo_n: "Lentissimo", suono_25_e: "25 m/s",
+
+    /* ---- chip: rallentatore ---- */
+    rall_suono_acceso: "suono acceso",
+    rall_cerchi_accesi: "cerchi accesi",
+
+    /* ---- frammenti dinamici: scena ---- */
+    dida_supersonico: "M = {0} ≥ 1: la Formula 1 qui non dice più niente, e infatti il numero è un trattino. Premi PASSA: il veicolo corre davanti al proprio suono e i fronti si dispongono in un cono di semiapertura {1} gradi.",
+    dida_suono_lento: "Suono rallentato a {0} m/s: non è aria vera, è un mondo immaginario. Il veicolo non ha cambiato velocità: è il rapporto v/c a essere cresciuto, e conta solo quello.",
+    dida_osservatore: "La sirena è ferma: i cerchi restano concentrici e larghi uguali, {0} cm da tutte le parti. Sei tu che ne incontri di più al secondo, ed è per questo che il numero non torna uguale al caso di prima.",
+    dida_normale: "I cerchi davanti sono più stretti del 15%. Sembra poco perché è poco: v/c vale {0}.",
+
+    riga_stato_base: "velocità <b>{0} km/h</b> = <b>{1} m/s</b> &middot; suono <b>{2} m/s</b> &middot; Mach <b>{3}</b> &middot; distanza dalla corsia <b>{4} m</b> &middot; ora ti dista <b>{5} m</b>",
+    riga_stato_tu_muovi: " &middot; <b>ti muovi tu</b>",
+    riga_stato_in_corsa: " &middot; <b>in corsa</b>",
+    riga_stato_trascinamento: " &middot; <b>trascinamento: {0} km/h</b>",
+
+    live_fmt: "{0} hertz, {1} semitoni",
+    live_fuori_range: "fuori dal campo di validità della formula",
+
+    /* ---- canvas: scena (testo disegnato, niente entità HTML) ---- */
+    canvas_d_label: "d = {0} m",
+    canvas_barra_m: "{0} m",
+    canvas_sirena_muove: "SI MUOVE LA SIRENA",
+    canvas_tu_muovi: "TI MUOVI TU",
+    canvas_cerchi_spenti_corto: "cerchi spenti: troppo veloci",
+    canvas_cerchi_spenti_lungo: "cerchi spenti: a velocità normale attraversano lo schermo in 1/3 di secondo",
+    canvas_cono: "CONO  sinθ = c/v = {0}",
+    canvas_tu: "TU",
+    canvas_tu_moto: "TU, IN MOTO",
+
+    /* ---- unità di misura (frammenti riusabili) ---- */
+    u_hz: "Hz", u_kmh: "km/h", u_ms: "m/s", u_cm: "cm", u_m: "m", u_s_abbr: "s",
+    u_semitoni: "semitoni", u_gradi: "gradi", u_metri: "metri", u_c: "°C",
+
+    /* ---- tabelle: casi ---- */
+    row_supersonico: "M = {0}, la formula qui si ferma",
+    tab_nota_main: "Nota vera 800 Hz, velocità del suono {0} m/s{1}. L'ambulanza in tangenziale va cinque volte la bicicletta e il suo salto è cinque volte tanto, 25,92 contro 130,43 Hz: finché v resta molto minore di c, la Formula 2 è quasi una proporzione diretta. Il Frecciarossa rompe la proporzione, e si vede.",
+    tab_nota_suffix_tondo: " (valore tondo da manuale, aria a 20 gradi)",
+    tab_nota_suffix_formula5: " (Formula 5, aria a {0} gradi)",
+    tab_nota_suffix_rallentato: " (suono rallentato: mondo immaginario)",
+    asim_supersonico: "{0} il veicolo corre quanto o più del suono: qui la formula non vale.",
+
+    extra1_q: "Muovere la sirena, oppure muoverti tu: stessa velocità, stesso risultato?",
+    extra1_a: "no: {0} Hz contro {1} Hz, {2} Hz di differenza",
+    extra2_q: "In semitoni però il salto è lo stesso nei due casi",
+    extra2_a: "{0} e {1}: (c+v)/(c−v) è identico",
+    extra3_q: "Che velocità serve per un’ottava intera, cioè (c+v)/(c−v) = 2",
+    extra3_a: "{0} m/s = {1} km/h, un terzo esatto di c",
+    extra4_q: "Quanto dura la picchiata, 2d/v",
+    extra4_a: "{0} s a {1} m dalla corsia",
+    extra5_q: "Quando parte il suono che senti nell’istante del sorpasso",
+    extra5_a: "{0} ms prima; per questo in quell’istante senti ancora {1} Hz e non 800",
+    extra6_q: "Dove si rompe il modello",
+    extra6_a: "v = c = {0} m/s, cioè {1} km/h",
+
+    nota_temp_aria: "Aria a {0} gradi, c = <b>{1} m/s</b>. Lo stesso sorpasso a 100 km/h dà un salto di {2} Hz a cinque gradi sotto zero e {3} Hz a trentacinque: sette per cento di differenza, e l’ambulanza non ha cambiato niente.",
+    nota_temp_disattivata: "La temperatura è disattivata: stai usando una velocità del suono inventata, {0} m/s.",
+
+    bb_arrivo: "in arrivo",
+    bb_fuga: "in fuga",
+    bb_sol_diesis: "sol diesis, {0} Hz",
+    bb_fa_diesis: "fa diesis, {0} Hz"
+  }
+};
+TESTI.en = JSON.parse(JSON.stringify(TESTI.it));  // PENDING: traduzione richiesta, non ancora arrivata
+/* English: reviewed translation merged from the lab translation pass. Keys not listed here fall back to the Italian text. */
+Object.assign(TESTI.en, {"header_kicker": "Physics laboratory · experiment 2", "header_h1": "How much does<span class=\"riga2\">the ambulance note jump<\/span>", "header_occhiello": "Take the ambulance with your finger and move it. The pitch follows you. Then let it really pass and watch how much the note jumps: much less than you have in mind.", "header_meta": "Acoustic Doppler effect · <b>Christian Doppler, Prague, 1842<\/b><br> First field test: <b>Christophorus Buys Ballot<\/b>, Utrecht–Maarssen railway, June 1845 (the February attempt was abandoned because of hail and snow)", "h_scena": "<span class=\"n\">1<\/span>The road, seen from above", "scena_sotto": "You are the figure standing still on the pavement. The ambulance holds a single note, 800 hertz.", "dida_traccia": "The curve of each pass stays drawn. Change the distance, pass again, and compare: the dive at 2 metres and the one at 20 metres arrive at the same point, but with two different slopes.", "h_com": "<span class=\"n\">2<\/span>The controls", "atto1_p": "Put your finger on the ambulance and move it back and forth along the lane. Towards you the sound rises, away from you it falls, with your finger still the note goes back to where it was. From the keyboard: left and right arrows.", "lab_che_passa": "What passes", "btn_passa": "PASS", "btn_vol_on": "Realistic volume", "btn_pulisci": "Clear the traces", "nota_vol_on": "The volume that rises and falls is on: it is the “nee-naw” you have in your head. Turn it off and only the change of pitch remains.", "dida_rallentatore": "In slow motion the audio is switched off on purpose: slowing time would also lower the frequency, and you would hear something that has nothing to do with Doppler. At normal speed, on the other hand, the circles are switched off: they travel at 343 metres per second and cross the screen in a third of a second.", "btn_audio_off": "Turn the sound on", "dida_volume_iniziale": "The volume starts at a third. With headphones, turn it down before switching on. The whole experiment can be understood with the sound off: the numbers and the circles are enough.", "atto3_p": "Change how fast sound travels in this imaginary world and watch the circles pile up in front of the vehicle. When the speed of sound drops to that of the ambulance, the denominator <b>c − v<\/b> becomes zero and the number turns into a dash.", "disegno_p1": "The circles you see are much more widely spaced than the real wavefronts: the siren emits 800 a second, here we draw one every 0.12 seconds. The drawing is still exact, because the ratio between the spacing in front and behind is (c − v)/(c + v) and does not depend on how many circles you draw.", "disegno_p2": "The squeezing at 100 km/h is 15%: it barely shows, and that is right. Textbooks draw it much more marked than it is. If you want to see it really large, use act 3 and slow the sound: there the exaggeration is declared.", "disegno_p3": "While you drag with your finger, the frequency is calculated with the instantaneous version of the formula. In the automatic pass, however, the calculation takes into account the time the sound takes to reach you: that is why at the exact moment of passing you still hear 805.3 Hz and not 800.", "h_form": "<span class=\"n\">3<\/span>The formulas, to redo the calculations by hand", "form_sotto": "You only need a calculator. No step is hidden.", "f1_summary": "Formula 1 — the siren moves, you stand still<span class=\"piu\">+<\/span>", "f1_p1": "<b>f0<\/b> is the real note emitted by the siren, in hertz. One hertz is one oscillation per second: here f0 = 800 Hz. <b>c<\/b> is the speed of sound in air, 343 m/s at 20 degrees. <b>v<\/b> is the speed of the ambulance in metres per second; to convert from km/h to m/s, divide by 3.6.", "f1_p2": "Look where v has ended up: in the <b>denominator<\/b>. That is the whole story of this experiment.", "f1_p3": "With the starting case (800 Hz, 343 m/s, 100 km/h = 27.778 m/s):", "f2_summary": "Formula 2 — the jump of the pass, all in one go<span class=\"piu\">+<\/span>", "f2_p1": "It is the difference between the two formulas above, written in one piece:", "f2_p2": "Check with the starting numbers:", "f2_p3": "And it is exactly 870.50 − 740.07.", "f3_summary": "Formula 3 — from hertz to semitones<span class=\"piu\">+<\/span>", "f3_p1": "log2(x) is the base-2 logarithm: on a phone calculator, log(x) divided by log(2). A semitone is one key of the piano, counting the black ones too. Twelve semitones make an octave.", "f3_p2": "For the jump of the pass the whole thing can be written in one line:", "f3_p3": "f0 has disappeared. The siren can play any note: the shift in semitones is always the same. That is why in 1845, instead of measuring instruments, musicians were enough.", "f4_summary": "Formula 4 — you move, the source is still<span class=\"piu\">+<\/span>", "f4_p1": "Here the speed is in the <b>numerator<\/b>. It is not the same formula as before. Same speed, same air, same note, different result:", "f4_p2": "Five and a half hertz, a ninth of a semitone. It is not a rounding: in the first case the wave in the air really is shorter, in the second it stays 42.9 cm long and you are the one meeting more of them per second. The air acts as referee and knows perfectly well who is moving relative to it.", "f5_summary": "Formula 5 — the speed of sound depends on temperature<span class=\"piu\">+<\/span>", "f5_p1": "T in degrees Celsius, dry air. 273.15 is absolute zero in degrees Celsius, with the sign changed.", "f5_p2": "It holds at any altitude, as long as the air is at that temperature: pressure does not enter.", "f5_p3": "<b>Declared assumption.<\/b> As a reference this experiment uses the round textbook value, c = 343 m/s at 20 degrees; the formula above, at 20 degrees, gives 343.2. On the jump the difference is less than a tenth of a hertz: 130.43 against 130.35. The round number is there only so that you can redo the calculations by hand without going mad.", "f6_summary": "Formula 6 — why everything happens at the moment of passing<span class=\"piu\">+<\/span>", "f6_p1": "Only the part of the speed pointing towards you counts:", "f6_p2": "<b>x<\/b> is how many metres the ambulance is behind (negative) or ahead (positive) of you; <b>d<\/b> is how many metres you are from the lane. Then v_towards_you is put in place of v:", "f6_p3": "When it is beside you, x = 0, so v_towards_you = 0: at that instant it is neither approaching nor receding. The dive lasts roughly 2d/v seconds: at 5 metres from the lane and 100 km/h, 70% of the jump passes over you in <b>0.36 seconds<\/b>.", "f7_summary": "Formula 7 — where the model breaks down by itself<span class=\"piu\">+<\/span>", "f7_p1": "If v = c the denominator (c − v) becomes zero and the formula gives infinity. In nature there are no infinitely high notes: it is the model telling you, on its own, that beyond that point it no longer holds.", "f7_p2": "In air at 20 degrees the point is 343 m/s, that is 1235 km/h. Beyond it, the wavefront becomes a cone, with a half-angle given by", "f7_p3": "In act 3 it is not the ambulance that accelerates: it is the sound that slows down. What counts is the ratio v/c, and you reach it from both sides.", "h_casi": "<span class=\"n\">4<\/span>The cases, with the calculations already done", "casi_sotto": "This table is calculated by the page, with the speed of sound you have chosen. The highlighted case is the one selected now.", "th_che_passa": "What passes", "th_kmh": "km/h", "th_ms": "m/s", "th_avvic": "approaching", "th_allont": "receding", "th_salto": "jump", "th_semitoni": "semitones", "th_hertz": "hertz", "th_scarto_hz": "difference in Hz", "th_scarto_semi": "difference in semitones", "riga_avvic": "approaching", "riga_allont": "receding", "riga_salto_tot": "<b>total jump<\/b>", "dida_asim": "The two pieces added together make the total jump. The ratio between them is 1.176: the same number as the ratio between the two frequencies.", "th_domanda": "Question", "th_risposta": "Answer", "bb_summary": "Buys Ballot, June 1845: the calculation still holds<span class=\"piu\">+<\/span>", "bb_intro": "On the railway between Utrecht and Maarssen, Buys Ballot put trumpeters on a flat wagon with the instruction to hold a single note, and other musicians along the trackside to write down which note they heard. No measuring instruments: trained ears.", "th_calcolo": "calculation", "th_nota_vera": "true note", "th_scarto": "difference", "bb_dida": "A G at 392 Hz, a train at about 70 km/h, June air at 15 degrees (c = 340.3 m/s with Formula 5). The differences are below the threshold of the ear: what the musicians wrote down, a G sharp and an F sharp, is exactly what the formula gives.", "h_corpo": "<span class=\"n\">5<\/span>Try it with your body", "corpo_tempo": "<b>With time.<\/b> Do it in a third of a second. Between one beat of your resting heart and the next about a second passes: the dive takes a little over a third of it.", "corpo_mani": "<b>With your hands.<\/b> Keep them open 39 centimetres apart: that is how long the wave in front of the ambulance is. Move them to 46: that is how long the wave behind is. That difference of seven centimetres, the width of your palm, is the whole squeezing we are talking about.", "h_sor": "<span class=\"n\">6<\/span>The surprise", "sor_sotto": "The jump is much smaller than you remember. And it is not symmetrical.", "sor_p1": "At a hundred an hour the ambulance shifts the note by <b>2.81 semitones<\/b> in all: less than three piano keys. The dramatic “nee-naw” you have in your head is mostly the volume that rises and falls, not the pitch that changes. Above there is the switch that removes the volume and leaves only the frequency: almost no one recognises what they hear.", "sor_p2": "Inside this surprise there is a second, subtler one. You do not go up by half and come down by half: you go up 1.46 semitones and come down 1.35, seventy hertz up and only sixty down. And the reason is not the one you would guess. The two changes of the denominator are identical in percentage: taking 27.778 away from 343 lowers it by 8.098%, adding it raises it by 8.098%. The asymmetry comes afterwards, in the division: dividing by a smaller number makes the result grow more than dividing by an equally larger number makes it fall, +8.81% against −7.49%. It is the kind of detail you only see by redoing the calculation.", "sor_p3": "And if you want the epic jump, that of a whole octave, the source has to run at exactly one third of the speed of sound: <b>411.6 kilometres per hour<\/b>. It is a pure fraction, it does not depend on how big c is: from (c+v)/(c−v) = 2 you get 3v = c and that is all. No car reaches it. A passenger airliner does.", "sor_p4": "The last one is the most elegant, and it concerns not the ear but mathematics. When v reaches 343 m/s the denominator becomes zero and the formula gives infinity. That zero is the formula telling you, on its own, that beyond that point it no longer holds. Doppler wrote it in 1842. Ernst Mach photographed the shock wave of a supersonic bullet in 1887. An aircraft passed through it in flight in 1947. The denominator had announced it one hundred and five years in advance.", "h_non": "<span class=\"n\">7<\/span>What this model does not say", "non_sotto": "It is not an appendix. It is the part where the experiment tells you where it ends.", "salto_q_avvic": "approaching", "salto_q_allont": "receding", "salto_dida": "These are the reference values, the ones you redo by hand with Formula 1. Passing at 2, 5 or 20 metres from the lane you never really touch them: the farther away you are, the less close you get to them.", "veic_bici_n": "Bicycle going downhill", "veic_amb50_n": "Ambulance in traffic", "veic_amb100_n": "Ambulance on the ring road", "veic_frecciarossa_n": "High-speed train on the line", "veic_record_n": "Record train, 2007", "u_kmh": "km/h", "u_ms": "m/s", "u_semitoni": "semitones", "extra1_q": "Moving the siren, or moving yourself: same speed, same result?", "extra2_q": "In semitones, however, the jump is the same in both cases", "extra3_q": "What speed is needed for a whole octave, that is (c+v)/(c−v) = 2", "extra4_q": "How long the dive lasts, 2d/v", "extra5_q": "When the sound you hear at the moment of passing was emitted", "extra6_q": "Where the model breaks", "bb_arrivo": "approaching", "bb_fuga": "receding", "q_stai_sentendo": "you are hearing now", "q_scarto_nota": "offset from the true note, 800 Hz", "q_onda_davanti": "wave ahead of the vehicle", "q_onda_dietro": "wave behind the vehicle", "lab_traccia": "Trace: frequency over time", "aria_traccia": "Graph of the frequency as a function of time during the pass.", "atto1": "Act 1 &mdash; drag", "atto2": "Act 2 &mdash; the real overtake", "lab_dove_sei": "Where you are", "lab_chi_muove": "Who moves", "btn_vol_off": "Constant volume", "lab_rallentatore": "Slow motion", "btn_audio_on": "Turn the sound off", "aria_volume": "Volume", "atto3": "Act 3 &mdash; slow the sound down", "lab_temperatura": "Air temperature (Formula 5)", "lab_come_disegnato": "How it is drawn", "f1_pre1": "approaching\n   <b>f = f0 x c / (c - v)<\/b>\nreceding\n   <b>f = f0 x c / (c + v)<\/b>", "f2_pre1": "   <b>jump = f0 x 2cv / (c^2 - v^2)<\/b>", "f3_pre1": "   <b>semitones = 12 x log2(f2 / f1)<\/b>", "f3_pre2": "870.50 / 740.07 = 1.17624\nlog2(1.17624) = 0.234172\n0.234172 x 12 = <b>2.810 semitones<\/b>", "f3_pre3": "   <b>semitones = 12 x log2[(c + v) / (c - v)]<\/b>", "f4_pre1": "you approach\n   <b>f = f0 x (c + u) / c<\/b>\nyou recede\n   <b>f = f0 x (c - u) / c<\/b>", "f4_pre2": "siren moving   <b>870.50 Hz<\/b>\nyou moving     <b>864.79 Hz<\/b>\ndifference         5.71 Hz", "f5_pre1": "   <b>c = 331.3 x sqrt(1 + T/273.15)<\/b>  m/s", "f5_pre2": " 0 degrees  ->  331.3 m/s\n20 degrees  ->  343.2 m/s\n35 degrees  ->  351.9 m/s", "f6_pre1": "   <b>v_toward_you = v x x / sqrt(x^2 + d^2)<\/b>", "f6_pre2": "   <b>f = f0 x c / (c + v_toward_you)<\/b>", "f7_pre1": "Mach number:   <b>M = v / c<\/b>", "f7_pre2": "   <b>sin(theta) = c/v = 1/M<\/b>", "lab_salto_asim": "The jump is not symmetric", "lab_tre_conti": "Three calculations worth keeping", "corpo_voce_post": " hertz.", "pt1_tit": "<span class=\"nn\">01<\/span>The air is neither still nor always the same.", "pt2_tit": "<span class=\"nn\">02<\/span>The siren does not hold one note.", "pt3_tit": "<span class=\"nn\">03<\/span>Pitch and frequency are not the same thing.", "pt4_tit": "<span class=\"nn\">04<\/span>Where the model really breaks.", "pt5_tit": "<span class=\"nn\">05<\/span>With light the matter changes nature.", "pt6_tit": "<span class=\"nn\">06<\/span>What nobody knows today.", "pt7_tit": "<span class=\"nn\">07<\/span>And the most useful lesson comes from the man who wrote the formula.", "salto_card_lab": "The overtake jump, at zero distance from the lane", "salto_tit_sorgente": "the siren moves, formula 1", "salto_tit_osservatore": "you move, formula 4", "salto_q_totale": "total jump", "salto_q_semitoni": "jump in semitones", "pos_bordo_n": "Kerb of the pavement", "pos_bordo_e": "2 metres", "pos_fondo_n": "Back of the pavement", "pos_fondo_e": "5 metres", "pos_balcone_n": "Second-floor balcony", "pos_balcone_e": "20 metres", "chi_sirena_n": "The siren moves", "chi_sirena_e": "formula 1", "chi_tu_n": "You move", "chi_tu_e": "formula 4", "suono_aria_n": "Real air", "suono_lento_n": "Slow", "suono_come_veicolo_n": "Same as the vehicle", "suono_lentissimo_n": "Very slow", "rall_suono_acceso": "sound on", "rall_cerchi_accesi": "circles on", "dida_normale": "The circles in front are 15% closer together. It looks like little because it is little: v/c is {0}.", "riga_stato_tu_muovi": " &middot; <b>you move<\/b>", "riga_stato_in_corsa": " &middot; <b>running<\/b>", "riga_stato_trascinamento": " &middot; <b>dragging: {0} km/h<\/b>", "live_fmt": "{0} hertz, {1} semitones", "live_fuori_range": "outside the range where the formula is valid", "canvas_sirena_muove": "THE SIREN MOVES", "canvas_tu_muovi": "YOU MOVE", "canvas_cerchi_spenti_corto": "circles off: too fast", "canvas_cerchi_spenti_lungo": "circles off: at normal speed they cross the screen in 1/3 of a second", "canvas_cono": "CONE  sinθ = c/v = {0}", "canvas_tu_moto": "YOU, MOVING", "u_gradi": "degrees", "u_metri": "metres", "row_supersonico": "M = {0}, the formula stops here", "tab_nota_suffix_tondo": " (round textbook value, air at 20 degrees)", "tab_nota_suffix_formula5": " (Formula 5, air at {0} degrees)", "tab_nota_suffix_rallentato": " (sound slowed down: imaginary world)", "asim_supersonico": "{0} the vehicle goes as fast as the sound or faster: here the formula does not apply.", "extra1_a": "no: {0} Hz against {1} Hz, a difference of {2} Hz", "extra2_a": "{0} and {1}: (c+v)/(c−v) is identical", "extra3_a": "{0} m/s = {1} km/h, exactly a third of c", "extra4_a": "{0} s at {1} m from the lane", "extra5_a": "{0} ms earlier; that is why at that instant you still hear {1} Hz and not 800", "extra6_a": "v = c = {0} m/s, i.e. {1} km/h", "nota_temp_disattivata": "Temperature is switched off: you are using an invented speed of sound, {0} m/s.", "bb_sol_diesis": "G sharp, {0} Hz", "bb_fa_diesis": "F sharp, {0} Hz", "aria_scena": "Road seen from above with the ambulance, the sound wavefronts and your position on the pavement. Drag it with your finger, or use the left and right arrow keys.", "f1_pre2": "c - v = 315.222\n343 / 315.222 = 1.08812   x800 = <b>870.50 Hz<\/b>\nc + v = 370.778\n343 / 370.778 = 0.92508   x800 = <b>740.07 Hz<\/b>", "f2_pre3": "2 x 343 x 27.778 = 19,055.6\nc^2 - v^2 = 117,649 - 771.6 = 116,877.4\n19,055.6 / 116,877.4 = 0.163039\n0.163039 x 800 = <b>130.43 Hz<\/b>", "riga_stato_base": "speed <b>{0} km/h<\/b> = <b>{1} m/s<\/b> &middot; sound <b>{2} m/s<\/b> &middot; Mach <b>{3}<\/b> &middot; distance from the lane <b>{4} m<\/b> &middot; you are now <b>{5} m<\/b> away", "canvas_tu": "YOU", "veic_record_e": "574.8 km/h"});
+TESTI.fr = JSON.parse(JSON.stringify(TESTI.it));  // PENDING
+TESTI.es = JSON.parse(JSON.stringify(TESTI.it));  // PENDING
+TESTI.de = JSON.parse(JSON.stringify(TESTI.it));  // PENDING
+
+window.__LINGUE = ['it', 'en', 'fr', 'es', 'de'];
+var LANG = 'en';
+
+function T(key){
+  if (TESTI[LANG] && TESTI[LANG][key] !== undefined) return TESTI[LANG][key];
+  return TESTI.it[key] !== undefined ? TESTI.it[key] : '';
+}
+function fmt(key, vals){
+  var s = T(key);
+  for (var i = 0; i < vals.length; i++) s = s.split('{' + i + '}').join(vals[i]);
+  return s;
+}
+function applyI18n(){
+  var nodi = document.querySelectorAll('[data-i18n]');
+  for (var i = 0; i < nodi.length; i++){
+    var k = nodi[i].getAttribute('data-i18n');
+    var v = T(k);
+    if (v) nodi[i].innerHTML = v;
+  }
+  var nodiAria = document.querySelectorAll('[data-i18n-aria]');
+  for (var j = 0; j < nodiAria.length; j++){
+    var ka = nodiAria[j].getAttribute('data-i18n-aria');
+    var va = T(ka);
+    if (va) nodiAria[j].setAttribute('aria-label', va);
+  }
+}
+function refreshEtichetteStato(){
+  if ($('btnVol')){
+    $('btnVol').textContent = S.volReale ? T('btn_vol_on') : T('btn_vol_off');
+  }
+  if ($('notaVol')){
+    $('notaVol').innerHTML = S.volReale ? T('nota_vol_on') : T('nota_vol_off');
+  }
+  if ($('btnAudio')){
+    $('btnAudio').textContent = S.audio ? T('btn_audio_on') : T('btn_audio_off');
+  }
+}
+function setLang(l){
+  if (!TESTI[l]) return;
+  LANG = l;
+  applyI18n();
+  buildAllChips();
+  refreshEtichetteStato();
+  aggiornaTabelle();
+  aggiornaChips();
+}
+window.setLang = setLang;
+
+/* =======================================================================
+   STATO
+   ======================================================================= */
+var S = {
+  f0: 800,
+  vKmh: 100,
+  d: 5,
+  temp: 20,
+  cSel: 'aria',          /* 'aria' | numero | 'veicolo' */
+  modo: 'sorgente',      /* 'sorgente' | 'osservatore' */
+  volReale: true,
+  slow: 20,
+  audio: false,
+  t: 0,                  /* tempo simulato, secondi */
+  passa: false,
+  tPassa: 0,
+  srcX: -40,
+  obsX: -40,
+  fronti: [],
+  ultimoFronte: -99,
+  tracce: [],
+  traccia: null,
+  drag: false,
+  buf: [],
+  fLive: 800,
+  vIst: 0
+};
+
+var VEICOLI = [
+  { nk: 'veic_bici_n', ek: 'veic_bici_e', k: 20 },
+  { nk: 'veic_amb50_n', ek: 'veic_amb50_e', k: 50 },
+  { nk: 'veic_amb100_n', ek: 'veic_amb100_e', k: 100 },
+  { nk: 'veic_frecciarossa_n', ek: 'veic_frecciarossa_e', k: 300 },
+  { nk: 'veic_record_n', ek: 'veic_record_e', k: 574.8 }
+];
+var POSIZIONI = [
+  { nk: 'pos_bordo_n', ek: 'pos_bordo_e', d: 2 },
+  { nk: 'pos_fondo_n', ek: 'pos_fondo_e', d: 5 },
+  { nk: 'pos_balcone_n', ek: 'pos_balcone_e', d: 20 }
+];
+var SUONI = [
+  { nk: 'suono_aria_n', ek: 'suono_aria_e', v: 'aria' },
+  { nk: 'suono_lento_n', ek: 'suono_100_e', v: 100 },
+  { nk: 'suono_lento_n', ek: 'suono_50_e', v: 50 },
+  { nk: 'suono_lento_n', ek: 'suono_40_e', v: 40 },
+  { nk: 'suono_lento_n', ek: 'suono_30_e', v: 30 },
+  { nk: 'suono_come_veicolo_n', ek: 'suono_come_veicolo_e', v: 'veicolo' },
+  { nk: 'suono_lentissimo_n', ek: 'suono_25_e', v: 25 }
+];
+var TEMPERATURE = [-5, 0, 15, 20, 35];
+var RALLENTA = [
+  { n: '1x', ek: 'rall_suono_acceso', v: 1 },
+  { n: '1/20', ek: 'rall_cerchi_accesi', v: 20 },
+  { n: '1/100', ek: 'rall_cerchi_accesi', v: 100 }
+];
+
+function vMS(){ return S.vKmh / 3.6; }
+function cNow(){
+  if (S.cSel === 'aria') return (S.temp === 20) ? C_RIF : cAria(S.temp);
+  if (S.cSel === 'veicolo') return vMS();
+  return S.cSel;
+}
+function supersonico(){ return vMS() >= cNow(); }
+function ariaVera(){ return S.cSel === 'aria'; }
+/* da quanto lontano parte il sorpasso: non piu di 3 secondi di corsa,
+   cosi anche la bicicletta arriva senza farti aspettare mezzo minuto */
+function corsaX0(){
+  return Math.min(estensione() * 0.48, Math.max(25, vMS() * 3));
+}
+
+/* =======================================================================
+   FORMATTAZIONE
+   ======================================================================= */
+function num(x, n){
+  if (!isFinite(x)) return '—';
+  var s = Math.abs(x) >= 1000
+    ? x.toLocaleString('en-US', { minimumFractionDigits: n, maximumFractionDigits: n })
+    : x.toFixed(n);
+  return s;
+}
+function segno(x, n){
+  if (!isFinite(x)) return '—';
+  return (x >= 0 ? '+' : '−') + num(Math.abs(x), n);
+}
+var TRATTINO = '—';
+
+/* =======================================================================
+   DOM
+   ======================================================================= */
+var $ = function(id){ return document.getElementById(id); };
+var cvS = $('scena'), ctxS = cvS.getContext('2d');
+var cvT = $('traccia'), ctxT = cvT.getContext('2d');
+
+function chip(txt, em, pressed){
+  var b = document.createElement('button');
+  b.className = 'chip';
+  b.type = 'button';
+  b.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+  b.innerHTML = txt + '<span class="em">' + em + '</span>';
+  return b;
+}
+function costruisciChips(cont, lista, testoPressed, onClick, mini){
+  cont.innerHTML = '';
+  lista.forEach(function(o, i){
+    var label = o.nk ? T(o.nk) : o.n;
+    var extra = o.ek ? T(o.ek) : o.e;
+    var b = chip(label, extra, testoPressed(o, i));
+    if (mini) b.className = 'chip mini';
+    b.addEventListener('click', function(){ onClick(o, i); aggiornaChips(); });
+    cont.appendChild(b);
+  });
+}
+function aggiornaChips(){
+  [['veicoli', VEICOLI, function(o){ return o.k === S.vKmh; }],
+   ['posizioni', POSIZIONI, function(o){ return o.d === S.d; }],
+   ['chi', CHI, function(o){ return o.v === S.modo; }],
+   ['csuono', SUONI, function(o){ return o.v === S.cSel; }],
+   ['temperature', TEMPI, function(o){ return o.v === S.temp; }],
+   ['rallenta', RALLENTA, function(o){ return o.v === S.slow; }]
+  ].forEach(function(g){
+    var kids = $(g[0]).children;
+    for (var i = 0; i < kids.length; i++){
+      kids[i].setAttribute('aria-pressed', g[2](g[1][i]) ? 'true' : 'false');
+      if (g[0] === 'temperature') kids[i].disabled = !ariaVera();
+    }
+  });
+}
+
+var CHI = [
+  { nk: 'chi_sirena_n', ek: 'chi_sirena_e', v: 'sorgente' },
+  { nk: 'chi_tu_n', ek: 'chi_tu_e', v: 'osservatore' }
+];
+var TEMPI = [];   /* ricalcolata in buildAllChips(), dipende dalla lingua per l'unità */
+
+function buildAllChips(){
+  TEMPI = TEMPERATURE.map(function(Tg){
+    return { n: (Tg > 0 ? '+' : '') + Tg + T('u_c'), e: num(Tg === 20 ? C_RIF : cAria(Tg), 1) + ' ' + T('u_ms'), v: Tg };
+  });
+  costruisciChips($('veicoli'), VEICOLI, function(o){ return o.k === S.vKmh; }, function(o){
+    S.vKmh = o.k; reset(); });
+  costruisciChips($('posizioni'), POSIZIONI, function(o){ return o.d === S.d; }, function(o){
+    S.d = o.d; reset(); });
+  costruisciChips($('chi'), CHI, function(o){ return o.v === S.modo; }, function(o){
+    S.modo = o.v; reset(); });
+  costruisciChips($('csuono'), SUONI, function(o){ return o.v === S.cSel; }, function(o){
+    S.cSel = o.v; S.fronti = []; reset(); });
+  costruisciChips($('temperature'), TEMPI, function(o){ return o.v === S.temp; }, function(o){
+    S.temp = o.v; reset(); }, true);
+  costruisciChips($('rallenta'), RALLENTA, function(o){ return o.v === S.slow; }, function(o){
+    S.slow = o.v; }, true);
+}
+buildAllChips();
+
+function reset(){
+  S.passa = false;
+  S.fronti = [];
+  S.vIst = 0;
+  S.buf = [];
+  S.traccia = null;
+  var x0 = -Math.min(60, S.d * 6 + 30);
+  if (S.modo === 'sorgente'){ S.srcX = x0; S.obsX = 0; }
+  else { S.srcX = 0; S.obsX = x0; }
+  aggiornaTabelle();
+}
+
+$('btnPassa').addEventListener('click', function(){
+  avviaAudio();
+  S.passa = true;
+  S.fronti = [];
+  S.tPassa = -corsaX0() / vMS();
+  if (S.modo === 'sorgente'){ S.srcX = vMS() * S.tPassa; S.obsX = 0; }
+  else { S.obsX = vMS() * S.tPassa; S.srcX = 0; }
+  S.traccia = { pts: [], d: S.d, v: S.vKmh, modo: S.modo };
+  S.tracce.push(S.traccia);
+  if (S.tracce.length > 4) S.tracce.shift();
+});
+$('btnPulisci').addEventListener('click', function(){ S.tracce = []; S.traccia = null; });
+$('btnVol').addEventListener('click', function(){
+  S.volReale = !S.volReale;
+  this.setAttribute('aria-pressed', S.volReale ? 'true' : 'false');
+  refreshEtichetteStato();
+});
+$('btnAudio').addEventListener('click', function(){
+  S.audio = !S.audio;
+  if (S.audio){
+    avviaAudio();
+    if (S.slow !== 1){ S.slow = 1; aggiornaChips(); }   /* il suono ha senso solo a velocita vera */
+  }
+  this.setAttribute('aria-pressed', S.audio ? 'true' : 'false');
+  refreshEtichetteStato();
+});
+$('vol').addEventListener('input', function(){
+  if (master) master.gain.value = this.value / 100 * 0.5;
+});
+
+/* =======================================================================
+   AUDIO
+   ======================================================================= */
+var actx = null, master = null, gDist = null, osc1 = null, osc2 = null;
+function avviaAudio(){
+  if (actx) { if (actx.state === 'suspended') actx.resume(); return; }
+  var AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+  actx = new AC();
+  master = actx.createGain(); master.gain.value = $('vol').value / 100 * 0.5;
+  master.connect(actx.destination);
+  var filt = actx.createBiquadFilter();
+  filt.type = 'lowpass'; filt.frequency.value = 2400; filt.Q.value = 0.7;
+  filt.connect(master);
+  gDist = actx.createGain(); gDist.gain.value = 0; gDist.connect(filt);
+  osc1 = actx.createOscillator(); osc1.type = 'sawtooth'; osc1.frequency.value = S.f0;
+  osc1.connect(gDist);
+  var g2 = actx.createGain(); g2.gain.value = 0.25; g2.connect(gDist);
+  osc2 = actx.createOscillator(); osc2.type = 'sawtooth'; osc2.frequency.value = S.f0 * 2;
+  osc2.connect(g2);
+  osc1.start(); osc2.start();
+}
+function suonoAttivo(){
+  return S.audio && actx && S.slow === 1 && ariaVera() && !supersonico() &&
+         (S.passa || S.drag || Math.abs(S.vIst) > 0.2);
+}
+function aggiornaAudio(f, r){
+  if (!actx) return;
+  var on = suonoAttivo() && isFinite(f);
+  var g = 0;
+  if (on) g = S.volReale ? Math.min(1, (S.d + 3) / Math.max(r, 1)) : 0.85;
+  gDist.gain.setTargetAtTime(g, actx.currentTime, 0.03);
+  if (on){
+    osc1.frequency.setTargetAtTime(f, actx.currentTime, 0.005);
+    osc2.frequency.setTargetAtTime(f * 2, actx.currentTime, 0.005);
+  }
+}
+
+/* =======================================================================
+   GEOMETRIA DELLA SCENA
+   ======================================================================= */
+var W = 900, H = 506, dpr = 1;
+function estensione(){ return (W < 520) ? 105 : 150; }   /* metri visibili */
+function scala(){ return W / estensione(); }
+function roadY(){ return H * 0.42; }
+function xPx(x){ return W / 2 + (x - 0) * scala(); }
+function yPx(y){ return roadY() + y * scala(); }
+function pxX(px){ return (px - W / 2) / scala(); }
+
+function adatta(){
+  var rect = cvS.getBoundingClientRect();
+  var w = Math.max(280, rect.width);
+  dpr = Math.min(2, window.devicePixelRatio || 1);
+  W = w; H = Math.round(w * 9 / 16);
+  cvS.width = Math.round(W * dpr); cvS.height = Math.round(H * dpr);
+  cvS.style.height = H + 'px';
+  ctxS.setTransform(dpr, 0, 0, dpr, 0, 0);
+  var ht = Math.max(180, Math.round(w * 0.34));
+  cvT.width = Math.round(w * dpr); cvT.height = Math.round(ht * dpr);
+  cvT.style.height = ht + 'px';
+  ctxT.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', adatta);
+
+/* =======================================================================
+   INTERAZIONE: TRASCINAMENTO
+   ======================================================================= */
+function oggettoMobileX(){ return S.modo === 'sorgente' ? S.srcX : S.obsX; }
+function setMobileX(x){ if (S.modo === 'sorgente') S.srcX = x; else S.obsX = x; }
+
+cvS.addEventListener('pointerdown', function(e){
+  if (S.passa) return;
+  var rect = cvS.getBoundingClientRect();
+  var mx = pxX(e.clientX - rect.left);
+  if (Math.abs(mx - oggettoMobileX()) > estensione() * 0.12) return;
+  S.drag = true; S.buf = [];
+  cvS.classList.add('presa');
+  cvS.setPointerCapture(e.pointerId);
+  avviaAudio();
+  e.preventDefault();
+});
+cvS.addEventListener('pointermove', function(e){
+  if (!S.drag) return;
+  var rect = cvS.getBoundingClientRect();
+  var nx = pxX(e.clientX - rect.left);
+  var lim = estensione() * 0.49;
+  nx = Math.max(-lim, Math.min(lim, nx));
+  var prev = oggettoMobileX();
+  setMobileX(nx);
+  var ora = performance.now();
+  S.buf.push({ x: nx, t: ora });
+  if (S.buf.length > 5) S.buf.shift();
+  e.preventDefault();
+});
+function fineDrag(e){
+  if (!S.drag) return;
+  S.drag = false; S.buf = []; S.vIst = 0;
+  cvS.classList.remove('presa');
+}
+cvS.addEventListener('pointerup', fineDrag);
+cvS.addEventListener('pointercancel', fineDrag);
+cvS.addEventListener('keydown', function(e){
+  if (S.passa) return;
+  var p = 3;
+  if (e.key === 'ArrowRight'){ setMobileX(oggettoMobileX() + p); S.vIst = vMS(); tastoAttivo(); e.preventDefault(); }
+  if (e.key === 'ArrowLeft'){ setMobileX(oggettoMobileX() - p); S.vIst = -vMS(); tastoAttivo(); e.preventDefault(); }
+});
+var tastoTimer = null;
+function tastoAttivo(){
+  avviaAudio();
+  if (tastoTimer) clearTimeout(tastoTimer);
+  tastoTimer = setTimeout(function(){ S.vIst = 0; }, 260);
+}
+
+/* velocita stimata su media mobile di 5 campioni */
+function velocitaDrag(){
+  if (S.buf.length < 2) return 0;
+  var a = S.buf[0], b = S.buf[S.buf.length - 1];
+  var dt = (b.t - a.t) / 1000;
+  if (dt <= 0) return 0;
+  var v = (b.x - a.x) / dt;
+  return Math.max(-120, Math.min(120, v));
+}
+
+/* =======================================================================
+   LOOP
+   ======================================================================= */
+var last = 0;
+function loop(ms){
+  var dtReale = last ? Math.min(0.05, (ms - last) / 1000) : 0;
+  last = ms;
+  var dt = dtReale / S.slow;
+  S.t += dt;
+
+  var c = cNow(), v = vMS(), f0 = S.f0, f, r;
+
+  if (S.passa){
+    S.tPassa += dt;
+    var X0 = corsaX0();
+    if (S.modo === 'sorgente'){
+      S.srcX = v * S.tPassa; S.obsX = 0;
+      f = supersonico() ? NaN : fPassaggio(S.tPassa, f0, c, v, S.d);
+    } else {
+      S.obsX = v * S.tPassa; S.srcX = 0;
+      f = fOssIstantanea(f0, c, v, S.obsX, S.d);
+    }
+    var dx = S.srcX - S.obsX;
+    r = Math.sqrt(dx * dx + S.d * S.d);
+    if (S.traccia && isFinite(f)) S.traccia.pts.push({ t: S.tPassa, f: f });
+    S.vIst = v;
+    if (v * S.tPassa > X0){ S.passa = false; S.vIst = 0; }
+  } else {
+    if (S.drag) S.vIst = velocitaDrag();
+    var xRel = S.srcX - S.obsX;
+    r = Math.sqrt(xRel * xRel + S.d * S.d);
+    if (S.modo === 'sorgente'){
+      f = fIstantanea(f0, c, S.vIst, xRel, S.d);
+      if (Math.abs(S.vIst) >= c) f = NaN;
+    } else {
+      f = fOssIstantanea(f0, c, S.vIst, -xRel, S.d);
+    }
+  }
+  S.fLive = f;
+
+  /* fronti d'onda: uno ogni 0,12 s di tempo simulato */
+  if (S.t - S.ultimoFronte >= 0.12){
+    S.ultimoFronte = S.t;
+    S.fronti.push({ x0: S.srcX, t0: S.t });
+    if (S.fronti.length > 120) S.fronti.shift();
+  }
+
+  aggiornaAudio(f, r);
+  disegnaScena(c, v);
+  disegnaTraccia(c, v);
+  aggiornaNumeri(c, v, f);
+
+  requestAnimationFrame(loop);
+}
+
+/* =======================================================================
+   DISEGNO SCENA
+   ======================================================================= */
+function tema(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+
+function disegnaScena(c, v){
+  var g = ctxS;
+  g.clearRect(0, 0, W, H);
+
+  /* fondo scuro */
+  var gr = g.createRadialGradient(W * 0.5, 0, 10, W * 0.5, 0, H * 1.6);
+  gr.addColorStop(0, '#16224A'); gr.addColorStop(0.52, '#0D1120'); gr.addColorStop(1, '#04060E');
+  g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  var a1 = g.createRadialGradient(W * 0.18, 0, 5, W * 0.18, 0, W * 0.7);
+  a1.addColorStop(0, 'rgba(124,92,255,.22)'); a1.addColorStop(1, 'rgba(124,92,255,0)');
+  g.fillStyle = a1; g.fillRect(0, 0, W, H);
+  var a2 = g.createRadialGradient(W * 0.88, H * 0.12, 5, W * 0.88, H * 0.12, W * 0.6);
+  a2.addColorStop(0, 'rgba(63,106,245,.16)'); a2.addColorStop(1, 'rgba(63,106,245,0)');
+  g.fillStyle = a2; g.fillRect(0, 0, W, H);
+
+  var s = scala();
+
+  /* fila di edifici sul lato opposto */
+  var lane = 3.6 * s;
+  var topY = roadY() - lane;
+  g.fillStyle = 'rgba(255,255,255,.045)';
+  g.fillRect(0, 0, W, topY - 10);
+  g.strokeStyle = 'rgba(255,255,255,.10)'; g.lineWidth = 1;
+  for (var e = 0; e < 26; e++){
+    var ex = (e * 61 % (W + 80)) - 40;
+    var eh = 18 + ((e * 37) % 34);
+    var ew = 26 + ((e * 23) % 30);
+    g.strokeRect(ex, topY - 10 - eh, ew, eh);
+  }
+
+  /* corsia */
+  g.fillStyle = 'rgba(255,255,255,.05)';
+  g.fillRect(0, roadY() - lane, W, lane * 2);
+  g.strokeStyle = 'rgba(255,255,255,.16)'; g.lineWidth = 1;
+  g.beginPath(); g.moveTo(0, roadY() - lane); g.lineTo(W, roadY() - lane);
+  g.moveTo(0, roadY() + lane); g.lineTo(W, roadY() + lane); g.stroke();
+  g.strokeStyle = 'rgba(229,165,10,.42)'; g.setLineDash([14, 12]);
+  g.beginPath(); g.moveTo(0, roadY()); g.lineTo(W, roadY()); g.stroke();
+  g.setLineDash([]);
+
+  /* marciapiede sotto, dove stai tu */
+  var my = yPx(S.d);
+  if (my < H - 4){
+    var mTop = Math.max(roadY() + lane + 4, my - 10);
+    g.fillStyle = 'rgba(255,255,255,.035)';
+    g.fillRect(0, mTop, W, H - mTop);
+    g.strokeStyle = 'rgba(255,255,255,.13)';
+    g.beginPath(); g.moveTo(0, mTop); g.lineTo(W, mTop); g.stroke();
+    g.fillStyle = 'rgba(255,255,255,.07)';
+    for (var q = 0; q < 90; q++){
+      var qx = (q * 29) % W, qy = mTop + 8 + ((q * 53) % Math.max(10, (H - mTop - 12)));
+      g.fillRect(qx, qy, 2, 2);
+    }
+  }
+
+  /* fronti d'onda */
+  var mostraFronti = (S.slow !== 1) || !ariaVera();
+  if (mostraFronti){
+    for (var i = 0; i < S.fronti.length; i++){
+      var fr = S.fronti[i];
+      var R = c * (S.t - fr.t0);
+      if (R <= 0) continue;
+      var Rpx = R * s;
+      if (Rpx > W * 2.2) continue;
+      var al = Math.max(0, 0.5 - R / (estensione() * 1.3));
+      g.strokeStyle = 'rgba(124,92,255,' + al.toFixed(3) + ')';
+      g.lineWidth = 1.2;
+      g.beginPath(); g.arc(xPx(fr.x0), roadY(), Rpx, 0, Math.PI * 2); g.stroke();
+    }
+  }
+
+  /* cono, quando il veicolo corre piu del suono */
+  if (supersonico() && mostraFronti && v > 0){
+    var sinT = Math.min(1, c / v);
+    var th = Math.asin(sinT);
+    var px = xPx(S.srcX), py = roadY();
+    var L = W * 1.4;
+    g.strokeStyle = 'rgba(45,212,191,.85)'; g.lineWidth = 2; g.setLineDash([6, 5]);
+    g.beginPath();
+    g.moveTo(px, py);
+    g.lineTo(px - L * Math.cos(th), py - L * Math.sin(th));
+    g.moveTo(px, py);
+    g.lineTo(px - L * Math.cos(th), py + L * Math.sin(th));
+    g.stroke();
+    g.setLineDash([]);
+    etichetta(g, px - 90, py - 46, fmt('canvas_cono', [num(sinT, 3)]), '#2DD4BF');
+  }
+
+  /* linea di distanza */
+  var ox = xPx(S.obsX);
+  g.strokeStyle = 'rgba(255,216,110,.45)'; g.setLineDash([4, 5]); g.lineWidth = 1;
+  g.beginPath(); g.moveTo(ox, roadY()); g.lineTo(ox, yPx(S.d)); g.stroke();
+  g.setLineDash([]);
+  g.fillStyle = '#FFD86E';
+  g.font = '11px ' + "'DM Mono',monospace";
+  g.fillText(fmt('canvas_d_label', [num(S.d, 0)]), ox - 58, (roadY() + yPx(S.d)) / 2 + 4);
+
+  /* ambulanza */
+  disegnaVeicolo(g, xPx(S.srcX), roadY(), s, (S.modo === 'sorgente' ? (S.vIst >= 0 ? 1 : -1) : 1));
+
+  /* ascoltatore */
+  disegnaFigura(g, ox, yPx(S.d), S.modo === 'osservatore');
+
+  /* scala metrica */
+  var barM = 20;
+  var bx = 16, by = H - 20;
+  g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 1.5;
+  g.beginPath(); g.moveTo(bx, by); g.lineTo(bx + barM * s, by);
+  g.moveTo(bx, by - 4); g.lineTo(bx, by + 4);
+  g.moveTo(bx + barM * s, by - 4); g.lineTo(bx + barM * s, by + 4);
+  g.stroke();
+  g.fillStyle = 'rgba(255,255,255,.62)';
+  g.font = '11px ' + "'DM Mono',monospace";
+  g.fillText(fmt('canvas_barra_m', [barM]), bx + barM * s + 8, by + 4);
+
+  /* stato in alto */
+  g.fillStyle = 'rgba(255,255,255,.72)';
+  g.font = '11px ' + "'DM Mono',monospace";
+  var capo = W < 520;
+  g.fillText((S.modo === 'sorgente' ? T('canvas_sirena_muove') : T('canvas_tu_muovi')) +
+    (capo ? '' : '   ·   c = ' + num(c, 1) + ' m/s   ·   M = ' + num(v / c, 3)), 14, 22);
+  if (capo) g.fillText('c = ' + num(c, 1) + ' m/s  ·  M = ' + num(v / c, 3), 14, 38);
+  if (!mostraFronti){
+    g.fillStyle = 'rgba(255,255,255,.36)';
+    g.fillText(capo ? T('canvas_cerchi_spenti_corto') :
+      T('canvas_cerchi_spenti_lungo'), 14, capo ? 54 : 40);
+  }
+}
+
+function etichetta(g, x, y, txt, col){
+  g.fillStyle = col; g.font = '11px ' + "'DM Mono',monospace";
+  g.fillText(txt, Math.max(6, x), Math.max(14, y));
+}
+
+function disegnaVeicolo(g, px, py, s, dir){
+  var L = Math.max(28, 5 * s), Hh = Math.max(11, 2 * s);
+  g.save();
+  g.translate(px, py);
+  g.fillStyle = '#F5F1E6';
+  g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 1;
+  roundRect(g, -L / 2, -Hh / 2, L, Hh, Math.min(4, Hh / 3));
+  g.fill(); g.stroke();
+  g.fillStyle = '#D4392B';
+  g.fillRect(-L / 2 + L * 0.18, -Hh / 2, L * 0.16, Hh);
+  /* lampeggiante */
+  var on = (Math.floor(S.t * 4) % 2) === 0;
+  g.fillStyle = on ? '#FFD86E' : 'rgba(255,216,110,.25)';
+  g.beginPath(); g.arc(dir * L * 0.30, 0, Math.max(2.5, Hh * 0.22), 0, Math.PI * 2); g.fill();
+  g.restore();
+  g.fillStyle = 'rgba(255,255,255,.62)';
+  g.font = '11px ' + "'DM Mono',monospace";
+  g.fillText(S.f0 + ' ' + T('u_hz'), px - 16, py - Hh / 2 - 8);
+}
+
+function disegnaFigura(g, px, py, mobile){
+  g.save();
+  g.fillStyle = mobile ? '#FFD86E' : '#E5A50A';
+  g.beginPath(); g.arc(px, py - 7, 4.5, 0, Math.PI * 2); g.fill();
+  g.beginPath();
+  g.moveTo(px - 6, py + 6); g.lineTo(px, py - 3); g.lineTo(px + 6, py + 6);
+  g.closePath(); g.fill();
+  g.restore();
+  g.fillStyle = '#FFD86E';
+  g.font = '11px ' + "'DM Mono',monospace";
+  g.fillText(mobile ? T('canvas_tu_moto') : T('canvas_tu'), px - 6, py + 22);
+}
+
+function roundRect(g, x, y, w, h, r){
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.arcTo(x + w, y, x + w, y + h, r);
+  g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r);
+  g.arcTo(x, y, x + w, y, r);
+  g.closePath();
+}
+
+/* =======================================================================
+   DISEGNO TRACCIA
+   ======================================================================= */
+function disegnaTraccia(c, v){
+  var g = ctxT;
+  var w = cvT.width / dpr, h = cvT.height / dpr;
+  g.clearRect(0, 0, w, h);
+  var cBg = tema('--card2'), cLine = tema('--bordo'), cInk = tema('--ink'), cMut = tema('--muted');
+  g.fillStyle = cBg; g.fillRect(0, 0, w, h);
+
+  var m = { l: 62, r: 14, t: 14, b: 26 };
+  var fA = supersonico() ? S.f0 * 1.6 : fAvv(S.f0, c, v);
+  var fB = supersonico() ? S.f0 * 0.7 : fAll(S.f0, c, v);
+  var hi = Math.max(fA, S.f0) * 1.04, lo = Math.min(fB, S.f0) * 0.96;
+  var TFIN = 2.5;
+  function X(t){ return m.l + (t + TFIN) / (2 * TFIN) * (w - m.l - m.r); }
+  function Y(f){ return m.t + (hi - f) / (hi - lo) * (h - m.t - m.b); }
+
+  /* griglia */
+  g.strokeStyle = cLine; g.lineWidth = 1;
+  g.beginPath();
+  for (var t = -2; t <= 2; t++){ g.moveTo(X(t), m.t); g.lineTo(X(t), h - m.b); }
+  g.stroke();
+  g.fillStyle = cMut; g.font = '11px ' + "'DM Mono',monospace";
+  for (var t2 = -2; t2 <= 2; t2++) g.fillText(t2 + T('u_s_abbr'), X(t2) - 8, h - 8);
+
+  /* riga della nota vera */
+  g.textAlign = 'right';
+  g.strokeStyle = cInk; g.globalAlpha = 0.45; g.beginPath();
+  g.moveTo(m.l, Y(S.f0)); g.lineTo(w - m.r, Y(S.f0)); g.stroke(); g.globalAlpha = 1;
+  g.fillStyle = cInk; g.fillText(S.f0 + ' ' + T('u_hz'), m.l - 7, Y(S.f0) + 4);
+
+  /* tratteggi ai due estremi teorici */
+  if (!supersonico()){
+    g.setLineDash([5, 5]); g.strokeStyle = '#7C5CFF'; g.globalAlpha = 0.75;
+    g.beginPath(); g.moveTo(m.l, Y(fA)); g.lineTo(w - m.r, Y(fA));
+    g.moveTo(m.l, Y(fB)); g.lineTo(w - m.r, Y(fB)); g.stroke();
+    g.setLineDash([]); g.globalAlpha = 1;
+    g.fillStyle = '#7C5CFF';
+    g.fillText(num(fA, 1), m.l - 7, Y(fA) + 4);
+    g.fillText(num(fB, 1), m.l - 7, Y(fB) + 4);
+  }
+  g.textAlign = 'left';
+
+  /* tracce */
+  for (var i = 0; i < S.tracce.length; i++){
+    var tr = S.tracce[i];
+    var corrente = (tr === S.traccia);
+    g.strokeStyle = corrente ? '#E5A50A' : cMut;
+    g.globalAlpha = corrente ? 1 : 0.45;
+    g.lineWidth = corrente ? 2.4 : 1.4;
+    g.beginPath();
+    var primo = true;
+    for (var k = 0; k < tr.pts.length; k++){
+      var p = tr.pts[k];
+      if (p.t < -TFIN || p.t > TFIN) continue;
+      var xx = X(p.t), yy = Y(p.f);
+      if (primo){ g.moveTo(xx, yy); primo = false; } else g.lineTo(xx, yy);
+    }
+    g.stroke();
+    if (tr.pts.length){
+      var ult = tr.pts[tr.pts.length - 1];
+      g.fillStyle = corrente ? '#E5A50A' : cMut;
+      g.globalAlpha = 1;
+      g.fillText(num(tr.d, 0) + ' ' + T('u_m'), Math.min(w - m.r - 34, X(Math.min(ult.t, 2.1)) + 6), Y(ult.f) + 14);
+    }
+  }
+  g.globalAlpha = 1;
+}
+
+/* =======================================================================
+   NUMERI A SCHERMO
+   ======================================================================= */
+var ultimoLive = 0;
+function aggiornaNumeri(c, v, f){
+  var u = '<span class="u">' + T('u_hz') + '</span>';
+  $('nFreq').innerHTML = (isFinite(f) ? num(f, 1) : TRATTINO) + u;
+  $('nSemi').innerHTML = (isFinite(f) ? segno(semitoni(f, S.f0), 2) : TRATTINO) +
+    '<span class="u">' + T('u_semitoni') + '</span>';
+
+  var lamA, lamD;
+  if (S.modo === 'osservatore'){ lamA = c / S.f0; lamD = c / S.f0; }
+  else { lamA = (c - v) / S.f0; lamD = (c + v) / S.f0; }
+  var neg = (c - v) <= 0;
+  $('nLamA').innerHTML = (S.modo === 'sorgente' && neg ? TRATTINO : num(lamA * 100, 1)) +
+    '<span class="u">' + T('u_cm') + '</span>';
+  $('nLamD').innerHTML = num(lamD * 100, 1) + '<span class="u">' + T('u_cm') + '</span>';
+
+  var r = Math.sqrt((S.srcX - S.obsX) * (S.srcX - S.obsX) + S.d * S.d);
+  var vv = S.passa ? v : Math.abs(S.vIst);
+  $('rigaStato').innerHTML =
+    fmt('riga_stato_base', [num(S.vKmh, 1), num(v, 3), num(c, 1), num(v / c, 3), num(S.d, 0), num(r, 1)]) +
+    (S.modo === 'osservatore' ? T('riga_stato_tu_muovi') : '') +
+    (S.passa ? T('riga_stato_in_corsa') : (S.drag ? fmt('riga_stato_trascinamento', [num(vv * 3.6, 0)]) : ''));
+
+  var didaTxt;
+  if (supersonico()){
+    didaTxt = fmt('dida_supersonico', [num(v / c, 3), num(Math.asin(Math.min(1, c / v)) * 180 / Math.PI, 1)]);
+  } else if (!ariaVera()){
+    didaTxt = fmt('dida_suono_lento', [num(c, 1)]);
+  } else if (S.modo === 'osservatore'){
+    didaTxt = fmt('dida_osservatore', [num(c / S.f0 * 100, 1)]);
+  } else {
+    didaTxt = fmt('dida_normale', [num(v / c, 3)]);
+  }
+  $('didaScena').textContent = didaTxt;
+
+  var ora = performance.now();
+  if (ora - ultimoLive > 700){
+    ultimoLive = ora;
+    $('live').textContent = (isFinite(f) ? fmt('live_fmt', [num(f, 1), segno(semitoni(f, S.f0), 2)]) : T('live_fuori_range'));
+  }
+}
+
+/* =======================================================================
+   TABELLE
+   ======================================================================= */
+function aggiornaTabelle(){
+  var c = cNow(), f0 = S.f0;
+
+  var righe = '';
+  VEICOLI.forEach(function(o){
+    var v = o.k / 3.6;
+    var qui = (o.k === S.vKmh) ? ' class="qui"' : '';
+    if (v >= c){
+      righe += '<tr' + qui + '><td>' + T(o.nk) + '</td><td>' + num(o.k, 1) + '</td><td>' + num(v, 3) +
+        '</td><td colspan="4">' + TRATTINO + ' &nbsp; ' + fmt('row_supersonico', [num(v / c, 2)]) + '</td></tr>';
+    } else {
+      righe += '<tr' + qui + '><td>' + T(o.nk) + '</td><td>' + num(o.k, 1) + '</td><td>' + num(v, 3) +
+        '</td><td>' + num(fAvv(f0, c, v), 2) + '</td><td>' + num(fAll(f0, c, v), 2) +
+        '</td><td>' + num(salto(f0, c, v), 2) + '</td><td>' + num(SEMI * Math.log2((c + v) / (c - v)), 2) +
+        '</td></tr>';
+    }
+  });
+  $('tabCasi').innerHTML = righe;
+
+  var suffisso = ariaVera()
+    ? (S.temp === 20 ? T('tab_nota_suffix_tondo') : fmt('tab_nota_suffix_formula5', [S.temp]))
+    : T('tab_nota_suffix_rallentato');
+  $('tabNota').textContent = fmt('tab_nota_main', [num(c, 1), suffisso]);
+
+  /* asimmetria, sempre sul caso di riferimento scelto */
+  var v0 = vMS();
+  var asim = '';
+  if (v0 < c){
+    var fa = fAvv(f0, c, v0), fb = fAll(f0, c, v0);
+    asim += '<tr><td>' + T('riga_avvic') + '</td><td>' + num(fa, 2) + '</td><td>' + segno(fa - f0, 2) +
+      '</td><td>' + segno(semitoni(fa, f0), 2) + '</td></tr>';
+    asim += '<tr><td>' + T('riga_allont') + '</td><td>' + num(fb, 2) + '</td><td>' + segno(fb - f0, 2) +
+      '</td><td>' + segno(semitoni(fb, f0), 2) + '</td></tr>';
+    asim += '<tr><td>' + T('riga_salto_tot') + '</td><td>&nbsp;</td><td>' + num(fa - fb, 2) +
+      '</td><td>' + num(semitoni(fa, fb), 2) + '</td></tr>';
+  } else {
+    asim = '<tr><td colspan="4">' + fmt('asim_supersonico', [TRATTINO]) + '</td></tr>';
+  }
+  $('tabAsim').innerHTML = asim;
+
+  /* la scheda del salto, tenuta insieme ai numeri principali */
+  var extra = '';
+  var vOtt = c / 3;
+  extra += '<tr><td>' + T('extra1_q') + '</td><td>' +
+    (v0 < c ? fmt('extra1_a', [num(fAvv(f0, c, v0), 2), num(fOssAvv(f0, c, v0), 2), num(fAvv(f0, c, v0) - fOssAvv(f0, c, v0), 2)]) : TRATTINO) + '</td></tr>';
+  extra += '<tr><td>' + T('extra2_q') + '</td><td>' +
+    (v0 < c ? fmt('extra2_a', [num(semitoni(fAvv(f0, c, v0), fAll(f0, c, v0)), 2), num(semitoni(fOssAvv(f0, c, v0), fOssAll(f0, c, v0)), 2)]) : TRATTINO) + '</td></tr>';
+  extra += '<tr><td>' + T('extra3_q') + '</td><td>' +
+    fmt('extra3_a', [num(vOtt, 1), num(vOtt * 3.6, 1)]) + '</td></tr>';
+  extra += '<tr><td>' + T('extra4_q') + '</td><td>' +
+    fmt('extra4_a', [num(2 * S.d / v0, 2), num(S.d, 0)]) + '</td></tr>';
+  extra += '<tr><td>' + T('extra5_q') + '</td><td>' +
+    fmt('extra5_a', [num(S.d / c * 1000, 1), (v0 < c ? num(fPassaggio(0, f0, c, v0, S.d), 1) : TRATTINO)]) + '</td></tr>';
+  extra += '<tr><td>' + T('extra6_q') + '</td><td>' +
+    fmt('extra6_a', [num(c, 1), num(c * 3.6, 0)]) + '</td></tr>';
+  $('tabExtra').innerHTML = extra;
+
+  aggiornaSaltoCard(c, v0);
+
+  $('notaTemp').innerHTML = ariaVera()
+    ? fmt('nota_temp_aria', [S.temp, num(cNow(), 1), num(salto(800, cAria(-5), 100 / 3.6), 1), num(salto(800, cAria(35), 100 / 3.6), 1)])
+    : fmt('nota_temp_disattivata', [num(cNow(), 1)]);
+
+  $('notaArrivo').textContent = num(800 * Math.pow(SEMI_RAPPORTO, 2.81), 1);
+
+  /* Buys Ballot */
+  var c15 = cAria(15), vt = 70 / 3.6, fs = 392;
+  var solD = 415.31, faD = 370.00;
+  var bb = '';
+  bb += '<tr><td>' + T('bb_arrivo') + '</td><td>' + num(fAvv(fs, c15, vt), 1) + ' ' + T('u_hz') + '</td><td>' + fmt('bb_sol_diesis', [num(solD, 2)]) + '</td><td>' + num(Math.abs(fAvv(fs, c15, vt) - solD), 2) + ' ' + T('u_hz') + '</td><td>' +
+    segno(semitoni(fAvv(fs, c15, vt), fs), 2) + '</td></tr>';
+  bb += '<tr><td>' + T('bb_fuga') + '</td><td>' + num(fAll(fs, c15, vt), 1) + ' ' + T('u_hz') + '</td><td>' + fmt('bb_fa_diesis', [num(faD, 2)]) + '</td><td>' + num(Math.abs(fAll(fs, c15, vt) - faD), 2) + ' ' + T('u_hz') + '</td><td>' +
+    segno(semitoni(fAll(fs, c15, vt), fs), 2) + '</td></tr>';
+  $('tabBB').innerHTML = bb;
+}
+
+function aggiornaSaltoCard(c, v){
+  var box = $('saltoBox');
+  if (!box) return;
+  var f0 = S.f0, fa, fb, dl, sm, tit;
+  if (S.modo === 'osservatore'){
+    fa = fOssAvv(f0, c, v); fb = fOssAll(f0, c, v);
+    tit = T('salto_tit_osservatore');
+  } else {
+    fa = (v < c) ? fAvv(f0, c, v) : NaN;
+    fb = fAll(f0, c, v);
+    tit = T('salto_tit_sorgente');
+  }
+  dl = (isFinite(fa) ? fa - fb : NaN);
+  sm = (isFinite(fa) ? semitoni(fa, fb) : NaN);
+  $('sAvv').innerHTML = (isFinite(fa) ? num(fa, 2) : TRATTINO) + '<span class="u">' + T('u_hz') + '</span>';
+  $('sAll').innerHTML = num(fb, 2) + '<span class="u">' + T('u_hz') + '</span>';
+  $('sDelta').innerHTML = (isFinite(dl) ? num(dl, 2) : TRATTINO) + '<span class="u">' + T('u_hz') + '</span>';
+  $('sSemi').innerHTML = (isFinite(sm) ? num(sm, 2) : TRATTINO) + '<span class="u">' + T('u_semitoni') + '</span>';
+  $('sTit').textContent = tit;
+}
+
+/* la scheda del salto va inserita dopo i numeri live */
+(function inserisciSalto(){
+  var host = document.createElement('div');
+  host.className = 'card';
+  host.id = 'saltoBox';
+  host.innerHTML =
+    '<span class="lab"><span data-i18n="salto_card_lab">' + T('salto_card_lab') + '</span> &middot; <span id="sTit"></span></span>' +
+    '<div class="salto">' +
+      '<div class="cel"><div class="cv" id="sAvv">&mdash;</div><div class="cq" data-i18n="salto_q_avvic">' + T('salto_q_avvic') + '</div></div>' +
+      '<div class="cel"><div class="cv" id="sAll">&mdash;</div><div class="cq" data-i18n="salto_q_allont">' + T('salto_q_allont') + '</div></div>' +
+      '<div class="cel"><div class="cv" id="sDelta">&mdash;</div><div class="cq" data-i18n="salto_q_totale">' + T('salto_q_totale') + '</div></div>' +
+      '<div class="cel"><div class="cv" id="sSemi">&mdash;</div><div class="cq" data-i18n="salto_q_semitoni">' + T('salto_q_semitoni') + '</div></div>' +
+    '</div>' +
+    '<p class="didascalia" data-i18n="salto_dida">' + T('salto_dida') + '</p>';
+  var rif = $('rigaStato');
+  rif.parentNode.insertBefore(host, rif.nextSibling);
+})();
+
+/* =======================================================================
+   AVVIO
+   ======================================================================= */
+['veicoli','posizioni','chi','csuono','temperature','rallenta'].forEach(function(id){
+  $(id).addEventListener('click', function(){ aggiornaTabelle(); });
+});
+applyI18n();
+refreshEtichetteStato();
+adatta();
+reset();
+aggiornaTabelle();
+requestAnimationFrame(loop);
+
+/* ------------------------------------------------------------
+   AUTOCOLLAUDO — gira in console, non tocca la pagina.
+   Numeri di riferimento: c=343 m/s, f0=800 Hz, v=100 km/h, d=10 m.
+   ------------------------------------------------------------ */
+(function collaudo(){
+  var esiti = [];
+  function ok(nome, avuto, atteso, toll){
+    var passa = Math.abs(avuto-atteso)/Math.abs(atteso) < (toll||0.01);
+    esiti.push((passa?'OK  ':'NO  ') + nome + '  = ' + avuto.toPrecision(6) +
+               (passa ? '' : '   atteso ' + atteso));
+    return passa;
+  }
+  var c=343, f0=800, v=100/3.6, d=10;
+  ok('avvicinamento (Hz)', fAvv(f0,c,v), 870.50);
+  ok('allontanamento (Hz)', fAll(f0,c,v), 740.07);
+  ok('salto totale (Hz)', salto(f0,c,v), 130.43);
+  ok('salto in semitoni', semitoni(fAvv(f0,c,v),fAll(f0,c,v)), 2.810, 0.005);
+  ok('passaggio, 3 s prima (Hz)', fPassaggio(-3,f0,c,v,d), 870.04, 0.002);
+  ok('passaggio, 1 s prima (Hz)', fPassaggio(-1,f0,c,v,d), 866.67, 0.002);
+  ok('passaggio, istante (Hz)', fPassaggio(0,f0,c,v,d), 805.28, 0.002);
+  ok('passaggio, 1 s dopo (Hz)', fPassaggio(1,f0,c,v,d), 743.90, 0.002);
+  ok('passaggio, 3 s dopo (Hz)', fPassaggio(3,f0,c,v,d), 740.53, 0.002);
+  ok('velocita suono a 0 gradi (m/s)', cAria(0), 331.3);
+  ok('velocita suono a 20 gradi (m/s)', cAria(20), 343.2, 0.005);
+  ok('velocita suono a 35 gradi (m/s)', cAria(35), 351.9, 0.005);
+  var falliti = esiti.filter(function(e){ return e.indexOf('NO') === 0; }).length;
+  console.log('%cAutocollaudo esperimento 2 — ' + (falliti ? falliti + ' CONTROLLI FALLITI' : 'tutti i controlli passati'),
+              'font-weight:bold;color:' + (falliti ? '#c00' : '#0a0'));
+  esiti.forEach(function(e){ console.log('  ' + e); });
+})();
+
+})();
+
+try{ if(typeof setLang==='function') setLang('en'); }catch(e){}
+</script>
+</body>
+</html>

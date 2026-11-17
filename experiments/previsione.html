@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quanto lontano arriva una previsione</title>
+<style>
+
+:root{
+  --scuro-1:#16224A; --scuro-2:#0D1120; --scuro-3:#04060E;
+  --carta:#FAF7F1; --inchiostro:#33302B; --tenue:#7E7768;
+  --oro:#E5A50A; --oro-chiaro:#FFD86E; --viola:#7C5CFF; --acqua:#2DD4BF;
+  --bordo:#E7E1D3; --panna:#FCFAF6;
+  --tit:'Bebas Neue','Avenir Next Condensed','Oswald',sans-serif;
+  --testo:'DM Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'DM Mono','SF Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--carta); color:var(--inchiostro);
+  font-family:var(--testo); font-size:17px; line-height:1.62;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 18px 90px}
+
+/* ---- fascia alta ---- */
+.hero{
+  background:radial-gradient(120% 95% at 50% 30%,
+    var(--scuro-1) 0%, var(--scuro-2) 45%, var(--scuro-3) 78%, var(--carta) 100%);
+  color:#fff; padding:54px 0 62px; margin-bottom:34px;
+}
+.hero .wrap{padding-bottom:0}
+.occhiello{
+  font-family:var(--mono); font-size:12px; letter-spacing:.22em;
+  text-transform:uppercase; color:#8F97B8; margin:0 0 14px;
+}
+.hero h1{
+  font-family:var(--tit); font-weight:500; font-size:clamp(34px,6.8vw,56px);
+  line-height:1.0; letter-spacing:.01em; margin:0 0 20px; max-width:17ch;
+}
+.kicker{color:#C9CEE2; font-size:17.5px; max-width:56ch; margin:0 0 22px}
+.firme{
+  font-family:var(--mono); font-size:12.5px; line-height:1.75;
+  color:#7F87A8; max-width:62ch; margin:0;
+}
+.firme b{color:#AEB6D4; font-weight:400}
+
+/* ---- struttura ---- */
+.passo{
+  font-family:var(--mono); font-size:12px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--tenue); margin:38px 0 14px;
+}
+h2{font-family:var(--tit);font-weight:500;font-size:30px;letter-spacing:.01em;margin:34px 0 12px}
+h3{font-size:18px;margin:26px 0 8px}
+p{margin:0 0 15px}
+.tenue{color:var(--tenue);font-size:15.5px}
+
+/* ---- schede di scelta ---- */
+.schede{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin-bottom:16px}
+@media(max-width:520px){.schede{grid-template-columns:1fr}}
+.scheda{
+  border:1.5px solid var(--bordo); border-radius:11px; background:var(--panna);
+  padding:13px 15px; cursor:pointer; text-align:left; font:inherit;
+  color:inherit; transition:border-color .16s, background .16s;
+  min-height:48px;
+}
+.scheda:hover{border-color:#C9C1AC}
+.scheda[aria-pressed="true"]{border-color:var(--oro);background:#FFFBEF}
+.scheda .n{display:block;font-size:16px;margin-bottom:2px}
+.scheda .d{
+  display:block;font-family:var(--mono);font-size:11.5px;letter-spacing:.05em;
+  color:var(--tenue);
+}
+.scheda[aria-pressed="true"] .d{color:#A08420}
+
+/* ---- scommessa ---- */
+.scommessa{border:1px solid var(--bordo);border-radius:13px;background:var(--panna);padding:17px 19px;margin:6px 0 18px}
+.scommessa input[type=range]{width:100%;accent-color:var(--oro);height:34px;margin:8px 0 4px}
+.scommessa .riga{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12.5px;color:var(--tenue)}
+.scommessa .valore{font-family:var(--tit);font-size:26px;margin:2px 0 4px}
+.scommessa.bloccata{border-color:#EBD9A4;background:#FFFBEF}
+.esito-scommessa{font-family:var(--mono);font-size:12.5px;color:#A08420;margin:8px 0 0}
+
+/* ---- il pulsante centrale ---- */
+.bottoni{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0 8px}
+.raddoppia{
+  flex:1 1 200px;display:block;padding:18px 18px;
+  border:none;border-radius:13px;cursor:pointer;
+  background:var(--scuro-2);color:#fff;font-family:var(--tit);font-weight:500;
+  font-size:23px;letter-spacing:.05em;min-height:56px;
+  transition:transform .09s, background .16s;
+}
+.raddoppia:hover{background:#1B2440}
+.raddoppia:active{transform:scale(.985)}
+.raddoppia:disabled{background:#B9B3A4;cursor:default}
+.corri{background:var(--viola)}
+.corri:hover{background:#6B4CEE}
+.corri.attiva{background:#C0392B}
+.sotto-bottone{
+  display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:12.5px;color:var(--tenue);margin-bottom:22px;
+}
+.reset{
+  background:none;border:none;font:inherit;color:var(--tenue);
+  text-decoration:underline;cursor:pointer;padding:6px 0;min-height:48px;
+}
+
+/* ---- riquadro risultato ---- */
+.box{border:1px solid var(--bordo);border-radius:13px;background:var(--panna);padding:19px 21px;margin:18px 0}
+.box.oro{border-color:#EBD9A4;background:#FFFBEF}
+.box.scuro{background:var(--scuro-2);border-color:#26304F;color:#E8EAF2}
+.box.scuro .et{color:#8F97B8}
+.et{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--tenue);margin:0 0 7px;
+}
+.grande{font-family:var(--tit);font-weight:500;font-size:clamp(26px,5.4vw,38px);line-height:1.05;margin:0}
+.grande .u{font-size:.5em;color:var(--tenue);letter-spacing:.02em}
+.box.scuro .grande .u{color:#8F97B8}
+
+.coppia{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.coppia{grid-template-columns:1fr}}
+
+/* ---- ledger dei passi (le cifre che si accendono) ---- */
+.quaderno{
+  font-family:var(--mono);font-size:13px;line-height:1.6;
+  background:var(--scuro-2);color:#D5D9E8;border-radius:10px;
+  padding:13px 15px;margin:14px 0;
+}
+.quaderno .lbl{color:#8F97B8;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.quaderno b{color:var(--oro-chiaro);font-weight:400}
+
+.ledger{
+  border:1px solid var(--bordo);border-radius:10px;overflow:hidden;margin:10px 0 20px;
+}
+.ledger .intestazione{
+  display:grid;grid-template-columns:44px 1fr 1fr;gap:8px;
+  background:var(--panna);border-bottom:1px solid var(--bordo);
+  padding:8px 10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--tenue);
+}
+.righe{max-height:300px;overflow-y:auto;background:#fff}
+.riga-p{
+  display:grid;grid-template-columns:44px 1fr 1fr;gap:8px;
+  padding:6px 10px;font-family:var(--mono);font-size:13px;
+  border-bottom:1px solid #F1EDE2;white-space:nowrap;
+}
+.riga-p .np{color:var(--tenue)}
+.uguale{color:#B9B3A4}
+.diversa.colx{color:var(--oro);font-weight:600}
+.diversa.coly{color:var(--viola);font-weight:600}
+
+/* ---- canvas ---- */
+.vasca{
+  position:relative;border:1px solid var(--bordo);border-radius:12px;
+  overflow:hidden;background:#0A0D18;margin:16px 0 8px;
+}
+#cv1{display:block;width:100%;height:320px}
+#cv2{display:block;width:100%;height:200px}
+#cv3{display:block;width:100%;height:260px}
+.contatore{
+  display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:12.5px;color:var(--tenue);margin-bottom:20px;
+}
+.contatore b{color:var(--inchiostro);font-weight:400}
+.legenda{display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--tenue);margin:6px 0 2px}
+.legenda span{display:inline-flex;align-items:center;gap:6px}
+.pallino{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+/* ---- conti a mano / formule ---- */
+.formulaBox{
+  border-left:3px solid var(--oro);background:#FFFBEF;border-radius:0 10px 10px 0;
+  padding:15px 18px;margin:18px 0;
+}
+.formulaBox .et{color:#A08420}
+pre{
+  font-family:var(--mono);font-size:13px;line-height:1.62;margin:0;
+  white-space:pre-wrap;word-wrap:break-word;color:#4A463F;
+}
+pre b{color:var(--inchiostro);font-weight:400;background:#FBEFC9;padding:0 3px;border-radius:3px}
+
+/* ---- sezione onesta ---- */
+.onesta{border-top:1px solid var(--bordo);margin-top:46px;padding-top:8px}
+.onesta h2{color:var(--inchiostro)}
+.onesta li{margin-bottom:15px}
+.onesta ol{padding-left:20px}
+.onesta b{font-weight:600}
+
+table{border-collapse:collapse;width:100%;font-size:14.5px;margin:14px 0}
+th,td{border-bottom:1px solid var(--bordo);padding:8px 9px;text-align:left;vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--tenue);font-weight:400}
+.tab-wrap{overflow-x:auto}
+
+footer{border-top:1px solid var(--bordo);margin-top:44px;padding-top:18px}
+footer p{font-family:var(--mono);font-size:12px;color:var(--tenue);margin:0 0 6px}
+
+</style>
+</head>
+<body>
+<a href="../index.html" style="display:inline-block;margin:14px;font:12px monospace;color:inherit">&larr; All experiments</a>
+
+
+<header class="hero">
+  <div class="wrap">
+<div class="lab-hero-ico" style="width:52px;height:52px;color:#8A6A07;margin:0 0 10px"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12c3 0 3-3 6-3s3 7 10-2"/><path d="M4 12c3 0 3 3 6 3s3-7 10 2"/></svg></div>
+    <p class="occhiello" data-i18n="occhiello">Laboratorio di fisica · Esperimento 8</p>
+    <h1 data-i18n="hero_titolo">Quanto lontano arriva una previsione</h1>
+    <p class="kicker" data-i18n="hero_kicker">Una moltiplicazione che rifaresti con la calcolatrice del telefono. Due partenze
+    quasi identiche, la stessa regola applicata più volte: dopo pochi passi le previsioni non hanno più
+    niente in comune. E misurare meglio, per allontanare quel momento, serve molto meno di quanto pensi.</p>
+    <p class="firme" data-i18n="hero_firme">La regola del passo x → 4x(1−x)
+    · <b>Stanislaw Ulam e John von Neumann, 1947</b> (la forma con parametro 4)
+    · <b>Edward Lorenz, 1963</b> (dipendenza sensibile in un sistema deterministico)
+    · <b>Robert May, 1976</b> (la mappa logistica come modello di popolazione)</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <p class="passo" data-i18n="passo1">1 · Scegli quanto bene hai misurato la partenza</p>
+  <div class="schede" id="sc-prec"></div>
+  <p class="tenue" id="nota-prec"></p>
+
+  <p class="passo" data-i18n="passo2">2 · Prima di far girare qualsiasi cosa, scommetti</p>
+  <div class="scommessa" id="scommessa-box">
+    <p class="tenue" style="margin-bottom:2px" data-i18n="scommessa_domanda">A quale passo, secondo te, le due previsioni si separeranno per sempre?</p>
+    <p class="valore"><span id="v-scommessa">30</span> <span class="tenue" style="font-family:var(--mono);font-size:13px" data-i18n="unita_passi">passi</span></p>
+    <input type="range" id="sl-scommessa" min="0" max="60" step="1" value="30">
+    <div class="riga"><span>0</span><span>60</span></div>
+    <p class="esito-scommessa" id="esito-scommessa"></p>
+  </div>
+
+  <p class="passo" data-i18n="passo3">3 · Fai tu la moltiplicazione, un passo alla volta</p>
+  <div class="bottoni">
+    <button class="raddoppia" id="btn-passo" data-i18n="btn_un_passo">UN PASSO</button>
+    <button class="raddoppia corri" id="btn-corri" style="display:none" data-i18n="btn_corri">CORRI</button>
+  </div>
+  <div class="sotto-bottone">
+    <span id="conta-passi">nessun passo · sei alla partenza</span>
+    <button class="reset" id="btn-reset" data-i18n="btn_reset">ricomincia</button>
+  </div>
+
+  <div class="quaderno" id="quaderno">—</div>
+
+  <div class="ledger">
+    <div class="intestazione"><span data-i18n="ledger_n">n</span><span data-i18n="ledger_previsione">la tua previsione</span><span data-i18n="ledger_gemello">il gemello quasi identico</span></div>
+    <div class="righe" id="righe"></div>
+  </div>
+
+  <p class="legenda">
+    <span><i class="pallino" style="background:var(--oro)"></i> <span data-i18n="ledger_previsione">la tua previsione</span></span>
+    <span><i class="pallino" style="background:var(--viola)"></i> <span data-i18n="ledger_gemello">il gemello quasi identico</span></span>
+    <span data-i18n="legenda_scommessa">┊ la tua scommessa</span>
+  </p>
+  <div class="vasca"><canvas id="cv1"></canvas></div>
+  <p class="tenue" style="margin:6px 0 18px" data-i18n="canvas1_nota">Ogni punto è un passo. Non è una linea continua: fra un passo e l'altro non c'è nulla, la traiettoria è fatta solo di questi punti.</p>
+
+  <div class="vasca"><canvas id="cv2"></canvas></div>
+  <div class="contatore">
+    <span><span data-i18n="contatore_scarto_label">scarto attuale: </span><b id="c-scarto">—</b></span>
+    <span data-i18n="contatore_retta">retta teorica (tratteggiata): d₀ × 2ⁿ</span>
+  </div>
+
+  <div class="box">
+    <p class="et" data-i18n="boxN_et">Quanti passi ti compra questa misura</p>
+    <p class="grande"><span id="v-N">—</span> <span class="u" data-i18n="unita_passi">passi</span></p>
+    <p class="tenue" style="margin:8px 0 0" id="v-N-nota"></p>
+  </div>
+
+  <p class="passo" data-i18n="passo4">4 · Duemila passi: il tempo contro il clima</p>
+  <p data-i18n="passo4_p">Abbandona i valori uno per uno e guarda la statistica: due traiettorie che non hanno più nulla in
+  comune, punto per punto, danno la stessa fotografia complessiva.</p>
+  <button class="raddoppia" id="btn-clima" style="max-width:320px" data-i18n="btn_clima">DUEMILA PASSI</button>
+  <div class="vasca" style="margin-top:16px"><canvas id="cv3"></canvas></div>
+  <div class="coppia" style="margin-top:10px">
+    <div class="box oro">
+      <p class="et" data-i18n="clima_et_x">Tempo sotto 0,1 · la tua previsione</p>
+      <p class="grande" style="font-size:clamp(22px,4.4vw,30px)"><span id="v-clima-x">—</span></p>
+    </div>
+    <div class="box oro">
+      <p class="et" data-i18n="clima_et_y">Tempo sotto 0,1 · il gemello</p>
+      <p class="grande" style="font-size:clamp(22px,4.4vw,30px)"><span id="v-clima-y">—</span></p>
+    </div>
+  </div>
+  <p class="tenue"><span data-i18n="clima_teo_pre">Valore teorico: (2/π) × arcsin(√0,1) ≈ </span><span id="v-clima-teo">—</span><span data-i18n="clima_teo_post">. Due numeri praticamente
+  identici, calcolati da due traiettorie che al passo duemila non condividono più una sola cifra.</span></p>
+
+  <p class="passo" data-i18n="passo5">5 · Le formule di questo laboratorio</p>
+
+  <div class="formulaBox">
+    <p class="et" data-i18n="formula1_et">La regola del passo</p>
+    <pre data-i18n="formula1_pre">x_nuovo = 4 × x × (1 − x)
+
+x sta fra 0 e 1; 4 è il parametro della formula, tenuto fisso — ed è il suo valore
+estremo, non una scelta neutra (vedi più sotto perché).</pre>
+  </div>
+
+  <div class="formulaBox">
+    <p class="et" data-i18n="formula2_et">Come cresce lo scarto, passo per passo (formula esatta, non approssimata)</p>
+    <pre data-i18n="formula2_pre">d_nuovo = 4 × d × (1 − x − y)
+
+x e y sono i due numeri delle due previsioni a questo passo; d = y − x.
+4 × (1 − x − y) è il fattore di ingrandimento di questo singolo passo: può
+valere quasi 4 oppure quasi 0. Moltiplicando fra loro i fattori di tanti passi,
+ciascuno vale in media <b>2</b> (è una media dei prodotti, non delle somme: la
+media aritmetica del fattore è un altro numero, 2,55).</pre>
+  </div>
+
+  <div class="formulaBox">
+    <p class="et" data-i18n="formula3_et">In media, dopo n passi</p>
+    <pre data-i18n="formula3_pre">d_n ≈ d₀ × 2ⁿ
+
+Il "circa" vuol dire "in media": passo per passo non è vero, e lo vedrai
+succedere nella tua tabella qui sopra.</pre>
+  </div>
+
+  <div class="formulaBox">
+    <p class="et" data-i18n="formula4_et">Quanti passi puoi prevedere</p>
+    <pre data-i18n="formula4_pre">N = log₂(1 / d₀)
+
+log₂ di un numero = quante volte devi raddoppiare 1 per arrivarci.
+Se sbagli di un milionesimo: N = log₂(1 000 000) = 19,93, cioè circa venti passi.</pre>
+  </div>
+
+  <div class="formulaBox">
+    <p class="et" data-i18n="formula5_et">La formula esatta della traiettoria (per chi vuole controllare)</p>
+    <pre data-i18n="formula5_pre">x_n = sin²(2ⁿ × arcsin(√x₀))
+
+Ogni passo raddoppia esattamente un angolo. Il 2 del raddoppio non è un modo
+di dire: è scritto dentro la formula.</pre>
+  </div>
+
+  <div class="formulaBox">
+    <p class="et" data-i18n="formula6_et">Il clima, cioè la statistica</p>
+    <pre data-i18n="formula6_pre">frazione di tempo passata sotto il valore x = (2/π) × arcsin(√x)
+
+Per x = 0,1 dà 0,2048: la traiettoria passa il 20% del tempo nel decimo più
+basso, e solo il 6,4% nel decimo centrale.</pre>
+  </div>
+
+  <h2 data-i18n="foglio_h2">Il foglio piegato</h2>
+  <p data-i18n="foglio_p1">Un foglio di carta è spesso un decimo di millimetro. Piegalo in due venti volte — cioè raddoppia
+  venti volte, esattamente quello che fa lo scarto fra le due previsioni — e lo spessore diventa
+  <b><span id="v-foglio20">—</span></b>: un palazzo di trenta piani. Piegalo 53 volte, i passi che regge
+  un computer, e diventa <b><span id="v-foglio53">—</span></b>, sei volte la distanza fra la Terra e il
+  Sole, oltre l'orbita di Giove.</p>
+  <p data-i18n="foglio_p2">E nel frattempo tu, per fare quei venti passi con la calcolatrice del telefono, ci hai messo tre
+  minuti. Tutta la capacità di previsione che ti dà una misura precisa al millimetro su un chilometro si
+  esaurisce in tre minuti di conti a mano.</p>
+
+  <h2 data-i18n="sorpresa_h2">La sorpresa</h2>
+  <p data-i18n="sorpresa_p1">Dentro non c'è nessun caso: è una moltiplicazione che faresti con la calcolatrice del telefono, e se
+  rifai i conti tornano identici a chiunque altro li rifaccia, oggi e fra cent'anni. Eppure due partenze
+  che differiscono di un milionesimo, dopo venti passi, valgono <b><span id="v-x20">—</span></b> e
+  <b><span id="v-y20">—</span></b>.</p>
+  <p data-i18n="sorpresa_p2">Ma la parte davvero controintuitiva è un'altra, ed è quantitativa: misurare meglio serve quasi a
+  niente. Passare da "un millimetro su un chilometro" a "un atomo sulla lunghezza del tuo braccio"
+  significa misurare 6000 volte meglio — una precisione che nessun laboratorio al mondo raggiungerebbe su
+  un fenomeno reale — e ti compra <b><span id="v-diffN">—</span> passi in più</b>. Ogni volta che dimezzi
+  l'errore guadagni esattamente un passo. Uno solo.</p>
+  <p data-i18n="sorpresa_p3">Lo stesso vale per il computer, in modo ancora più netto: si ferma al passo 53 non perché sia lento,
+  ma perché i suoi numeri hanno 53 cifre binarie. Partendo da 0,2, un calcolo in doppia precisione e un
+  calcolo di riferimento molto più preciso restano d'accordo fino verso il cinquantesimo passo, poi si
+  staccano: al passo 53 valgono <b><span id="v-rif53a">—</span></b> e <b><span id="v-rif53b">—</span></b>.
+  Uno un miliardo di volte più veloce si ferma allo stesso identico passo. L'orizzonte della previsione
+  non cresce con la fatica che ci metti: cresce con il logaritmo della fatica, ed è una crescita così
+  lenta che a un certo punto conviene smettere di spingere.</p>
+  <p data-i18n="sorpresa_p4">Lo stesso ragionamento spiega perché le previsioni del tempo si fermano a circa due settimane. Con un
+  errore iniziale pari all'1% della variabilità tipica e un tempo di raddoppio dell'errore assunto
+  costante e pari a due giorni: log₂(100) = 6,64 raddoppi, per <b><span id="v-meteo">—</span> giorni</b>,
+  coerente col limite pratico attuale di circa dieci giorni. È una stima d'ordine di grandezza, fragile
+  come cifra: con un giorno e mezzo di raddoppio si ottengono dieci giorni, con due giorni e mezzo si
+  arriva a diciassette.</p>
+
+  <div class="onesta">
+    <h2 data-i18n="onesta_h2">Che cosa questo modello non dice</h2>
+
+    <ol>
+      <li data-i18n="onesta_li1"><b>Il raddoppio è una media, non una legge passo per passo.</b> Al passo 12 dell'esempio lo
+      scarto non raddoppia affatto, si riduce di 24 volte, perché la traiettoria passa vicino a 0,5 dove
+      la formula schiaccia invece di allargare. E "il passo in cui le due previsioni si separano" dipende
+      da dove metti l'asticella: su 300 partenze diverse, con la soglia fissata a uno scarto di 0,25, il
+      passo va da 14 a 23, con 19 come valore tipico; abbassando la soglia a 0,1 si scende a 13-20. La
+      soglia va sempre dichiarata, altrimenti il numero non significa niente. "Venti passi" è un ordine
+      di grandezza, non un appuntamento.</li>
+
+      <li data-i18n="onesta_li2"><b>Il 4 davanti alla formula non è una scelta neutra, è il caso estremo, ed è stato scelto
+      apposta.</b> Con 2,8 al posto del 4 questa stessa formula, dopo un po', si ferma su un unico valore
+      fisso — 0,642857, che è esattamente 1 − 1/2,8 — e ci resta per sempre. Con 3,2 oscilla fra due soli
+      valori, 0,513045 e 0,799455. Con 3,83 fra tre. Il caos non è quello che fa sempre una formula non
+      lineare: è quello che fa in certe zone del parametro, e in questo laboratorio abbiamo scelto la
+      zona dove succede.</li>
+
+      <li data-i18n="onesta_li3"><b>Questa formula non è una legge di natura</b>, e nessuno l'ha ricavata dalle equazioni
+      dell'atmosfera. È la cosa più semplice che mostra il fenomeno, ed è per questo che si usa. Che il
+      fenomeno esista davvero nell'atmosfera è un risultato di misure e di simulazioni, non una
+      conseguenza di questa moltiplicazione. Il conto sulle due settimane, in particolare, usa un tempo
+      di raddoppio unico e uguale per tutte le scale, e questa è la sua debolezza: nell'atmosfera vera gli
+      errori piccoli crescono molto più in fretta di quelli grandi e poi contaminano le scale grandi, ed è
+      quella cascata — non un raddoppio unico — a fissare il limite. Il conto dà il numero giusto per il
+      motivo solo in parte giusto, ed è onesto dirlo.</li>
+
+      <li data-i18n="onesta_li4"><b>Quello che il computer stampa dopo il passo 53 non è la tua traiettoria.</b> Non è però
+      nemmeno spazzatura: è, con ottima approssimazione, la traiettoria vera di una partenza leggermente
+      diversa dalla tua. È per questo che la statistica resta giusta mentre il singolo valore è sbagliato,
+      e infatti gli istogrammi delle due traiettorie divergenti coincidono entro lo 0,1% quando i valori
+      non hanno più niente in comune.</li>
+    </ol>
+
+    <p data-i18n="onesta_p_finale"><b>E la cosa che la fisica ancora non sa bene.</b> Che le statistiche di un sistema caotico
+    rispondano in modo regolare quando si cambia un parametro — che è esattamente la domanda "come cambia
+    il clima se cambio la composizione dell'aria" — non è garantito in generale: per sistemi di questo
+    tipo è materia di ricerca aperta, non un teorema. E per le equazioni che descrivono un fluido, perfino
+    domande di base sul comportamento delle soluzioni sono ancora problemi aperti della matematica, non
+    risolti da nessuno. Qui non ci sono scorciatoie: né in questo laboratorio né altrove.</p>
+
+    <h3 data-i18n="controlli_h3">I controlli che questa pagina deve superare</h3>
+    <div class="tab-wrap">
+    <table>
+      <tr><th data-i18n="controlli_th1">Caso</th><th data-i18n="controlli_th2">Deve dare</th></tr>
+      <tr><td data-i18n="controlli_r1_a">Primi tre passi a mano (x₀ = 0,2)</td><td data-i18n="controlli_r1_b">0,64 · 0,9216 · 0,28901376</td></tr>
+      <tr><td data-i18n="controlli_r2_a">Gemello a un milionesimo, primo passo</td><td data-i18n="controlli_r2_b">lo scarto si moltiplica ×2,4</td></tr>
+      <tr><td data-i18n="controlli_r3_a">Il passo che smentisce il raddoppio (11 → 12)</td><td data-i18n="controlli_r3_b">lo scarto si riduce di 24 volte</td></tr>
+      <tr><td data-i18n="controlli_r4_a">Venti passi con un millimetro su un chilometro</td><td data-i18n="controlli_r4_b">0,820014 e 0,031369</td></tr>
+      <tr><td data-i18n="controlli_r5_a">Il computer si ferma al passo 53</td><td data-i18n="controlli_r5_b">0,095380 e 0,615035</td></tr>
+      <tr><td data-i18n="controlli_r6_a">Misurare 6000 volte meglio</td><td data-i18n="controlli_r6_b">+12,55 passi</td></tr>
+      <tr><td data-i18n="controlli_r7_a">Il clima resta fermo mentre il tempo crolla</td><td data-i18n="controlli_r7_b">≈0,205 per entrambe le traiettorie</td></tr>
+      <tr><td data-i18n="controlli_r8_a">Il foglio piegato 53 volte</td><td data-i18n="controlli_r8_b">9,007×10¹¹ metri</td></tr>
+    </table>
+    </div>
+  </div>
+
+  
+
+
+<footer style="padding:24px;text-align:center;font:12px monospace;opacity:.7">physics-experiments-lab &middot; MIT License &middot; Copyright (c) 2026 Capitan AI</footer>
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   TESTI — tutte le stringhe italiane visibili all'utente, in un
+   unico dizionario. TESTI.en/fr/es/de sono copie dell'italiano in
+   attesa della traduzione .
+   ============================================================ */
+var TESTI = {
+  it: {
+    titolo_pagina: `Quanto lontano arriva una previsione`,
+    occhiello: `Laboratorio di fisica · Esperimento 8`,
+    hero_titolo: `Quanto lontano arriva una previsione`,
+    hero_kicker: `Una moltiplicazione che rifaresti con la calcolatrice del telefono. Due partenze quasi identiche, la stessa regola applicata più volte: dopo pochi passi le previsioni non hanno più niente in comune. E misurare meglio, per allontanare quel momento, serve molto meno di quanto pensi.`,
+    hero_firme: `La regola del passo x → 4x(1−x) · <b>Stanislaw Ulam e John von Neumann, 1947</b> (la forma con parametro 4) · <b>Edward Lorenz, 1963</b> (dipendenza sensibile in un sistema deterministico) · <b>Robert May, 1976</b> (la mappa logistica come modello di popolazione)`,
+
+    passo1: `1 · Scegli quanto bene hai misurato la partenza`,
+    passo2: `2 · Prima di far girare qualsiasi cosa, scommetti`,
+    passo3: `3 · Fai tu la moltiplicazione, un passo alla volta`,
+    passo4: `4 · Duemila passi: il tempo contro il clima`,
+    passo5: `5 · Le formule di questo laboratorio`,
+
+    opz_mmkm_nome: `Un millimetro su un chilometro`,
+    opz_mmkm_nota: `Come partire da 0,200000 e 0,200001: un errore di un millimetro su una distanza di un chilometro.`,
+    opz_capello_nome: `Un capello sulla lunghezza di un campo da calcio`,
+    opz_capello_nota: `Un capello, circa 70 micrometri, disperso sui 105 metri di un campo da calcio: un errore relativo ancora più piccolo del millimetro sul chilometro.`,
+    opz_secondo_nome: `Un secondo su un anno`,
+    opz_secondo_nota: `Un secondo di errore su un anno intero (365,25 giorni): la precisione di un buon orologio da polso.`,
+    opz_atomo_nome: `Un atomo sulla lunghezza del tuo braccio`,
+    opz_atomo_nota: `Un atomo, un decimo di nanometro, sulla lunghezza di un braccio di 60 centimetri: una precisione che nessun laboratorio raggiunge su un fenomeno reale.`,
+    opz_computer_nome: `Tutte le cifre di un computer`,
+    opz_computer_nota: `Il più piccolo scarto che un numero in doppia precisione riesce a scrivere: 2⁻⁵³, cioè circa sedici cifre decimali.`,
+    scheda_errore_relativo: `errore relativo `,
+    scheda_compra: ` · compra `,
+    unita_passi: `passi`,
+
+    scommessa_domanda: `A quale passo, secondo te, le due previsioni si separeranno per sempre?`,
+    scommessa_fissata_pre: `Scommessa fissata al passo `,
+    scommessa_fissata_post: `. Non si può più spostare: guardala sul grafico qui sotto.`,
+
+    btn_un_passo: `UN PASSO`,
+    btn_corri: `CORRI`,
+    btn_ferma: `FERMA`,
+    btn_reset: `ricomincia`,
+    conta_passi_iniziale: `nessun passo · sei alla partenza`,
+    conta_passi_sing: ` passo`,
+    conta_passi_plur: ` passi`,
+    conta_passi_scarto_pre: ` · scarto attuale `,
+
+    quaderno_iniziale: `<span class="lbl">Premi "un passo" per cominciare</span>`,
+    quaderno_passo_pre: `passo `,
+    quaderno_lbl_previsione: ` · la tua previsione`,
+    quaderno_lbl_gemello: ` · il gemello quasi identico`,
+    quaderno_poi: `, poi `,
+
+    ledger_n: `n`,
+    ledger_previsione: `la tua previsione`,
+    ledger_gemello: `il gemello quasi identico`,
+    legenda_scommessa: `┊ la tua scommessa`,
+
+    canvas1_nota: `Ogni punto è un passo. Non è una linea continua: fra un passo e l'altro non c'è nulla, la traiettoria è fatta solo di questi punti.`,
+    contatore_scarto_label: `scarto attuale: `,
+    contatore_retta: `retta teorica (tratteggiata): d₀ × 2ⁿ`,
+
+    boxN_et: `Quanti passi ti compra questa misura`,
+    boxN_nota_pre: `N = log₂(1/d₀), con d₀ = `,
+    boxN_nota_post: `. Oltre questo numero di passi la tua misura di partenza non dice più nulla sul futuro.`,
+
+    passo4_p: `Abbandona i valori uno per uno e guarda la statistica: due traiettorie che non hanno più nulla in comune, punto per punto, danno la stessa fotografia complessiva.`,
+    btn_clima: `DUEMILA PASSI`,
+    clima_et_x: `Tempo sotto 0,1 · la tua previsione`,
+    clima_et_y: `Tempo sotto 0,1 · il gemello`,
+    clima_teo_pre: `Valore teorico: (2/π) × arcsin(√0,1) ≈ `,
+    clima_teo_post: `. Due numeri praticamente identici, calcolati da due traiettorie che al passo duemila non condividono più una sola cifra.`,
+    clima_caption: `due traiettorie indipendenti, stessa curva`,
+
+    formula1_et: `La regola del passo`,
+    formula1_pre: `x_nuovo = 4 × x × (1 − x)
+
+x sta fra 0 e 1; 4 è il parametro della formula, tenuto fisso — ed è il suo valore
+estremo, non una scelta neutra (vedi più sotto perché).`,
+
+    formula2_et: `Come cresce lo scarto, passo per passo (formula esatta, non approssimata)`,
+    formula2_pre: `d_nuovo = 4 × d × (1 − x − y)
+
+x e y sono i due numeri delle due previsioni a questo passo; d = y − x.
+4 × (1 − x − y) è il fattore di ingrandimento di questo singolo passo: può
+valere quasi 4 oppure quasi 0. Moltiplicando fra loro i fattori di tanti passi,
+ciascuno vale in media <b>2</b> (è una media dei prodotti, non delle somme: la
+media aritmetica del fattore è un altro numero, 2,55).`,
+
+    formula3_et: `In media, dopo n passi`,
+    formula3_pre: `d_n ≈ d₀ × 2ⁿ
+
+Il "circa" vuol dire "in media": passo per passo non è vero, e lo vedrai
+succedere nella tua tabella qui sopra.`,
+
+    formula4_et: `Quanti passi puoi prevedere`,
+    formula4_pre: `N = log₂(1 / d₀)
+
+log₂ di un numero = quante volte devi raddoppiare 1 per arrivarci.
+Se sbagli di un milionesimo: N = log₂(1 000 000) = 19,93, cioè circa venti passi.`,
+
+    formula5_et: `La formula esatta della traiettoria (per chi vuole controllare)`,
+    formula5_pre: `x_n = sin²(2ⁿ × arcsin(√x₀))
+
+Ogni passo raddoppia esattamente un angolo. Il 2 del raddoppio non è un modo
+di dire: è scritto dentro la formula.`,
+
+    formula6_et: `Il clima, cioè la statistica`,
+    formula6_pre: `frazione di tempo passata sotto il valore x = (2/π) × arcsin(√x)
+
+Per x = 0,1 dà 0,2048: la traiettoria passa il 20% del tempo nel decimo più
+basso, e solo il 6,4% nel decimo centrale.`,
+
+    foglio_h2: `Il foglio piegato`,
+    foglio_p1: `Un foglio di carta è spesso un decimo di millimetro. Piegalo in due venti volte — cioè raddoppia
+  venti volte, esattamente quello che fa lo scarto fra le due previsioni — e lo spessore diventa
+  <b><span id="v-foglio20">—</span></b>: un palazzo di trenta piani. Piegalo 53 volte, i passi che regge
+  un computer, e diventa <b><span id="v-foglio53">—</span></b>, sei volte la distanza fra la Terra e il
+  Sole, oltre l'orbita di Giove.`,
+    foglio_p2: `E nel frattempo tu, per fare quei venti passi con la calcolatrice del telefono, ci hai messo tre
+  minuti. Tutta la capacità di previsione che ti dà una misura precisa al millimetro su un chilometro si
+  esaurisce in tre minuti di conti a mano.`,
+
+    sorpresa_h2: `La sorpresa`,
+    sorpresa_p1: `Dentro non c'è nessun caso: è una moltiplicazione che faresti con la calcolatrice del telefono, e se
+  rifai i conti tornano identici a chiunque altro li rifaccia, oggi e fra cent'anni. Eppure due partenze
+  che differiscono di un milionesimo, dopo venti passi, valgono <b><span id="v-x20">—</span></b> e
+  <b><span id="v-y20">—</span></b>.`,
+    sorpresa_p2: `Ma la parte davvero controintuitiva è un'altra, ed è quantitativa: misurare meglio serve quasi a
+  niente. Passare da "un millimetro su un chilometro" a "un atomo sulla lunghezza del tuo braccio"
+  significa misurare 6000 volte meglio — una precisione che nessun laboratorio al mondo raggiungerebbe su
+  un fenomeno reale — e ti compra <b><span id="v-diffN">—</span> passi in più</b>. Ogni volta che dimezzi
+  l'errore guadagni esattamente un passo. Uno solo.`,
+    sorpresa_p3: `Lo stesso vale per il computer, in modo ancora più netto: si ferma al passo 53 non perché sia lento,
+  ma perché i suoi numeri hanno 53 cifre binarie. Partendo da 0,2, un calcolo in doppia precisione e un
+  calcolo di riferimento molto più preciso restano d'accordo fino verso il cinquantesimo passo, poi si
+  staccano: al passo 53 valgono <b><span id="v-rif53a">—</span></b> e <b><span id="v-rif53b">—</span></b>.
+  Uno un miliardo di volte più veloce si ferma allo stesso identico passo. L'orizzonte della previsione
+  non cresce con la fatica che ci metti: cresce con il logaritmo della fatica, ed è una crescita così
+  lenta che a un certo punto conviene smettere di spingere.`,
+    sorpresa_p4: `Lo stesso ragionamento spiega perché le previsioni del tempo si fermano a circa due settimane. Con un
+  errore iniziale pari all'1% della variabilità tipica e un tempo di raddoppio dell'errore assunto
+  costante e pari a due giorni: log₂(100) = 6,64 raddoppi, per <b><span id="v-meteo">—</span> giorni</b>,
+  coerente col limite pratico attuale di circa dieci giorni. È una stima d'ordine di grandezza, fragile
+  come cifra: con un giorno e mezzo di raddoppio si ottengono dieci giorni, con due giorni e mezzo si
+  arriva a diciassette.`,
+
+    onesta_h2: `Che cosa questo modello non dice`,
+    onesta_li1: `<b>Il raddoppio è una media, non una legge passo per passo.</b> Al passo 12 dell'esempio lo
+      scarto non raddoppia affatto, si riduce di 24 volte, perché la traiettoria passa vicino a 0,5 dove
+      la formula schiaccia invece di allargare. E "il passo in cui le due previsioni si separano" dipende
+      da dove metti l'asticella: su 300 partenze diverse, con la soglia fissata a uno scarto di 0,25, il
+      passo va da 14 a 23, con 19 come valore tipico; abbassando la soglia a 0,1 si scende a 13-20. La
+      soglia va sempre dichiarata, altrimenti il numero non significa niente. "Venti passi" è un ordine
+      di grandezza, non un appuntamento.`,
+    onesta_li2: `<b>Il 4 davanti alla formula non è una scelta neutra, è il caso estremo, ed è stato scelto
+      apposta.</b> Con 2,8 al posto del 4 questa stessa formula, dopo un po', si ferma su un unico valore
+      fisso — 0,642857, che è esattamente 1 − 1/2,8 — e ci resta per sempre. Con 3,2 oscilla fra due soli
+      valori, 0,513045 e 0,799455. Con 3,83 fra tre. Il caos non è quello che fa sempre una formula non
+      lineare: è quello che fa in certe zone del parametro, e in questo laboratorio abbiamo scelto la
+      zona dove succede.`,
+    onesta_li3: `<b>Questa formula non è una legge di natura</b>, e nessuno l'ha ricavata dalle equazioni
+      dell'atmosfera. È la cosa più semplice che mostra il fenomeno, ed è per questo che si usa. Che il
+      fenomeno esista davvero nell'atmosfera è un risultato di misure e di simulazioni, non una
+      conseguenza di questa moltiplicazione. Il conto sulle due settimane, in particolare, usa un tempo
+      di raddoppio unico e uguale per tutte le scale, e questa è la sua debolezza: nell'atmosfera vera gli
+      errori piccoli crescono molto più in fretta di quelli grandi e poi contaminano le scale grandi, ed è
+      quella cascata — non un raddoppio unico — a fissare il limite. Il conto dà il numero giusto per il
+      motivo solo in parte giusto, ed è onesto dirlo.`,
+    onesta_li4: `<b>Quello che il computer stampa dopo il passo 53 non è la tua traiettoria.</b> Non è però
+      nemmeno spazzatura: è, con ottima approssimazione, la traiettoria vera di una partenza leggermente
+      diversa dalla tua. È per questo che la statistica resta giusta mentre il singolo valore è sbagliato,
+      e infatti gli istogrammi delle due traiettorie divergenti coincidono entro lo 0,1% quando i valori
+      non hanno più niente in comune.`,
+    onesta_p_finale: `<b>E la cosa che la fisica ancora non sa bene.</b> Che le statistiche di un sistema caotico
+    rispondano in modo regolare quando si cambia un parametro — che è esattamente la domanda "come cambia
+    il clima se cambio la composizione dell'aria" — non è garantito in generale: per sistemi di questo
+    tipo è materia di ricerca aperta, non un teorema. E per le equazioni che descrivono un fluido, perfino
+    domande di base sul comportamento delle soluzioni sono ancora problemi aperti della matematica, non
+    risolti da nessuno. Qui non ci sono scorciatoie: né in questo laboratorio né altrove.`,
+
+    controlli_h3: `I controlli che questa pagina deve superare`,
+    controlli_th1: `Caso`,
+    controlli_th2: `Deve dare`,
+    controlli_r1_a: `Primi tre passi a mano (x₀ = 0,2)`,
+    controlli_r1_b: `0,64 · 0,9216 · 0,28901376`,
+    controlli_r2_a: `Gemello a un milionesimo, primo passo`,
+    controlli_r2_b: `lo scarto si moltiplica ×2,4`,
+    controlli_r3_a: `Il passo che smentisce il raddoppio (11 → 12)`,
+    controlli_r3_b: `lo scarto si riduce di 24 volte`,
+    controlli_r4_a: `Venti passi con un millimetro su un chilometro`,
+    controlli_r4_b: `0,820014 e 0,031369`,
+    controlli_r5_a: `Il computer si ferma al passo 53`,
+    controlli_r5_b: `0,095380 e 0,615035`,
+    controlli_r6_a: `Misurare 6000 volte meglio`,
+    controlli_r6_b: `+12,55 passi`,
+    controlli_r7_a: `Il clima resta fermo mentre il tempo crolla`,
+    controlli_r7_b: `≈0,205 per entrambe le traiettorie`,
+    controlli_r8_a: `Il foglio piegato 53 volte`,
+    controlli_r8_b: `9,007×10¹¹ metri`,
+
+    footer_p1: `Laboratorio di fisica · Esperimento 8 di 10`,
+    footer_p2: `Nessuna libreria, nessuna chiamata di rete: tutto quello che vedi è calcolato qui.`,
+
+    unita_metri: `metri`
+  }
+};
+TESTI.en = JSON.parse(JSON.stringify(TESTI.it));  // PENDING: traduzione richiesta, non ancora arrivata
+/* English: reviewed translation merged from the lab translation pass. Keys not listed here fall back to the Italian text. */
+Object.assign(TESTI.en, {"titolo_pagina": "How far a forecast gets", "occhiello": "Physics laboratory · Experiment 8", "hero_titolo": "How far a forecast gets", "hero_kicker": "A multiplication you could redo on your phone calculator. Two almost identical starting points, the same rule applied again and again: after a few steps the forecasts have nothing in common. And measuring better, to push that moment away, takes far less than you think.", "hero_firme": "The rule of the step x → 4x(1−x) · <b>Stanislaw Ulam and John von Neumann, 1947<\/b> (the form with parameter 4) · <b>Edward Lorenz, 1963<\/b> (sensitive dependence in a deterministic system) · <b>Robert May, 1976<\/b> (the logistic map as a population model)", "passo1": "1 · Choose how well you measured the starting point", "passo2": "2 · Before running anything, bet", "passo3": "3 · You do the multiplication, one step at a time", "passo4": "4 · Two thousand steps: time against climate", "passo5": "5 · The formulas of this laboratory", "opz_mmkm_nota": "Like starting from 0.200000 and 0.200001: an error of one millimetre over a distance of one kilometre.", "scommessa_domanda": "At which step, in your opinion, will the two forecasts separate for good?", "btn_un_passo": "ONE STEP", "btn_corri": "RUN", "btn_reset": "start again", "canvas1_nota": "Each point is one step. It is not a continuous line: between one step and the next there is nothing, the trajectory is made only of these points.", "boxN_et": "How many steps this measurement buys you", "passo4_p": "Drop the values one by one and look at the statistics: two trajectories that have nothing in common, point by point, give the same overall picture.", "btn_clima": "TWO THOUSAND STEPS", "clima_et_x": "Time below 0.1 · your forecast", "clima_et_y": "Time below 0.1 · the twin", "formula1_et": "The rule of the step", "formula2_et": "How the gap grows, step by step (exact formula, not approximated)", "formula3_et": "On average, after n steps", "formula4_et": "How many steps you can predict", "formula5_et": "The exact formula of the trajectory (for those who want to check)", "formula6_et": "The climate, that is the statistics", "foglio_h2": "The folded sheet", "foglio_p1": "A sheet of paper is a tenth of a millimetre thick. Fold it in half twenty times — that is, double it twenty times, exactly what the gap between the two forecasts does — and its thickness becomes <b><span id=\"v-foglio20\">105 metres<\/span><\/b>: a thirty-storey building. Fold it 53 times, the number of steps a computer can take, and it becomes <b><span id=\"v-foglio53\">9.007×10¹¹ metres<\/span><\/b>, six times the distance between the Earth and the Sun, beyond the orbit of Jupiter.", "foglio_p2": "And meanwhile you, to do those twenty steps with the phone calculator, took three minutes. All the predictive power that a measurement precise to a millimetre over a kilometre gives you is used up in three minutes of hand calculation.", "sorpresa_h2": "The surprise", "sorpresa_p1": "There is no chance inside: it is a multiplication you could do on your phone calculator, and if you redo the sums they come out identical for anyone else who does them, today or in a hundred years. Yet two starting points that differ by a millionth, after twenty steps, are worth <b><span id=\"v-x20\">0.820014<\/span><\/b> and <b><span id=\"v-y20\">0.031369<\/span><\/b>.", "sorpresa_p2": "But the truly counterintuitive part is another, and it is quantitative: measuring better hardly helps. Going from “one millimetre over one kilometre” to “one atom over the length of your arm” means measuring 6000 times better — a precision that no laboratory in the world would reach on a real phenomenon — and it buys you <b><span id=\"v-diffN\">12.6<\/span> more steps<\/b>. Every time you halve the error you gain exactly one step. Just one.", "sorpresa_p3": "The same holds for the computer, even more starkly: it stops at step 53 not because it is slow, but because its numbers have 53 binary digits. Starting from 0.2, a double-precision calculation and a much more precise reference calculation agree until around the fiftieth step, then they split: at step 53 they are worth <b><span id=\"v-rif53a\">0.095380<\/span><\/b> and <b><span id=\"v-rif53b\">0.615035<\/span><\/b>. One a billion times faster stops at the very same step. The horizon of the forecast does not grow with the effort you put in: it grows with the logarithm of the effort, and it grows so slowly that at a certain point it is worth stopping the push.", "sorpresa_p4": "The same reasoning explains why weather forecasts stop at about two weeks. With an initial error equal to 1% of the typical variability and a doubling time of the error assumed constant and equal to two days: log₂(100) = 6.64 doublings, for <b><span id=\"v-meteo\">13.3 days<\/span><\/b>, consistent with the current practical limit of about ten days. It is an order-of-magnitude estimate, fragile as a figure: with a doubling time of a day and a half you get ten days, with two and a half days you get seventeen.", "onesta_h2": "What this model does not say", "onesta_li1": "<b>Doubling is an average, not a step-by-step law.<\/b> At step 12 of the example the gap does not double at all: it shrinks by 24 times, because the trajectory passes close to 0.5 where the formula squeezes instead of spreading. And “the step at which the two forecasts separate” depends on where you put the threshold: over 300 different starting points, with the threshold fixed at a gap of 0.25, the step ranges from 14 to 23, with 19 as the typical value; lowering the threshold to 0.1 brings it to 13–20. The threshold must always be declared, otherwise the number means nothing. “Twenty steps” is an order of magnitude, not an appointment.", "onesta_li2": "<b>The 4 in front of the formula is not a neutral choice: it is the extreme case, and it was chosen on purpose.<\/b> With 2.8 instead of 4, this same formula, after a while, locks onto a single fixed value — 0.642857, which is exactly 1 − 1/2.8 — and stays there forever. With 3.2 it oscillates between two values only, 0.513045 and 0.799455. With 3.83, between three. Chaos is not what a nonlinear formula always does: it is what it does in certain regions of the parameter, and in this laboratory we chose the region where it happens.", "onesta_li3": "<b>This formula is not a law of nature<\/b>, and nobody derived it from the equations of the atmosphere. It is the simplest thing that shows the phenomenon, and that is why it is used. That the phenomenon really exists in the atmosphere is a result of measurements and simulations, not a consequence of this multiplication. The calculation of the two weeks, in particular, uses a single doubling time equal for all scales, and that is its weakness: in the real atmosphere small errors grow much faster than large ones and then contaminate the large scales, and it is that cascade — not a single doubling — that fixes the limit. The calculation gives the right number for a reason that is only partly right, and it is honest to say so.", "onesta_li4": "<b>What the computer prints after step 53 is not your trajectory.<\/b> But it is not rubbish either: it is, to very good approximation, the true trajectory of a starting point slightly different from yours. That is why the statistics stay right while the single value is wrong, and indeed the histograms of the two diverging trajectories coincide to within 0.1% when the values no longer have anything in common.", "onesta_p_finale": "<b>And here is what physics still does not fully know.<\/b> That the statistics of a chaotic system respond in a regular way when you change a parameter — which is exactly the question “how does the climate change if I change the composition of the air” — is not guaranteed in general: for systems of this kind it is an open research question, not a theorem. And for the equations describing a fluid, even basic questions about how the solutions behave are still open problems of mathematics, unsolved by anyone. There are no shortcuts here: neither in this laboratory nor anywhere else.", "controlli_h3": "The checks this page must pass", "controlli_th1": "Case", "controlli_th2": "Must give", "controlli_r1_a": "First three steps by hand (x₀ = 0.2)", "controlli_r1_b": "0.64 · 0.9216 · 0.28901376", "controlli_r2_a": "Twin at one millionth, first step", "controlli_r2_b": "the gap is multiplied by ×2.4", "controlli_r3_a": "The step that refutes the doubling (11 → 12)", "controlli_r3_b": "the gap shrinks by 24 times", "controlli_r4_a": "Twenty steps with one millimetre over one kilometre", "controlli_r4_b": "0.820014 and 0.031369", "controlli_r5_a": "The computer stops at step 53", "controlli_r5_b": "0.095380 and 0.615035", "controlli_r6_a": "Measuring 6000 times better", "controlli_r6_b": "+12.55 steps", "controlli_r7_a": "The climate stays still while the weather collapses", "controlli_r7_b": "≈0.205 for both trajectories", "controlli_r8_a": "The sheet folded 53 times", "controlli_r8_b": "9.007×10¹¹ metres", "opz_mmkm_nome": "One millimetre in a kilometre", "opz_capello_nome": "One hair across the length of a football pitch", "opz_secondo_nome": "One second in a year", "opz_secondo_nota": "One second of error over a whole year (365.25 days): the precision of a good wristwatch.", "opz_atomo_nome": "One atom across the length of your arm", "opz_computer_nome": "All the digits of a computer", "opz_computer_nota": "The smallest difference that a double-precision number can write: 2⁻⁵³, about sixteen decimal digits.", "scheda_errore_relativo": "relative error ", "scheda_compra": " · buys ", "unita_passi": "steps", "scommessa_fissata_pre": "Bet fixed at step ", "scommessa_fissata_post": ". It can no longer be moved: look at it on the graph below.", "btn_ferma": "STOP", "conta_passi_iniziale": "no step · you are at the start", "conta_passi_sing": " step", "conta_passi_plur": " steps", "conta_passi_scarto_pre": " · current gap ", "quaderno_iniziale": "<span class=\"lbl\">Press \"one step\" to begin<\/span>", "quaderno_passo_pre": "step ", "quaderno_lbl_previsione": " · your forecast", "quaderno_lbl_gemello": " · the almost identical twin", "quaderno_poi": ", then ", "ledger_previsione": "your forecast", "ledger_gemello": "the almost identical twin", "legenda_scommessa": "┊ your bet", "contatore_scarto_label": "current gap: ", "contatore_retta": "theoretical line (dashed): d₀ × 2ⁿ", "boxN_nota_pre": "N = log₂(1/d₀), with d₀ = ", "boxN_nota_post": ". Beyond this number of steps your starting measurement says nothing more about the future.", "clima_teo_pre": "Theoretical value: (2/π) × arcsin(√0.1) ≈ ", "clima_caption": "two independent trajectories, same curve", "footer_p1": "Physics laboratory · Experiment 8 of 10", "footer_p2": "No library, no network call: everything you see is computed here.", "unita_metri": "metres"});
+TESTI.fr = JSON.parse(JSON.stringify(TESTI.it));  // PENDING
+TESTI.es = JSON.parse(JSON.stringify(TESTI.it));  // PENDING
+TESTI.de = JSON.parse(JSON.stringify(TESTI.it));  // PENDING
+
+/* ============================================================
+   INFRASTRUTTURA LINGUE
+   ============================================================ */
+window.__LINGUE = ['it','en','fr','es','de'];
+var LANG = 'en';
+
+function applyI18n(){
+  document.title = TESTI[LANG].titolo_pagina;
+  document.documentElement.lang = LANG;
+  var nodi = document.querySelectorAll('[data-i18n]');
+  for(var i=0;i<nodi.length;i++){
+    var el = nodi[i];
+    var key = el.getAttribute('data-i18n');
+    var val = TESTI[LANG][key];
+    if(val !== undefined) el.innerHTML = val;
+  }
+}
+
+/* Mappa id-opzione → prefisso delle chiavi TESTI (OPZIONI stessa
+   resta byte-identica all'originale: la legge anche collaudo()). */
+var OPZIONI_TESTI = {
+  'mm-km': 'opz_mmkm',
+  'capello-campo': 'opz_capello',
+  'secondo-anno': 'opz_secondo',
+  'atomo-braccio': 'opz_atomo',
+  'computer': 'opz_computer'
+};
+
+/* ============================================================
+   COSTANTI
+   ============================================================ */
+var X0 = 0.2;           /* partenza fissa, come da specifica: nessun cursore sul parametro */
+var PARAM = 4;
+var N_MAX = 60;          /* passi massimi mostrati nel pannello 1 */
+
+/* Le cinque opzioni di misura, in ordine crescente di precisione.
+   d0 = errore relativo di partenza; N = log2(1/d0). */
+var OPZIONI = [
+  { id:'mm-km', nome:'Un millimetro su un chilometro', d0: 1e-3/1e3,
+    nota:'Come partire da 0,200000 e 0,200001: un errore di un millimetro su una distanza di un chilometro.' },
+  { id:'capello-campo', nome:'Un capello sulla lunghezza di un campo da calcio', d0: 0.00007/105,
+    nota:'Un capello, circa 70 micrometri, disperso sui 105 metri di un campo da calcio: un errore relativo ancora più piccolo del millimetro sul chilometro.' },
+  { id:'secondo-anno', nome:'Un secondo su un anno', d0: 1/(365.25*86400),
+    nota:'Un secondo di errore su un anno intero (365,25 giorni): la precisione di un buon orologio da polso.' },
+  { id:'atomo-braccio', nome:'Un atomo sulla lunghezza del tuo braccio', d0: 1e-10/0.6,
+    nota:'Un atomo, un decimo di nanometro, sulla lunghezza di un braccio di 60 centimetri: una precisione che nessun laboratorio raggiunge su un fenomeno reale.' },
+  { id:'computer', nome:'Tutte le cifre di un computer', d0: Math.pow(2,-53),
+    nota:'Il più piccolo scarto che un numero in doppia precisione riesce a scrivere: 2⁻⁵³, cioè circa sedici cifre decimali.' }
+];
+
+/* ============================================================
+   STATO
+   ============================================================ */
+var st = {
+  precIdx: 0,
+  xs: [X0], ys: [X0 + OPZIONI[0].d0],
+  scommessa: 30, scommessaBloccata: false,
+  correndo: false, corriTimer: null,
+  climaUltimo: null
+};
+
+function d0Attuale(){ return OPZIONI[st.precIdx].d0; }
+function nAttuale(){ return st.xs.length - 1; }
+function NTeorico(d0){ return Math.log2(1/d0); }
+
+/* ============================================================
+   FORMATTAZIONE — tre cifre significative, mai di più (tranne il
+   quaderno dei passi, dove servono 12 decimali per il confronto
+   cifra per cifra: è il meccanismo centrale, non un capriccio).
+   ============================================================ */
+function it(x, dec){
+  if(!isFinite(x)) return '—';
+  return x.toLocaleString('en-US',{minimumFractionDigits:dec, maximumFractionDigits:dec});
+}
+function tre(x){
+  if(x === 0) return '0';
+  var e = Math.floor(Math.log10(Math.abs(x)));
+  var dec = Math.max(0, 2 - e);
+  if(dec > 6) dec = 6;
+  return it(x, dec);
+}
+function sci(x, sig){
+  if(x === 0) return '0';
+  var e = Math.floor(Math.log10(Math.abs(x)));
+  var m = x / Math.pow(10, e);
+  return it(m, (sig||3)-1) + '×10' + esponente(e);
+}
+function esponente(e){
+  var su = {'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  return String(e).split('').map(function(c){ return su[c] || c; }).join('');
+}
+function fmtLunghezza(m){
+  if(m < 1e-3) return sci(m,3) + ' ' + TESTI[LANG].unita_metri;
+  if(m < 1000) return tre(m) + ' ' + TESTI[LANG].unita_metri;
+  return sci(m,3) + ' ' + TESTI[LANG].unita_metri;
+}
+function num12(v){
+  /* 12 decimali, virgola italiana — la precisione richiesta dal meccanismo
+     "cifre che si accendono", non una violazione della regola delle tre
+     cifre significative: qui l'obiettivo è mostrare dove finisce l'accordo. */
+  var s = v.toFixed(12);
+  return s;
+}
+
+/* ============================================================
+   FISICA — la mappa logistica a parametro 4
+   ============================================================ */
+function passoMappa(x){ return PARAM * x * (1 - x); }
+function avanti(){
+  var n = st.xs.length - 1;
+  var x = st.xs[n], y = st.ys[n];
+  st.xs.push(passoMappa(x));
+  st.ys.push(passoMappa(y));
+}
+
+/* Formula esatta della traiettoria, per il controllo indipendente */
+function traiettoriaEsatta(x0, n){
+  return Math.pow(Math.sin(Math.pow(2,n) * Math.asin(Math.sqrt(x0))), 2);
+}
+/* Il clima: frazione di tempo sotto il valore x */
+function fraClima(x){ return (2/Math.PI) * Math.asin(Math.sqrt(x)); }
+/* Densità invariante, per la curva sovrapposta all'istogramma */
+function densita(x){
+  var xx = Math.min(Math.max(x, 1e-6), 1-1e-6);
+  return 1 / (Math.PI * Math.sqrt(xx*(1-xx)));
+}
+
+/* Riferimento ad alta precisione con BigInt in virgola fissa, solo per la
+   dimostrazione "il computer si ferma al passo 53": si rappresenta x come
+   intero scalato di S = 10^60, il passo diventa X = 4X(S-X)/S con divisione
+   intera. Farlo con i double dimostrerebbe la tesi con lo strumento che la
+   tesi accusa. */
+var BIG_DIGITS = 60n;
+var BIG_S = 10n ** BIG_DIGITS;
+function bigStep(X){ return (4n * X * (BIG_S - X)) / BIG_S; }
+function bigToNumber(X, digs){
+  var scale = 10n ** BigInt(digs);
+  var scaled = (X * scale) / BIG_S;
+  return Number(scaled) / Math.pow(10, digs);
+}
+function riferimento53(){
+  var X = 2n * (10n ** (BIG_DIGITS - 1n)); /* 0,2 * S, esatto */
+  var xd = 0.2;
+  var risultati = [];
+  for(var i=1;i<=53;i++){
+    X = bigStep(X);
+    xd = passoMappa(xd);
+    risultati.push({ n:i, doppia:xd, riferimento:bigToNumber(X,15) });
+  }
+  return risultati;
+}
+
+/* ============================================================
+   SCHEDE precisione
+   ============================================================ */
+function costruisciSchede(){
+  var cont = document.getElementById('sc-prec');
+  cont.innerHTML = '';
+  OPZIONI.forEach(function(o,i){
+    var chiave = OPZIONI_TESTI[o.id];
+    var b = document.createElement('button');
+    b.className = 'scheda'; b.type = 'button';
+    b.setAttribute('aria-pressed', i === st.precIdx ? 'true' : 'false');
+    var n = document.createElement('span'); n.className='n'; n.textContent = TESTI[LANG][chiave+'_nome'];
+    var d = document.createElement('span'); d.className='d';
+    d.textContent = TESTI[LANG].scheda_errore_relativo + sci(o.d0,3) + TESTI[LANG].scheda_compra + tre(NTeorico(o.d0)) + ' ' + TESTI[LANG].unita_passi;
+    b.appendChild(n); b.appendChild(d);
+    b.addEventListener('click', function(){
+      st.precIdx = i; ricomincia(); costruisciSchede();
+    });
+    cont.appendChild(b);
+  });
+  var chiaveAttuale = OPZIONI_TESTI[OPZIONI[st.precIdx].id];
+  document.getElementById('nota-prec').textContent = TESTI[LANG][chiaveAttuale+'_nota'];
+}
+
+/* ============================================================
+   SCOMMESSA — si può spostare finché non la rilasci una prima
+   volta; da quel momento resta lì, come una riga verticale sul
+   grafico, e non si può più cambiare (tranne ricominciando tutto).
+   ============================================================ */
+var slScommessa = document.getElementById('sl-scommessa');
+var boxScommessa = document.getElementById('scommessa-box');
+slScommessa.addEventListener('input', function(){
+  if(st.scommessaBloccata) return;
+  st.scommessa = parseInt(slScommessa.value,10);
+  document.getElementById('v-scommessa').textContent = st.scommessa;
+});
+slScommessa.addEventListener('change', function(){
+  if(st.scommessaBloccata) return;
+  st.scommessaBloccata = true;
+  slScommessa.disabled = true;
+  boxScommessa.classList.add('bloccata');
+  document.getElementById('esito-scommessa').textContent =
+    TESTI[LANG].scommessa_fissata_pre + st.scommessa + TESTI[LANG].scommessa_fissata_post;
+  disegnaTutto();
+});
+
+/* ============================================================
+   QUADERNO — il conto scritto per esteso dell'ultimo passo fatto
+   ============================================================ */
+function aggiornaQuaderno(){
+  var n = nAttuale();
+  var el = document.getElementById('quaderno');
+  if(n === 0){ el.innerHTML = TESTI[LANG].quaderno_iniziale; return; }
+  var xPrec = st.xs[n-1], yPrec = st.ys[n-1], xOra = st.xs[n], yOra = st.ys[n];
+  var righe = [];
+  righe.push('<span class="lbl">' + TESTI[LANG].quaderno_passo_pre + n + TESTI[LANG].quaderno_lbl_previsione + '</span>');
+  righe.push('1 − ' + it(xPrec,6) + ' = ' + it(1-xPrec,6) + TESTI[LANG].quaderno_poi + '4 × ' + it(xPrec,6) + ' × ' + it(1-xPrec,6) +
+             ' = <b>' + it(xOra,6) + '</b>');
+  righe.push('<span class="lbl">' + TESTI[LANG].quaderno_passo_pre + n + TESTI[LANG].quaderno_lbl_gemello + '</span>');
+  righe.push('1 − ' + it(yPrec,6) + ' = ' + it(1-yPrec,6) + TESTI[LANG].quaderno_poi + '4 × ' + it(yPrec,6) + ' × ' + it(1-yPrec,6) +
+             ' = <b>' + it(yOra,6) + '</b>');
+  el.innerHTML = righe.join('<br>');
+}
+
+/* ============================================================
+   LEDGER — le cifre che si accendono. Confronto carattere per
+   carattere fra le due colonne, 12 decimali: grigio finché
+   coincidono, colorato da dove cominciano a differire.
+   ============================================================ */
+function rigaConEvidenza(sx, sy){
+  var i, primaDiff = sx.length;
+  for(i=0;i<sx.length;i++){ if(sx[i] !== sy[i]){ primaDiff = i; break; } }
+  function marca(s, classeCol){
+    var out = '';
+    for(var j=0;j<s.length;j++){
+      var cls = j < primaDiff ? 'uguale' : ('diversa ' + classeCol);
+      out += '<span class="' + cls + '">' + s[j] + '</span>';
+    }
+    return out;
+  }
+  return { x: marca(sx,'colx'), y: marca(sy,'coly') };
+}
+function ridisegnaLedger(){
+  var cont = document.getElementById('righe');
+  cont.innerHTML = '';
+  for(var n=0;n<st.xs.length;n++){
+    var sx = num12(st.xs[n]), sy = num12(st.ys[n]);
+    var ev = rigaConEvidenza(sx, sy);
+    var r = document.createElement('div');
+    r.className = 'riga-p';
+    r.innerHTML = '<span class="np">' + n + '</span><span>' + ev.x + '</span><span>' + ev.y + '</span>';
+    cont.appendChild(r);
+  }
+  cont.scrollTop = cont.scrollHeight;
+}
+
+/* ============================================================
+   CANVAS 1 — punti, non linee. Asse y da 0 a 1, altezza 320px.
+   ============================================================ */
+var cv1 = document.getElementById('cv1'), ctx1 = cv1.getContext('2d');
+var cv2 = document.getElementById('cv2'), ctx2 = cv2.getContext('2d');
+var cv3 = document.getElementById('cv3'), ctx3 = cv3.getContext('2d');
+
+function dimensionaCanvas(cv, ctx){
+  var r = window.devicePixelRatio || 1;
+  var w = cv.clientWidth, h = cv.clientHeight;
+  cv.width = Math.round(w*r); cv.height = Math.round(h*r);
+  ctx.setTransform(r,0,0,r,0,0);
+}
+function dimensionaTutti(){
+  dimensionaCanvas(cv1,ctx1); dimensionaCanvas(cv2,ctx2); dimensionaCanvas(cv3,ctx3);
+  disegnaTutto();
+}
+
+function disegnaCanvas1(){
+  var w = cv1.clientWidth, h = cv1.clientHeight;
+  ctx1.fillStyle = '#0A0D18'; ctx1.fillRect(0,0,w,h);
+  var margL = 8, margR = 8, margT = 10, margB = 10;
+  var pw = w - margL - margR, ph = h - margT - margB;
+  function px(n){ return margL + (n/N_MAX)*pw; }
+  function py(v){ return margT + (1-v)*ph; }
+
+  /* griglia orizzontale leggera a 0, 0.5, 1 */
+  ctx1.strokeStyle = 'rgba(233,238,255,.12)'; ctx1.lineWidth = 1;
+  [0,0.5,1].forEach(function(v){
+    ctx1.beginPath(); ctx1.moveTo(margL,py(v)); ctx1.lineTo(w-margR,py(v)); ctx1.stroke();
+  });
+
+  /* riga della scommessa */
+  if(st.scommessaBloccata){
+    ctx1.strokeStyle = 'rgba(229,165,10,.85)'; ctx1.setLineDash([5,4]); ctx1.lineWidth = 1.5;
+    ctx1.beginPath(); ctx1.moveTo(px(st.scommessa),margT); ctx1.lineTo(px(st.scommessa),h-margB); ctx1.stroke();
+    ctx1.setLineDash([]);
+  }
+
+  /* punti */
+  for(var n=0;n<st.xs.length;n++){
+    ctx1.fillStyle = '#E5A50A';
+    ctx1.beginPath(); ctx1.arc(px(n), py(st.xs[n]), 2.6, 0, 6.2832); ctx1.fill();
+    ctx1.fillStyle = '#7C5CFF';
+    ctx1.beginPath(); ctx1.arc(px(n), py(st.ys[n]), 2.6, 0, 6.2832); ctx1.fill();
+  }
+}
+function disegnaCanvas2(){
+  var w = cv2.clientWidth, h = cv2.clientHeight;
+  ctx2.fillStyle = '#0A0D18'; ctx2.fillRect(0,0,w,h);
+  var margL = 8, margR = 8, margT = 10, margB = 10;
+  var pw = w - margL - margR, ph = h - margT - margB;
+  var LMIN = -16, LMAX = 0;
+  function px(n){ return margL + (n/N_MAX)*pw; }
+  function py(v){
+    var vv = Math.max(v, Math.pow(10,LMIN));
+    var t = (Math.log10(vv) - LMIN) / (LMAX - LMIN);
+    return margT + (1-t)*ph;
+  }
+  /* griglia leggera ogni 4 decadi */
+  ctx2.strokeStyle = 'rgba(233,238,255,.10)'; ctx2.lineWidth = 1;
+  for(var e=LMIN; e<=LMAX; e+=4){
+    var y = py(Math.pow(10,e));
+    ctx2.beginPath(); ctx2.moveTo(margL,y); ctx2.lineTo(w-margR,y); ctx2.stroke();
+  }
+  /* retta teorica tratteggiata d0*2^n */
+  ctx2.strokeStyle = 'rgba(255,216,110,.75)'; ctx2.setLineDash([4,3]); ctx2.lineWidth = 1.3;
+  ctx2.beginPath();
+  var d0 = d0Attuale(); var iniziato = false;
+  for(var n=0;n<=N_MAX;n++){
+    var v = d0*Math.pow(2,n);
+    if(v > 1) break;
+    var xx = px(n), yy = py(v);
+    if(!iniziato){ ctx2.moveTo(xx,yy); iniziato=true; } else ctx2.lineTo(xx,yy);
+  }
+  ctx2.stroke(); ctx2.setLineDash([]);
+
+  /* scommessa */
+  if(st.scommessaBloccata){
+    ctx2.strokeStyle = 'rgba(229,165,10,.85)'; ctx2.setLineDash([5,4]); ctx2.lineWidth = 1.5;
+    ctx2.beginPath(); ctx2.moveTo(px(st.scommessa),margT); ctx2.lineTo(px(st.scommessa),h-margB); ctx2.stroke();
+    ctx2.setLineDash([]);
+  }
+
+  /* punti veri, zigzaganti */
+  ctx2.fillStyle = '#2DD4BF';
+  for(var n2=1;n2<st.xs.length;n2++){
+    var scarto = Math.abs(st.ys[n2]-st.xs[n2]);
+    ctx2.beginPath(); ctx2.arc(px(n2), py(scarto), 2.6, 0, 6.2832); ctx2.fill();
+  }
+}
+function disegnaIstogrammi(binsX, binsY, sottoX, sottoY){
+  var w = cv3.clientWidth, h = cv3.clientHeight;
+  ctx3.fillStyle = '#0A0D18'; ctx3.fillRect(0,0,w,h);
+  var NB = binsX.length;
+  var margB = 30, margT = 12;
+  var ph = h - margB - margT;
+  var totX = binsX.reduce(function(a,b){return a+b;},0) || 1;
+  var totY = binsY.reduce(function(a,b){return a+b;},0) || 1;
+  var mx = 0;
+  for(var i=0;i<NB;i++){ mx = Math.max(mx, binsX[i]/totX, binsY[i]/totY); }
+  mx = mx || 1;
+  var bw = w / NB;
+  for(var i2=0;i2<NB;i2++){
+    var hx = (binsX[i2]/totX)/mx * ph, hy = (binsY[i2]/totY)/mx * ph;
+    ctx3.fillStyle = 'rgba(229,165,10,.65)';
+    ctx3.fillRect(i2*bw+1, h-margB-hx, bw/2-1.5, hx);
+    ctx3.fillStyle = 'rgba(124,92,255,.65)';
+    ctx3.fillRect(i2*bw+bw/2, h-margB-hy, bw/2-1.5, hy);
+  }
+  /* curva teorica sovrapposta, in scala coerente coi bin */
+  ctx3.strokeStyle = 'rgba(255,216,110,.9)'; ctx3.lineWidth = 1.6;
+  ctx3.beginPath();
+  var passi = 200;
+  var densMax = 0;
+  for(var k=0;k<=passi;k++){ var xv=(k+0.5)/passi; densMax = Math.max(densMax, densita(xv)); }
+  for(var k2=0;k2<=passi;k2++){
+    var xv2 = k2/passi;
+    var d = densita(xv2)/densMax * ph;
+    var xx = xv2*w, yy = h-margB-d;
+    if(k2===0) ctx3.moveTo(xx,yy); else ctx3.lineTo(xx,yy);
+  }
+  ctx3.stroke();
+  ctx3.fillStyle = '#C9CEE2';
+  ctx3.font = '12px ui-monospace, Menlo, monospace';
+  ctx3.textAlign = 'center';
+  ctx3.fillText(TESTI[LANG].clima_caption, w/2, h-8);
+}
+function disegnaTutto(){
+  disegnaCanvas1();
+  disegnaCanvas2();
+  document.getElementById('c-scarto').textContent =
+    nAttuale() === 0 ? '—' : sci(Math.abs(st.ys[nAttuale()]-st.xs[nAttuale()]),3);
+}
+
+/* ============================================================
+   AGGIORNAMENTO GENERALE pannello 1-3
+   ============================================================ */
+function aggiornaBoxN(){
+  var d0 = d0Attuale(), N = NTeorico(d0);
+  document.getElementById('v-N').textContent = tre(N);
+  document.getElementById('v-N-nota').textContent =
+    TESTI[LANG].boxN_nota_pre + sci(d0,3) + TESTI[LANG].boxN_nota_post;
+}
+function aggiorna(){
+  var n = nAttuale();
+  document.getElementById('conta-passi').textContent = n === 0
+    ? TESTI[LANG].conta_passi_iniziale
+    : n + (n===1 ? TESTI[LANG].conta_passi_sing : TESTI[LANG].conta_passi_plur) + TESTI[LANG].conta_passi_scarto_pre + sci(Math.abs(st.ys[n]-st.xs[n]),3);
+  document.getElementById('btn-passo').disabled = (n >= N_MAX);
+  document.getElementById('btn-corri').style.display = (n >= 10 && n < N_MAX) ? 'block' : 'none';
+  aggiornaQuaderno();
+  ridisegnaLedger();
+  disegnaTutto();
+  aggiornaBoxN();
+}
+function ricomincia(){
+  fermaCorsa();
+  st.xs = [X0]; st.ys = [X0 + d0Attuale()];
+  st.scommessaBloccata = false;
+  slScommessa.disabled = false;
+  boxScommessa.classList.remove('bloccata');
+  document.getElementById('esito-scommessa').textContent = '';
+  aggiorna();
+}
+function fermaCorsa(){
+  st.correndo = false;
+  if(st.corriTimer){ clearTimeout(st.corriTimer); st.corriTimer = null; }
+  document.getElementById('btn-corri').textContent = TESTI[LANG].btn_corri;
+  document.getElementById('btn-corri').classList.remove('attiva');
+}
+function passoUnico(){
+  if(nAttuale() >= N_MAX) return;
+  avanti();
+  aggiorna();
+}
+function corriPasso(){
+  if(!st.correndo) return;
+  if(nAttuale() >= N_MAX){ fermaCorsa(); return; }
+  avanti();
+  aggiorna();
+  st.corriTimer = setTimeout(corriPasso, 140);
+}
+
+document.getElementById('btn-passo').addEventListener('click', passoUnico);
+document.getElementById('btn-corri').addEventListener('click', function(){
+  if(st.correndo){ fermaCorsa(); return; }
+  st.correndo = true;
+  this.textContent = TESTI[LANG].btn_ferma;
+  this.classList.add('attiva');
+  corriPasso();
+});
+document.getElementById('btn-reset').addEventListener('click', ricomincia);
+window.addEventListener('resize', dimensionaTutti);
+
+/* ============================================================
+   PANNELLO CLIMA — duemila passi, istantaneo
+   ============================================================ */
+function eseguiClima(){
+  var d0 = d0Attuale();
+  var x = X0, y = X0 + d0;
+  var NB = 40, N = 2000;
+  var binsX = new Array(NB).fill(0), binsY = new Array(NB).fill(0);
+  var sottoX = 0, sottoY = 0;
+  for(var i=0;i<N;i++){
+    x = passoMappa(x); y = passoMappa(y);
+    var bx = Math.min(NB-1, Math.floor(x*NB));
+    var by = Math.min(NB-1, Math.floor(y*NB));
+    binsX[bx]++; binsY[by]++;
+    if(x < 0.1) sottoX++;
+    if(y < 0.1) sottoY++;
+  }
+  st.climaUltimo = { binsX: binsX, binsY: binsY };
+  disegnaIstogrammi(binsX, binsY, sottoX/N, sottoY/N);
+  document.getElementById('v-clima-x').textContent = it(sottoX/N, 3);
+  document.getElementById('v-clima-y').textContent = it(sottoY/N, 3);
+  document.getElementById('v-clima-teo').textContent = it(fraClima(0.1), 3);
+}
+document.getElementById('btn-clima').addEventListener('click', eseguiClima);
+
+/* ============================================================
+   TESTI CALCOLATI DAL VIVO (foglio piegato, riferimento 53, meteo,
+   diff N) — nessun numero scritto a mano nel testo: sono tutti
+   calcolati qui, coerenti con l'autocollaudo qui sotto.
+   ============================================================ */
+function riempiTestiCalcolati(){
+  var m20 = Math.pow(2,20)*0.1e-3;
+  var m53 = Math.pow(2,53)*0.1e-3;
+  document.getElementById('v-foglio20').textContent = tre(m20) + ' ' + TESTI[LANG].unita_metri;
+  document.getElementById('v-foglio53').textContent = sci(m53,4) + ' ' + TESTI[LANG].unita_metri;
+
+  var d0mm = OPZIONI[0].d0, d0atomo = OPZIONI[3].d0;
+  document.getElementById('v-diffN').textContent = tre(NTeorico(d0atomo) - NTeorico(d0mm));
+
+  var xs=[X0], ys=[X0+d0mm];
+  for(var i=0;i<20;i++){ xs.push(passoMappa(xs[i])); ys.push(passoMappa(ys[i])); }
+  document.getElementById('v-x20').textContent = it(xs[20],6);
+  document.getElementById('v-y20').textContent = it(ys[20],6);
+
+  var rif = riferimento53();
+  var ultimo = rif[52]; /* indice 52 = passo 53 */
+  document.getElementById('v-rif53a').textContent = it(ultimo.riferimento,6);
+  document.getElementById('v-rif53b').textContent = it(ultimo.doppia,6);
+
+  document.getElementById('v-meteo').textContent = tre(Math.log2(100)*2);
+}
+
+/* ============================================================
+   CAMBIO LINGUA — riapplica i data-i18n e richiama le funzioni di
+   aggiornamento dinamico già esistenti, così le cifre restano
+   coerenti con lo stato interattivo dell'utente.
+   ============================================================ */
+function setLang(l){
+  if(window.__LINGUE.indexOf(l) === -1) return;
+  LANG = l;
+  applyI18n();
+  costruisciSchede();
+  aggiorna();
+  riempiTestiCalcolati();
+  document.getElementById('btn-corri').textContent = st.correndo ? TESTI[LANG].btn_ferma : TESTI[LANG].btn_corri;
+  if(st.scommessaBloccata){
+    document.getElementById('esito-scommessa').textContent =
+      TESTI[LANG].scommessa_fissata_pre + st.scommessa + TESTI[LANG].scommessa_fissata_post;
+  }
+  if(st.climaUltimo){
+    disegnaIstogrammi(st.climaUltimo.binsX, st.climaUltimo.binsY);
+  }
+}
+window.setLang = setLang;
+
+/* ============================================================
+   AVVIO
+   ============================================================ */
+applyI18n();
+costruisciSchede();
+dimensionaTutti();
+aggiorna();
+riempiTestiCalcolati();
+
+/* ------------------------------------------------------------
+   AUTOCOLLAUDO — gira in console, non tocca la pagina.
+   Verifica tutti i casi della tabella della scheda più alcuni
+   invarianti fisici del modello. Se uno salta, la pagina mente.
+   ------------------------------------------------------------ */
+(function collaudo(){
+  var esiti = [];
+  function ok(nome, avuto, atteso, toll){
+    var passa = Math.abs(avuto-atteso)/Math.abs(atteso) < (toll||0.01);
+    esiti.push((passa?'OK  ':'NO  ') + nome + '  = ' + avuto.toPrecision(6) +
+               (passa ? '' : '   atteso ' + atteso));
+    return passa;
+  }
+
+  var salva = { xs: st.xs, ys: st.ys, precIdx: st.precIdx, scommessa: st.scommessa, bloc: st.scommessaBloccata };
+
+  /* --- primi tre passi a mano --- */
+  var x1 = passoMappa(0.2);
+  var x2 = passoMappa(x1);
+  var x3 = passoMappa(x2);
+  ok('passo 1 (x1)', x1, 0.64, 1e-9);
+  ok('passo 2 (x2)', x2, 0.9216, 1e-9);
+  ok('passo 3 (x3)', x3, 0.28901376, 1e-9);
+
+  /* --- gemello a un milionesimo --- */
+  var y0 = 0.200001, d0 = y0-0.2;
+  var y1 = passoMappa(y0);
+  var d1 = y1-x1;
+  ok('gemello y1', y1, 0.640002399996, 1e-9);
+  ok('rapporto scarto d1/d0', d1/d0, 2.399996, 0.01);
+  ok('controprova formula esatta d1', 4*(1-0.2-y0)*d0, d1, 1e-9);
+
+  /* --- traiettoria fino al passo 20, per verificare i casi 11-12 e 20 --- */
+  var xs=[0.2], ys=[y0];
+  for(var i=0;i<20;i++){ xs.push(passoMappa(xs[i])); ys.push(passoMappa(ys[i])); }
+  ok('x11 sulla traiettoria', xs[11], 0.503923645865, 1e-6);
+  ok('y11 sulla traiettoria', ys[11], 0.506483502029, 1e-6);
+  var d11 = ys[11]-xs[11], d12 = ys[12]-xs[12];
+  var fattore12 = 4*(1-xs[11]-ys[11]);
+  ok('fattore al passo 12', fattore12, -0.041628591576, 0.01);
+  ok('riduzione |d11/d12|', Math.abs(d11/d12), 24.02, 0.02);
+  ok('x20 (venti passi, mm su km)', xs[20], 0.820014, 1e-4);
+  ok('y20 (venti passi, mm su km)', ys[20], 0.031369, 1e-3);
+
+  /* --- le cinque opzioni di precisione: N sempre fra 20 e 53 --- */
+  OPZIONI.forEach(function(o){
+    var N = NTeorico(o.d0);
+    var entro = N >= 19.5 && N <= 53.5;
+    esiti.push((entro?'OK  ':'NO  ') + 'N opzione "' + o.nome + '" = ' + N.toPrecision(4) + ' fra 20 e 53');
+  });
+  ok('N opzione mm/km', NTeorico(OPZIONI[0].d0), 19.9316, 0.01);
+  ok('N opzione capello/campo', NTeorico(OPZIONI[1].d0), 20.52, 0.01);
+  ok('N opzione secondo/anno', NTeorico(OPZIONI[2].d0), 24.91, 0.01);
+  ok('N opzione atomo/braccio', NTeorico(OPZIONI[3].d0), 32.48, 0.01);
+  ok('N opzione computer', NTeorico(OPZIONI[4].d0), 53.0, 0.01);
+  ok('differenza N (6000 volte meglio)', NTeorico(OPZIONI[3].d0)-NTeorico(OPZIONI[0].d0), Math.log2(6000), 0.01);
+
+  /* --- il computer si ferma al passo 53 --- */
+  var rif = riferimento53();
+  ok('passo 53, doppia precisione', rif[52].doppia, 0.615035, 1e-4);
+  ok('passo 53, riferimento alta precisione', rif[52].riferimento, 0.095380, 1e-4);
+  var scarto52 = Math.abs(rif[51].doppia - rif[51].riferimento);
+  var scarto53 = Math.abs(rif[52].doppia - rif[52].riferimento);
+  ok('scarto al passo 52', scarto52, 0.16533, 0.02);
+  ok('scarto al passo 53', scarto53, 0.519656, 0.02);
+  var primoOltre01 = rif.findIndex(function(r){ return Math.abs(r.doppia-r.riferimento) > 0.1; });
+  esiti.push((primoOltre01+1===52 ? 'OK  ' : 'NO  ') + 'primo passo con scarto > 0,1 = ' + (primoOltre01+1) + ' (atteso 52)');
+
+  /* --- formula esatta della traiettoria (invariante) --- */
+  var xchk=[0.2];
+  for(var j=0;j<8;j++) xchk.push(passoMappa(xchk[j]));
+  var okFormula = true;
+  for(var n=1;n<=8;n++){
+    var esatto = traiettoriaEsatta(0.2, n);
+    if(Math.abs(esatto - xchk[n]) > 1e-6) okFormula = false;
+  }
+  esiti.push((okFormula?'OK  ':'NO  ') + 'formula sin² coincide con l\'iterazione diretta (n=1..8)');
+
+  /* --- il clima --- */
+  ok('formula clima a x=0,1', fraClima(0.1), 0.204833, 0.001);
+
+  var xc = 0.2, yc = 0.200001, Nc = 200000, sx=0, sy=0, bx=0, by=0;
+  for(var k=0;k<Nc;k++){
+    xc = passoMappa(xc); yc = passoMappa(yc);
+    if(xc<0.1) sx++; if(yc<0.1) sy++;
+    if(xc>=0.45 && xc<=0.55) bx++;
+    if(yc>=0.45 && yc<=0.55) by++;
+  }
+  ok('clima: frazione sotto 0,1 (x)', sx/Nc, fraClima(0.1), 0.02);
+  ok('clima: frazione sotto 0,1 (y)', sy/Nc, fraClima(0.1), 0.02);
+  var teoBanda = fraClima(0.55)-fraClima(0.45);
+  ok('clima: banda centrale (x)', bx/Nc, teoBanda, 0.05);
+  ok('clima: banda centrale (y)', by/Nc, teoBanda, 0.05);
+
+  /* --- foglio piegato --- */
+  ok('foglio piegato 20 volte (m)', Math.pow(2,20)*0.1e-3, 104.8576, 1e-6);
+  ok('foglio piegato 53 volte (m)', Math.pow(2,53)*0.1e-3, 9.00719925474e11, 1e-9);
+  ok('foglio 53 volte in unità astronomiche', (Math.pow(2,53)*0.1e-3)/1.496e11, 6.02, 0.01);
+
+  /* --- meteo --- */
+  ok('meteo: giorni con raddoppio di 2 giorni', Math.log2(100)*2, 13.29, 0.01);
+  ok('meteo: giorni con raddoppio di 1,5', Math.log2(100)*1.5, 9.97, 0.01);
+  ok('meteo: giorni con raddoppio di 2,5', Math.log2(100)*2.5, 16.61, 0.01);
+
+  /* --- invarianti fisici: media del fattore di espansione locale --- */
+  var xt = 0.2 + 1e-7, sum=0, sumlog=0, cnt=0, M=400000;
+  for(var m=0;m<M;m++){
+    xt = passoMappa(xt);
+    var f = Math.abs(4-8*xt);
+    sum += f;
+    if(f > 1e-6){ sumlog += Math.log(f); cnt++; }
+  }
+  ok('invariante: media aritmetica del fattore', sum/M, 8/Math.PI, 0.02);
+  ok('invariante: media geometrica del fattore (Lyapunov)', Math.exp(sumlog/cnt), 2, 0.03);
+
+  /* ripristina lo stato interattivo dell'utente */
+  st.xs = salva.xs; st.ys = salva.ys; st.precIdx = salva.precIdx;
+  st.scommessa = salva.scommessa; st.scommessaBloccata = salva.bloc;
+
+  var falliti = esiti.filter(function(e){ return e.indexOf('NO') === 0; }).length;
+  console.log('%cAutocollaudo esperimento 8 — ' + (falliti ? falliti + ' CONTROLLI FALLITI' : 'tutti i controlli passati (' + esiti.length + ')'),
+              'font-weight:bold;color:' + (falliti ? '#c00' : '#0a0'));
+  esiti.forEach(function(e){ console.log('  ' + e); });
+})();
+
+})();
+
+try{ if(typeof setLang==='function') setLang('en'); }catch(e){}
+</script>
+</body>
+</html>

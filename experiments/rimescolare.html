@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quante volte devi rimescolare perché l'aria vada tutta a sinistra</title>
+<style>
+
+:root{
+  --scuro-1:#16224A; --scuro-2:#0D1120; --scuro-3:#04060E;
+  --carta:#FAF7F1; --inchiostro:#33302B; --tenue:#7E7768;
+  --oro:#E5A50A; --oro-chiaro:#FFD86E; --viola:#7C5CFF; --acqua:#2DD4BF;
+  --bordo:#E7E1D3; --panna:#FCFAF6;
+  --tit:'Bebas Neue','Avenir Next Condensed','Oswald',sans-serif;
+  --testo:'DM Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'DM Mono','SF Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--carta); color:var(--inchiostro);
+  font-family:var(--testo); font-size:17px; line-height:1.62;
+  -webkit-text-size-adjust:100%;
+}
+@media(prefers-reduced-motion: reduce){
+  *{transition-duration:.001ms !important; animation-duration:.001ms !important;}
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 18px 90px}
+
+/* ---- fascia alta ---- */
+.hero{
+  background:radial-gradient(120% 95% at 50% 30%,
+    var(--scuro-1) 0%, var(--scuro-2) 45%, var(--scuro-3) 78%, var(--carta) 100%);
+  color:#fff; padding:54px 0 62px; margin-bottom:34px;
+}
+.hero .wrap{padding-bottom:0}
+.occhiello{
+  font-family:var(--mono); font-size:12px; letter-spacing:.22em;
+  text-transform:uppercase; color:#8F97B8; margin:0 0 14px;
+}
+.hero h1{
+  font-family:var(--tit); font-weight:500; font-size:clamp(34px,6.6vw,58px);
+  line-height:1.0; letter-spacing:.01em; margin:0 0 20px; max-width:17ch;
+}
+.kicker{color:#C9CEE2; font-size:17.5px; max-width:58ch; margin:0 0 22px}
+.firme{
+  font-family:var(--mono); font-size:12.5px; line-height:1.75;
+  color:#7F87A8; max-width:62ch; margin:0;
+}
+.firme b{color:#AEB6D4; font-weight:400}
+
+/* ---- struttura ---- */
+.passo{
+  font-family:var(--mono); font-size:12px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--tenue); margin:38px 0 14px;
+}
+h2{font-family:var(--tit);font-weight:500;font-size:29px;letter-spacing:.01em;margin:34px 0 12px}
+h3{font-size:18px;margin:26px 0 8px}
+p{margin:0 0 15px}
+.tenue{color:var(--tenue);font-size:15.5px}
+
+/* ---- schede di scelta ---- */
+.schede{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin-bottom:16px}
+.scheda{
+  border:1.5px solid var(--bordo); border-radius:11px; background:var(--panna);
+  padding:13px 15px; cursor:pointer; text-align:left; font:inherit;
+  color:inherit; transition:border-color .16s, background .16s;
+  min-height:48px;
+}
+.scheda:hover{border-color:#C9C1AC}
+.scheda[aria-pressed="true"]{border-color:var(--oro);background:#FFFBEF}
+.scheda .n{display:block;font-size:16.5px;margin-bottom:2px}
+.scheda .d{
+  display:block;font-family:var(--mono);font-size:11.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--tenue);
+}
+.scheda[aria-pressed="true"] .d{color:#A08420}
+.scheda:disabled,.scheda[disabled]{opacity:.45;cursor:not-allowed}
+
+/* ---- badge scommessa, resta in vista ---- */
+.badge-wrap{position:sticky;top:0;z-index:5;display:flex;justify-content:flex-end;
+  margin:0 0 6px;pointer-events:none}
+.badge{
+  pointer-events:auto;background:var(--scuro-2);color:#E8EAF2;border-radius:0 0 10px 10px;
+  padding:8px 14px;font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;
+  box-shadow:0 4px 14px rgba(0,0,0,.18);
+}
+.badge b{color:var(--oro-chiaro);font-weight:400}
+.badge.vuoto{background:var(--panna);color:var(--tenue);border:1px dashed var(--bordo)}
+
+/* ---- il pulsante centrale ---- */
+.rimescola{
+  display:block;width:100%;margin:22px 0 8px;padding:20px 18px;
+  border:none;border-radius:13px;cursor:pointer;
+  background:var(--scuro-2);color:#fff;font-family:var(--tit);font-weight:500;
+  font-size:27px;letter-spacing:.05em;min-height:56px;
+  transition:transform .09s, background .16s;
+}
+.rimescola:hover{background:#1B2440}
+.rimescola:active{transform:scale(.985)}
+.rimescola:disabled{background:#B9B3A4;cursor:default}
+.fila-comandi{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
+.pill{
+  display:inline-flex;align-items:center;gap:8px;border:1.5px solid var(--bordo);
+  border-radius:30px;padding:10px 16px;font-family:var(--mono);font-size:12.5px;
+  background:var(--panna);cursor:pointer;min-height:48px;color:var(--inchiostro);
+}
+.pill input{accent-color:var(--oro);width:18px;height:18px}
+.pill:disabled,.pill[disabled]{opacity:.45;cursor:not-allowed}
+.reset{
+  background:none;border:none;font:inherit;color:var(--tenue);
+  text-decoration:underline;cursor:pointer;padding:10px 4px;min-height:48px;
+}
+.salta{
+  background:var(--panna);border:1.5px solid var(--bordo);border-radius:30px;
+  padding:10px 16px;font-family:var(--mono);font-size:12.5px;cursor:pointer;
+  min-height:48px;color:var(--inchiostro);
+}
+.salta:disabled{opacity:.4;cursor:not-allowed}
+
+/* ---- riquadro risultato ---- */
+.box{border:1px solid var(--bordo);border-radius:13px;background:var(--panna);padding:19px 21px;margin:18px 0}
+.box.oro{border-color:#EBD9A4;background:#FFFBEF}
+.box.scuro{background:var(--scuro-2);border-color:#26304F;color:#E8EAF2}
+.box.scuro .et{color:#8F97B8}
+.et{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--tenue);margin:0 0 7px;
+}
+.grande{font-family:var(--tit);font-weight:500;font-size:clamp(26px,5.4vw,38px);line-height:1.05;margin:0}
+.grande .u{font-size:.48em;color:var(--tenue);letter-spacing:.02em}
+.box.scuro .grande .u{color:#8F97B8}
+
+/* ---- tabella grandezze ---- */
+.grandezze{width:100%;border-collapse:collapse;margin:6px 0 4px}
+.grandezze td{padding:11px 4px;border-bottom:1px solid var(--bordo);vertical-align:top}
+.grandezze td.et2{
+  font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--tenue);
+  width:46%;padding-right:10px;
+}
+.grandezze td.va{font-size:16.5px}
+.grandezze tr:last-child td{border-bottom:none}
+.nero{color:var(--inchiostro);font-family:var(--mono);font-size:13px}
+
+/* ---- contatori ---- */
+.contatore{
+  display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:12.5px;color:var(--tenue);margin:14px 0 20px;
+}
+.contatore b{color:var(--inchiostro);font-weight:400}
+.contatore .servirebbe{color:var(--inchiostro)}
+
+/* ---- canvas scatola ---- */
+.vasca{
+  position:relative;border:1px solid var(--bordo);border-radius:12px;
+  overflow:hidden;background:#0A0D18;margin:16px 0 6px;
+  width:100%;max-width:640px;min-width:0;
+  aspect-ratio:1/1;
+}
+.vasca.flash{animation:flashbox .5s ease}
+@keyframes flashbox{ 0%,100%{box-shadow:none} 40%{box-shadow:0 0 0 4px var(--oro) inset} }
+canvas{display:block;width:100%;height:100%}
+.vasca-hist{
+  position:relative;border:1px solid var(--bordo);border-radius:12px;
+  overflow:hidden;background:var(--panna);margin:8px 0 6px;height:150px;
+}
+.vasca-hist canvas{background:var(--panna)}
+.legenda-hist{
+  display:flex;gap:16px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;
+  color:var(--tenue);margin-bottom:20px;
+}
+.legenda-hist .sw{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+
+/* ---- riquadro monete ---- */
+.monete{
+  border:1.5px dashed var(--bordo);border-radius:12px;padding:16px 18px;
+  margin:18px 0;color:var(--inchiostro);font-size:15.5px;background:transparent;
+}
+.monete .et{margin-bottom:8px}
+
+/* ---- conti a mano ---- */
+.formulaBox{
+  border-left:3px solid var(--oro);background:#FFFBEF;border-radius:0 10px 10px 0;
+  padding:15px 18px;margin:18px 0;
+}
+.formulaBox .et{color:#A08420}
+.formulaBox h4{
+  font-family:var(--tit);font-weight:500;font-size:16.5px;letter-spacing:.03em;
+  margin:20px 0 5px;color:var(--inchiostro);
+}
+.formulaBox h4:first-of-type{margin-top:4px}
+pre{
+  font-family:var(--mono); font-size:13px; line-height:1.62; margin:0;
+  white-space:pre-wrap; word-wrap:break-word; color:#4A463F;
+}
+pre b{color:var(--inchiostro);font-weight:400;background:#FBEFC9;padding:0 3px;border-radius:3px}
+.frazione{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;margin:0 3px}
+.frazione div{padding:0 3px}
+.frazione .num{border-bottom:1px solid var(--inchiostro)}
+.formula-riga{font-family:var(--mono);font-size:14px;margin:10px 0 6px}
+.spiega{font-size:13.5px;color:#4A463F;margin:0 0 4px}
+details.pannello{margin:14px 0}
+details.pannello > summary{
+  cursor:pointer;list-style:none;font-family:var(--tit);font-weight:500;
+  font-size:22px;letter-spacing:.02em;padding:4px 0;
+}
+details.pannello > summary::-webkit-details-marker{display:none}
+details.pannello > summary::after{content:' ▾';font-family:var(--testo);font-size:15px;color:var(--tenue)}
+details.pannello[open] > summary::after{content:' ▴'}
+
+/* ---- sezione onesta ---- */
+.onesta{border-top:1px solid var(--bordo);margin-top:46px;padding-top:8px}
+.onesta h2{color:var(--inchiostro)}
+.onesta h3{font-family:var(--tit);font-weight:500;font-size:19px;margin:26px 0 6px}
+.onesta li{margin-bottom:15px}
+.onesta ol{padding-left:20px}
+.onesta b{font-weight:600}
+
+table.tab{border-collapse:collapse;width:100%;font-size:14.5px;margin:14px 0}
+table.tab th,table.tab td{border-bottom:1px solid var(--bordo);padding:8px 9px;text-align:left;vertical-align:top}
+table.tab th{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--tenue);font-weight:400}
+.tab-wrap{overflow-x:auto}
+
+footer{border-top:1px solid var(--bordo);margin-top:44px;padding-top:18px}
+footer p{font-family:var(--mono);font-size:12px;color:var(--tenue);margin:0 0 6px}
+
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+
+</style>
+</head>
+<body>
+<a href="../index.html" style="display:inline-block;margin:14px;font:12px monospace;color:inherit">&larr; All experiments</a>
+
+
+<header class="hero">
+  <div class="wrap">
+<div class="lab-hero-ico" style="width:52px;height:52px;color:#8A6A07;margin:0 0 10px"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h4l8 10h4"/><path d="M16 7h4"/><path d="M4 17h4l2.5-3"/><path d="m17 4 3 3-3 3"/><path d="m17 20 3-3-3-3"/></svg></div>
+    <p class="occhiello" data-i18n="hero_occhiello">Laboratorio di fisica · Esperimento 7</p>
+    <h1 data-i18n="hero_titolo">Quante volte devi rimescolare perché l'aria vada tutta a sinistra</h1>
+    <p class="kicker" data-i18n="hero_kicker">Rimescola una scatola d'aria e prova a farla tornare tutta da un lato. Con
+    quattro molecole ci riesci quasi subito. Con cento non ci riuscirai mai, in nessuna vita — e non
+    perché una legge lo vieti: è solo che contare i modi possibili cresce più in fretta di qualunque
+    cosa tu conosca.</p>
+    <p class="firme" data-i18n="hero_firme">Entropia statistica S = k ln W
+    · <b>Ludwig Boltzmann, 1877</b> (la relazione fra entropia e probabilità)
+    · <b>Max Planck, 1900-1901</b> (la scrittura S = k log W nella forma di oggi, e la costante k,
+    intitolata a Boltzmann)</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="badge-wrap"><div class="badge vuoto" id="badge">nessuna scommessa ancora</div></div>
+
+  <p class="passo" data-i18n="passo_1">1 · Quanta aria metti nella scatola</p>
+  <div class="schede" id="sc-aria"></div>
+  <p class="tenue" id="nota-aria"></p>
+
+  <p class="passo" data-i18n="passo_2">2 · Scommetti, prima di vedere qualunque cosa</p>
+  <p class="tenue" data-i18n="scommessa_domanda">Quante volte pensi di dover rimescolare, prima di vederle tutte quante nella metà
+  sinistra?</p>
+  <div class="schede" id="sc-scommessa" style="grid-template-columns:repeat(2,1fr)"></div>
+
+  <p class="passo" data-i18n="passo_3">3 · Rimescola, e guarda</p>
+  <button class="rimescola" id="btn-rimescola" data-i18n="btn_rimescola">RIMESCOLA</button>
+  <div class="fila-comandi">
+    <label class="pill"><input type="checkbox" id="chk-auto"> <span data-i18n="lbl_auto">rimescola da solo (20/s)</span></label>
+    <button class="salta" id="btn-salta" type="button" data-i18n="btn_salta">salta avanti di un milione</button>
+    <button class="reset" id="btn-reset" type="button" data-i18n="btn_reset">ricomincia</button>
+  </div>
+
+  <div class="contatore" id="contatore-riga" aria-live="polite">
+    <span><span data-i18n="lbl_rimescolamenti">rimescolamenti: </span><b id="c-volte">0</b></span>
+    <span><span data-i18n="lbl_miglior_tentativo">miglior tentativo: </span><b id="c-record">—</b></span>
+    <span><span data-i18n="lbl_colpo_pieno">colpo pieno: </span><b id="c-pieni">0</b><span data-i18n="lbl_volte"> volte</span></span>
+  </div>
+  <p class="tenue nero" id="c-servirebbe"></p>
+
+  <div class="vasca" id="vasca"><canvas id="cv"></canvas></div>
+  <p class="sr-only" id="sr-scatola" aria-live="polite"></p>
+
+  <div id="blocco-istogramma">
+    <p class="passo" data-i18n="passo_hist">L'istogramma dei tuoi tentativi</p>
+    <div class="vasca-hist"><canvas id="cv-hist"></canvas></div>
+    <div class="legenda-hist">
+      <span data-i18n="hist_legenda_veri"><span class="sw" style="background:#7C5CFF"></span>i tuoi rimescolamenti veri</span>
+      <span data-i18n="hist_legenda_teorica"><span class="sw" style="background:#C9C1AC"></span>la curva teorica W(k)</span>
+    </div>
+  </div>
+
+  <div class="monete">
+    <p class="et" style="font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--tenue)" data-i18n="monete_et">Il gesto fuori dallo schermo</p>
+    <p style="margin:0" data-i18n="monete_p">Prendi quattro monete vere. Lanciale insieme finché non escono quattro teste.
+    Conta i lanci, e confronta con il numero qui sopra.</p>
+  </div>
+
+  <p class="passo" data-i18n="passo_grandezze">Le grandezze, per la scelta di adesso</p>
+  <div class="box oro">
+    <table class="grandezze">
+      <tr><td class="et2" data-i18n="g_lbl_probabilita">una volta su</td><td class="va" id="g-probabilita">—</td></tr>
+      <tr><td class="et2" data-i18n="g_lbl_tempo">rimescolamenti in media, e il tempo a 20/s</td><td class="va" id="g-tempo">—</td></tr>
+      <tr><td class="et2" data-i18n="g_lbl_squilibrio">quante in più della metà esatta</td><td class="va" id="g-squilibrio">—</td></tr>
+      <tr><td class="et2" data-i18n="g_lbl_entropia">entropia che perdi</td><td class="va" id="g-entropia">—</td></tr>
+    </table>
+  </div>
+
+  <p class="passo" data-i18n="passo_conti">4 · Rifai i conti a mano</p>
+  <details class="pannello">
+    <summary data-i18n="summary_formule">le sette formule, con l'esempio N = 4 svolto</summary>
+
+    <div class="formulaBox">
+      <p class="et" data-i18n="formula_et_1">Quante sistemazioni esistono</p>
+      <p class="formula-riga">W = 2<sup>N</sup></p>
+      <p class="spiega" data-i18n="formula_spiega_1">Ogni molecola può stare a sinistra o a destra: due possibilità a testa, e le
+      scelte sono indipendenti, quindi le possibilità si moltiplicano.</p>
+      <pre data-i18n="formula_pre_1">Con 4 molecole: 2×2×2×2 = <b>16</b>. W si legge "numero di microstati".</pre>
+
+      <h4 data-i18n="formula_h4_1">Probabilità del colpo pieno</h4>
+      <p class="formula-riga"><span class="frazione"><div class="num">1</div><div>2<sup>N</sup></div></span> = p</p>
+      <p class="spiega" data-i18n="formula_spiega_2">Fra tutte le W sistemazioni ce n'è una sola con tutte a sinistra.</p>
+      <pre data-i18n="formula_pre_2">Con 4: p = 1/16 = <b>6,25%</b></pre>
+
+      <h4 data-i18n="formula_h4_2">Quante volte devi rimescolare</h4>
+      <p class="formula-riga">T = 1/p = 2<sup>N</sup></p>
+      <p class="spiega" data-i18n="formula_spiega_3">Se un evento capita una volta su 16, in media devi provare 16 volte per
+      vederlo una volta. È lo stesso motivo per cui, tirando un dado, in media servono 6 tiri per
+      fare un 6. Attenzione a "in media": a volte esce prima, a volte molto dopo.</p>
+      <pre data-i18n="formula_pre_3">Con 4: T = <b>16</b> rimescolamenti in media</pre>
+
+      <h4 data-i18n="formula_h4_3">Quante sistemazioni hanno k molecole a sinistra</h4>
+      <p class="formula-riga">W(k) = N! / (k! × (N−k)!)</p>
+      <p class="spiega" data-i18n="formula_spiega_4">Il punto esclamativo è il fattoriale: 4! = 4×3×2×1 = 24.</p>
+      <pre data-i18n="formula_pre_4">Con N = 4: 1, 4, 6, 4, 1 per k = 0,1,2,3,4 — in totale <b>16</b>.
+Il caso "due e due" è il più affollato perché ha 6 modi contro 1: non c'è
+nessuna forza che spinge verso il mezzo e mezzo, è solo che al mezzo e
+mezzo corrispondono più modi.</pre>
+
+      <h4 data-i18n="formula_h4_4">Squilibrio tipico</h4>
+      <p class="formula-riga">scarto = √N / 2</p>
+      <p class="spiega" data-i18n="formula_spiega_5">È di quante molecole, tipicamente, una parte supera la metà esatta N/2. (Se
+      vuoi la differenza fra le due metà, è il doppio: √N.)</p>
+      <pre data-i18n="formula_pre_5">Con 4 molecole lo scarto tipico è <b>1 molecola</b> sulle 2 esatte:
+tipicamente esce 3 e 1. Con cento è 5 su 50. In percentuale lo squilibrio
+scende come 1/(2√N): più molecole metti, più la scatola sembra ferma.</pre>
+
+      <h4 data-i18n="formula_h4_5">Entropia (Boltzmann-Planck)</h4>
+      <p class="formula-riga">S = k ln W</p>
+      <p class="spiega" data-i18n="formula_spiega_6">k = 1,380649×10⁻²³ joule per kelvin (dal 2019 esatta per definizione). "ln" è
+      il logaritmo naturale: serve perché quando metti insieme due scatole i modi si moltiplicano,
+      mentre l'entropia deve sommarsi, e il logaritmo trasforma i prodotti in somme.</p>
+
+      <h4 data-i18n="formula_h4_6">Caduta di entropia quando vanno tutte a sinistra</h4>
+      <p class="formula-riga">ΔS = k ln(1) − k ln(2<sup>N</sup>) = −N k ln2</p>
+      <p class="spiega" data-i18n="formula_spiega_7">ln2 = 0,693. Il segno meno dice che l'entropia diminuisce: non è vietato, è
+      solo raro, e la formula dice esattamente quanto.</p>
+      <pre data-i18n="formula_pre_6">Con 4: ΔS = −4 × 1,380649×10⁻²³ × 0,693147 = <b>−3,83×10⁻²³ J/K</b></pre>
+    </div>
+  </details>
+
+  <h2 data-i18n="h2_paragone">Il paragone corporeo</h2>
+  <p data-i18n="paragone_p1">Quattro molecole sono quattro monete. Lanciale davvero: quattro teste in un colpo capitano una
+  volta su sedici, e in un minuto di lanci ti capita. Questo sta tutto nel palmo di una mano.</p>
+  <p data-i18n="paragone_p2">Dieci molecole sono il tuo cuore. A un rimescolamento per battito servono in media 1024 battiti,
+  cioè circa un quarto d'ora: il tempo di un intervallo a scuola.</p>
+  <p data-i18n="paragone_p3">Cento molecole non stanno in nessuna cosa che il corpo conosce. Non c'è un paragone onesto: il
+  numero di tentativi supera tutto il tempo che c'è stato.</p>
+  <p data-i18n="paragone_p4">E l'entropia? La caduta di entropia di un tuo respiro che si raccoglie tutto da una parte è
+  0,12 joule per kelvin. Fondere il ghiaccio costa 333,55 joule per grammo, cioè 1,221 J/K per
+  grammo: 0,1198 diviso 1,221 fa circa un decimo di grammo di ghiaccio, due gocce d'acqua. Tutto quel
+  numero mostruoso di tentativi corrisponde, in entropia, a due gocce che si sciolgono in mano.</p>
+
+  <h2 data-i18n="h2_sorpresa">La sorpresa</h2>
+  <p data-i18n="sorpresa_p1">Ci si aspetta che il secondo principio della termodinamica sia una legge severa, che vieta. Non
+  vieta niente. L'aria che si raccoglie tutta in mezza stanza non è proibita da nessuna equazione: è
+  una configurazione perfettamente legale, che il rimescolamento raggiunge esattamente come tutte le
+  altre.</p>
+  <p data-i18n="sorpresa_p2">La sorpresa è dove si rompe. Con quattro molecole succede sotto i tuoi occhi, una volta su
+  sedici, in sedici secondi. Con dieci ci metti un quarto d'ora. Con novantanove molecole —
+  novantanove, non un numero mostruoso — un computer immaginario che rimescolasse mille miliardi di
+  volte al secondo dall'istante del Big Bang fino a oggi non ce l'avrebbe ancora fatta: avrebbe fatto
+  4,35×10²⁹ tentativi, e ne servirebbero 6,34×10²⁹. Novantotto ce la fa ancora, di misura;
+  novantanove no.</p>
+  <p data-i18n="sorpresa_p3">Ma quel novantanove non è una costante: dipende tutto dal ritmo di rimescolamento che gli
+  abbiamo concesso, che è assurdamente generoso. Col ritmo vero dell'aria dentro una scatola — un
+  rimescolamento ogni quattro minuti — la stessa soglia scende a cinquantuno molecole. Non è cambiata
+  una riga di matematica fra i due casi: è la stessa formula, p = 1/2<sup>N</sup>. È solo che
+  raddoppiare qualcosa cento volte esce dal mondo.</p>
+  <p data-i18n="sorpresa_p4">C'è una seconda sorpresa, sepolta nel caso del respiro, e vale quanto la prima. In questo
+  momento, nella stanza dove sei, l'aria non è divisa esattamente a metà: da una parte ce n'è di più.
+  Nel volume di un tuo respiro, tipicamente, una parte supera la metà esatta di 56 miliardi di
+  molecole. Cinquantasei miliardi di molecole in più, adesso, e non te ne accorgi — perché su
+  1,25×10²² sono quattro parti su mille miliardi. Il mondo che ti sembra fermo è pieno di
+  fluttuazioni enormi in numero assoluto e invisibili in proporzione. È lo stesso motivo per cui una
+  moneta lanciata quattro volte fa quello che vuole, e lanciata un miliardo di volte dà sempre metà e
+  metà.</p>
+
+  <div class="onesta">
+    <h2 data-i18n="onesta_h2">Che cosa questo modello non dice</h2>
+
+    <ol>
+      <li data-i18n="onesta_li1"><h3 style="display:inline;font-size:inherit;margin:0">Conta i posti, non i movimenti.</h3>
+      <b> </b>Qui W è il numero di modi di mettere le molecole a sinistra o a destra. L'entropia vera
+      conta anche quanto veloce va ciascuna molecola e in che direzione, e nella fisica moderna conta
+      gli stati quantistici. Il conto qui funziona per un motivo preciso e limitato: nell'espansione
+      libera di un gas la parte che cambia è proprio quella dei posti, mentre la parte delle velocità
+      resta la stessa. Se il gas si riscalda o si raffredda, questo modello non basta più.</li>
+
+      <li data-i18n="onesta_li2"><b>Le molecole non sono davvero indipendenti.</b> Si urtano, occupano spazio, non possono
+      stare due nello stesso punto. Il calcolo p = 1/2<sup>N</sup> assume che ogni molecola scelga il
+      suo lato senza sapere nulla delle altre. Nell'aria è un'ottima approssimazione perché l'aria è
+      quasi vuota: a 20 gradi e pressione atmosferica ci sono 2,5×10²⁵ molecole per metro cubo, cioè
+      una ogni 3,4 nanometri, mentre una molecola d'azoto è larga circa 0,37 nanometri; occupano lo
+      0,066 per cento del volume. In un liquido o in un solido questa approssimazione crolla, e le
+      formule qui sopra danno risultati sbagliati.</li>
+
+      <li data-i18n="onesta_li3"><b>Il "rimescolamento" non è un'operazione fisica reale.</b> Nella scatola vera nessuno
+      rimescola: le molecole si muovono da sole, e perché la configurazione dimentichi davvero com'era
+      prima serve il tempo che impiegano ad attraversare la scatola urtandosi. In una scatola di 10
+      centimetri, con un coefficiente di diffusione di circa 2,2×10⁻⁵ m²/s, questo tempo è di circa
+      230 secondi, quasi quattro minuti. Vuol dire che l'aria vera si rimescola circa una volta ogni
+      quattro minuti, non mille miliardi di volte al secondo. Con il ritmo vero, in tutta l'età
+      dell'universo si arriverebbe a 1,9×10¹⁵ rimescolamenti, e la soglia scenderebbe da 99 a 51
+      molecole. Il computer immaginario di questo laboratorio è assurdamente generoso: nella realtà la
+      conclusione è ancora più netta.</li>
+
+      <li data-i18n="onesta_li4"><b>Le molecole sono identiche, e non è un dettaglio.</b> Nel disegno le palline sono
+      numerate e distinguibili; le molecole vere non lo sono, e scambiarne due non produce uno stato
+      diverso. Questo cambia il valore assoluto dell'entropia (è il nodo che si chiama paradosso di
+      Gibbs, e si risolve in modo pulito solo con la meccanica quantistica), ma non cambia la
+      differenza di entropia fra prima e dopo, che è quella che questo laboratorio mostra. Quindi i
+      numeri in J/K restano validi; il valore assoluto di S per un gas, no.</li>
+
+      <li data-i18n="onesta_li5"><b>Quello che la fisica non sa ancora.</b> Le leggi che governano l'urto fra due molecole
+      funzionano identiche se si manda il tempo all'indietro: nel filmato al contrario non si vede
+      nulla di illegale. Allora perché nel mondo grande il tempo ha un verso solo? La risposta
+      standard è che le configurazioni disordinate sono semplicemente molte di più, come mostra questo
+      laboratorio — ma resta aperta la domanda a monte: perché l'universo è partito, quasi quattordici
+      miliardi di anni fa, da uno stato di entropia bassissima? Quello non lo spiega il conteggio, lo
+      spiega al più la cosmologia, e non in modo definitivo. Si chiama problema della freccia del
+      tempo, ed è aperto: non c'è nessuna scatola con delle palline che lo chiuda.</li>
+
+      <li data-i18n="onesta_li6"><b>Due cose vere che si è tentati di non dire.</b> Primo: nei sistemi piccolissimi le
+      violazioni momentanee del secondo principio non solo sono possibili, ma sono state misurate in
+      laboratorio, su microsferette tenute con pinzette ottiche, e sono descritte da teoremi precisi
+      (Evans, Cohen e Morriss 1993; Evans e Searles 1994; Jarzynski 1997; Crooks 1999). Il secondo
+      principio è una legge statistica, valida perché i numeri sono grandi, non perché qualcosa sia
+      impedito. Secondo: "in media 16 rimescolamenti" non vuol dire "al sedicesimo". Se rimescoli 16
+      volte con 4 molecole, la probabilità di averlo già visto almeno una volta è del 63 per cento,
+      non del 100. È la differenza fra media e certezza, ed è il genere di distinzione che conviene
+      tenere sempre separata invece di lasciarla scivolare.</li>
+    </ol>
+
+    <h3 data-i18n="onesta_h3_controlli">I controlli che questa pagina deve superare</h3>
+    <div class="tab-wrap">
+    <table class="tab">
+      <tr><th data-i18n="tab_th_caso">Caso</th><th data-i18n="tab_th_deve_dare">Deve dare</th></tr>
+      <tr><td data-i18n="tab_r1_caso">Quattro molecole: sistemazioni, probabilità, entropia</td><td data-i18n="tab_r1_risultato">16; 1/16 (6,25%); −3,83×10⁻²³ J/K</td></tr>
+      <tr><td data-i18n="tab_r2_caso">Dieci molecole: probabilità e tempo</td><td data-i18n="tab_r2_risultato">1/1024; 51,2 s a 20/s; 878 s a un battito per rimescolamento</td></tr>
+      <tr><td data-i18n="tab_r3_caso">Novantotto / novantanove molecole, computer a 10¹²/s dal Big Bang</td><td data-i18n="tab_r3_risultato">98 ce la fa (3,17×10²⁹ &lt; 4,35×10²⁹); 99 no (6,34×10²⁹ &gt; 4,35×10²⁹)</td></tr>
+      <tr><td data-i18n="tab_r4_caso">Cento molecole: probabilità e tempo</td><td data-i18n="tab_r4_risultato">1/1,27×10³⁰; 2,9 età dell'universo a 10¹²/s; 2,0×10²¹ anni a 20/s</td></tr>
+      <tr><td data-i18n="tab_r5_caso">Cento molecole: quanto capita davvero in 100.000 rimescolamenti</td><td data-i18n="tab_r5_risultato">circa 4 volte almeno 70 a sinistra; mai 80; mai 100</td></tr>
+      <tr><td data-i18n="tab_r6_caso">Un respiro: molecole, squilibrio, entropia</td><td data-i18n="tab_r6_risultato">1,25×10²² molecole; 5,59×10¹⁰ in più della metà esatta; 0,1198 J/K per due strade indipendenti</td></tr>
+    </table>
+    </div>
+  </div>
+
+  
+
+
+<footer style="padding:24px;text-align:center;font:12px monospace;opacity:.7">physics-experiments-lab &middot; MIT License &middot; Copyright (c) 2026 Capitan AI</footer>
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   COSTANTI — ciascuna con la sua fonte. Nessun altro numero magico.
+   ============================================================ */
+var K_BOLTZMANN = 1.380649e-23;   /* J/K — dal 2019 esatta per definizione SI */
+var NA = 6.02214076e23;           /* 1/mol — dal 2019 esatta per definizione SI */
+var R_GAS = 8.314462618;          /* J/(mol K) */
+var LN2 = Math.LN2;
+var ANNO_S = 365.25 * 86400;      /* anno giuliano, in secondi: 31.557.600 */
+var ETA_GHIACCIO = 1.221;         /* J/K per grammo, fusione del ghiaccio: 333,55 J/g a 273,15 K */
+var AGE_ANNI = 13.787e9;          /* eta' dell'universo, anni */
+var AGE_S = AGE_ANNI * ANNO_S;
+var RATE_IMMAGINARIO = 1e12;      /* tentativi al secondo, computer immaginario del testo */
+var RATE_CLIC = 20;               /* rimescolamenti al secondo, ritmo "automatico" di questa pagina */
+var PREFERISCE_MOTO_RIDOTTO = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* TESTI.en/fr/es/de sono copie dell'italiano in attesa della traduzione di
+    */
+var TESTI = {
+  it: {
+  "aria_cento_det": "una nuvoletta in un puntino",
+  "aria_cento_nome": "Cento molecole",
+  "aria_cento_nota": "Una nuvoletta che sta in un puntino. Il colpo pieno non arriva mai: servirebbero più tentativi di quanti l’universo abbia avuto tempo di fare.",
+  "aria_dieci_det": "ancora contabili a occhio",
+  "aria_dieci_nome": "Dieci molecole",
+  "aria_dieci_nota": "Ancora contabili a occhio. In media ci vogliono 1024 rimescolamenti: un quarto d’ora al ritmo del tuo cuore.",
+  "aria_quattro_det": "come quattro monete sul tavolo",
+  "aria_quattro_nome": "Quattro molecole",
+  "aria_quattro_nota": "Si contano a dito, come quattro monete sul tavolo. Il colpo pieno arriva quasi subito.",
+  "aria_respiro_det": "1,25×10²² molecole",
+  "aria_respiro_nome": "Un tuo respiro",
+  "aria_respiro_nota": "Mezzo litro d’aria: 1,25×10²² molecole. Sullo schermo non sono più palline ma una foschia uniforme.",
+  "badge_prefisso": "la tua scommessa: ",
+  "badge_vuoto": "nessuna scommessa ancora",
+  "btn_reset": "ricomincia",
+  "btn_rimescola": "RIMESCOLA",
+  "btn_salta": "salta avanti di un milione",
+  "footer_p1": "Laboratorio di fisica · Esperimento 7 di 10",
+  "footer_p2": "Nessuna libreria, nessuna chiamata di rete: tutto quello che vedi è calcolato qui.",
+  "formula_et_1": "Quante sistemazioni esistono",
+  "formula_h4_1": "Probabilità del colpo pieno",
+  "formula_h4_2": "Quante volte devi rimescolare",
+  "formula_h4_3": "Quante sistemazioni hanno k molecole a sinistra",
+  "formula_h4_4": "Squilibrio tipico",
+  "formula_h4_5": "Entropia (Boltzmann-Planck)",
+  "formula_h4_6": "Caduta di entropia quando vanno tutte a sinistra",
+  "formula_pre_1": "Con 4 molecole: 2×2×2×2 = <b>16</b>. W si legge \"numero di microstati\".",
+  "formula_pre_2": "Con 4: p = 1/16 = <b>6,25%</b>",
+  "formula_pre_3": "Con 4: T = <b>16</b> rimescolamenti in media",
+  "formula_pre_4": "Con N = 4: 1, 4, 6, 4, 1 per k = 0,1,2,3,4 — in totale <b>16</b>.\nIl caso \"due e due\" è il più affollato perché ha 6 modi contro 1: non c'è\nnessuna forza che spinge verso il mezzo e mezzo, è solo che al mezzo e\nmezzo corrispondono più modi.",
+  "formula_pre_5": "Con 4 molecole lo scarto tipico è <b>1 molecola</b> sulle 2 esatte:\ntipicamente esce 3 e 1. Con cento è 5 su 50. In percentuale lo squilibrio\nscende come 1/(2√N): più molecole metti, più la scatola sembra ferma.",
+  "formula_pre_6": "Con 4: ΔS = −4 × 1,380649×10⁻²³ × 0,693147 = <b>−3,83×10⁻²³ J/K</b>",
+  "formula_spiega_1": "Ogni molecola può stare a sinistra o a destra: due possibilità a testa, e le\n      scelte sono indipendenti, quindi le possibilità si moltiplicano.",
+  "formula_spiega_2": "Fra tutte le W sistemazioni ce n'è una sola con tutte a sinistra.",
+  "formula_spiega_3": "Se un evento capita una volta su 16, in media devi provare 16 volte per\n      vederlo una volta. È lo stesso motivo per cui, tirando un dado, in media servono 6 tiri per\n      fare un 6. Attenzione a \"in media\": a volte esce prima, a volte molto dopo.",
+  "formula_spiega_4": "Il punto esclamativo è il fattoriale: 4! = 4×3×2×1 = 24.",
+  "formula_spiega_5": "È di quante molecole, tipicamente, una parte supera la metà esatta N/2. (Se\n      vuoi la differenza fra le due metà, è il doppio: √N.)",
+  "formula_spiega_6": "k = 1,380649×10⁻²³ joule per kelvin (dal 2019 esatta per definizione). \"ln\" è\n      il logaritmo naturale: serve perché quando metti insieme due scatole i modi si moltiplicano,\n      mentre l'entropia deve sommarsi, e il logaritmo trasforma i prodotti in somme.",
+  "formula_spiega_7": "ln2 = 0,693. Il segno meno dice che l'entropia diminuisce: non è vietato, è\n      solo raro, e la formula dice esattamente quanto.",
+  "frag_1_su": "1 su ",
+  "frag_1_su_10_elevato_a": "1 su 10 elevato a ",
+  "frag_a_20s": " a 20/s",
+  "frag_a_destra": " a destra",
+  "frag_a_destra_ci_sono": "a destra ci sono ",
+  "frag_a_sinistra_ci_sono": "a sinistra ci sono ",
+  "frag_a_sinistra_virgola": " a sinistra, ",
+  "frag_cifre_suffix": " cifre",
+  "frag_cioe_lo": "cioè lo ",
+  "frag_esponente_ha_prefix": "l’esponente da solo ha ",
+  "frag_in_piu_esperimento": "% in più. Il contrasto fra il numero enorme e l’immagine ferma è l’esperimento.",
+  "frag_molecole_a_sinistra_su": " molecole a sinistra su ",
+  "frag_molecole_in_piu_meta": " molecole in più della metà esatta",
+  "frag_molecole_paren_open": " molecole (",
+  "frag_paren_close": ")",
+  "frag_paren_close_pct": "%)",
+  "frag_rimescolamenti_punto": " rimescolamenti · ",
+  "frag_servirebbe_mid": " rimescolamenti: con ",
+  "frag_servirebbe_prefix": "in media servirebbero circa ",
+  "frag_servirebbe_suffix": " molecole potresti non vederlo mai.",
+  "frag_ultimo_record_prefix": "Ultimo record: ",
+  "frag_volte_eta_universo": " volte l’età dell’universo",
+  "g_lbl_entropia": "entropia che perdi",
+  "g_lbl_probabilita": "una volta su",
+  "g_lbl_squilibrio": "quante in più della metà esatta",
+  "g_lbl_tempo": "rimescolamenti in media, e il tempo a 20/s",
+  "h2_paragone": "Il paragone corporeo",
+  "h2_sorpresa": "La sorpresa",
+  "hero_firme": "Entropia statistica S = k ln W\n    · <b>Ludwig Boltzmann, 1877</b> (la relazione fra entropia e probabilità)\n    · <b>Max Planck, 1900-1901</b> (la scrittura S = k log W nella forma di oggi, e la costante k,\n    intitolata a Boltzmann)",
+  "hero_kicker": "Rimescola una scatola d'aria e prova a farla tornare tutta da un lato. Con\n    quattro molecole ci riesci quasi subito. Con cento non ci riuscirai mai, in nessuna vita — e non\n    perché una legge lo vieti: è solo che contare i modi possibili cresce più in fretta di qualunque\n    cosa tu conosca.",
+  "hero_occhiello": "Laboratorio di fisica · Esperimento 7",
+  "hero_titolo": "Quante volte devi rimescolare perché l'aria vada tutta a sinistra",
+  "hist_legenda_teorica": "<span class=\"sw\" style=\"background:#C9C1AC\"></span>la curva teorica W(k)",
+  "hist_legenda_veri": "<span class=\"sw\" style=\"background:#7C5CFF\"></span>i tuoi rimescolamenti veri",
+  "lbl_auto": "rimescola da solo (20/s)",
+  "lbl_colpo_pieno": "colpo pieno: ",
+  "lbl_miglior_tentativo": "miglior tentativo: ",
+  "lbl_rimescolamenti": "rimescolamenti: ",
+  "lbl_volte": " volte",
+  "monete_et": "Il gesto fuori dallo schermo",
+  "monete_p": "Prendi quattro monete vere. Lanciale insieme finché non escono quattro teste.\n    Conta i lanci, e confronta con il numero qui sopra.",
+  "onesta_h2": "Che cosa questo modello non dice",
+  "onesta_h3_controlli": "I controlli che questa pagina deve superare",
+  "onesta_li1": "<h3 style=\"display:inline;font-size:inherit;margin:0\">Conta i posti, non i movimenti.</h3>\n      <b> </b>Qui W è il numero di modi di mettere le molecole a sinistra o a destra. L'entropia vera\n      conta anche quanto veloce va ciascuna molecola e in che direzione, e nella fisica moderna conta\n      gli stati quantistici. Il conto qui funziona per un motivo preciso e limitato: nell'espansione\n      libera di un gas la parte che cambia è proprio quella dei posti, mentre la parte delle velocità\n      resta la stessa. Se il gas si riscalda o si raffredda, questo modello non basta più.",
+  "onesta_li2": "<b>Le molecole non sono davvero indipendenti.</b> Si urtano, occupano spazio, non possono\n      stare due nello stesso punto. Il calcolo p = 1/2<sup>N</sup> assume che ogni molecola scelga il\n      suo lato senza sapere nulla delle altre. Nell'aria è un'ottima approssimazione perché l'aria è\n      quasi vuota: a 20 gradi e pressione atmosferica ci sono 2,5×10²⁵ molecole per metro cubo, cioè\n      una ogni 3,4 nanometri, mentre una molecola d'azoto è larga circa 0,37 nanometri; occupano lo\n      0,066 per cento del volume. In un liquido o in un solido questa approssimazione crolla, e le\n      formule qui sopra danno risultati sbagliati.",
+  "onesta_li3": "<b>Il \"rimescolamento\" non è un'operazione fisica reale.</b> Nella scatola vera nessuno\n      rimescola: le molecole si muovono da sole, e perché la configurazione dimentichi davvero com'era\n      prima serve il tempo che impiegano ad attraversare la scatola urtandosi. In una scatola di 10\n      centimetri, con un coefficiente di diffusione di circa 2,2×10⁻⁵ m²/s, questo tempo è di circa\n      230 secondi, quasi quattro minuti. Vuol dire che l'aria vera si rimescola circa una volta ogni\n      quattro minuti, non mille miliardi di volte al secondo. Con il ritmo vero, in tutta l'età\n      dell'universo si arriverebbe a 1,9×10¹⁵ rimescolamenti, e la soglia scenderebbe da 99 a 51\n      molecole. Il computer immaginario di questo laboratorio è assurdamente generoso: nella realtà la\n      conclusione è ancora più netta.",
+  "onesta_li4": "<b>Le molecole sono identiche, e non è un dettaglio.</b> Nel disegno le palline sono\n      numerate e distinguibili; le molecole vere non lo sono, e scambiarne due non produce uno stato\n      diverso. Questo cambia il valore assoluto dell'entropia (è il nodo che si chiama paradosso di\n      Gibbs, e si risolve in modo pulito solo con la meccanica quantistica), ma non cambia la\n      differenza di entropia fra prima e dopo, che è quella che questo laboratorio mostra. Quindi i\n      numeri in J/K restano validi; il valore assoluto di S per un gas, no.",
+  "onesta_li5": "<b>Quello che la fisica non sa ancora.</b> Le leggi che governano l'urto fra due molecole\n      funzionano identiche se si manda il tempo all'indietro: nel filmato al contrario non si vede\n      nulla di illegale. Allora perché nel mondo grande il tempo ha un verso solo? La risposta\n      standard è che le configurazioni disordinate sono semplicemente molte di più, come mostra questo\n      laboratorio — ma resta aperta la domanda a monte: perché l'universo è partito, quasi quattordici\n      miliardi di anni fa, da uno stato di entropia bassissima? Quello non lo spiega il conteggio, lo\n      spiega al più la cosmologia, e non in modo definitivo. Si chiama problema della freccia del\n      tempo, ed è aperto: non c'è nessuna scatola con delle palline che lo chiuda.",
+  "onesta_li6": "<b>Due cose vere che si è tentati di non dire.</b> Primo: nei sistemi piccolissimi le\n      violazioni momentanee del secondo principio non solo sono possibili, ma sono state misurate in\n      laboratorio, su microsferette tenute con pinzette ottiche, e sono descritte da teoremi precisi\n      (Evans, Cohen e Morriss 1993; Evans e Searles 1994; Jarzynski 1997; Crooks 1999). Il secondo\n      principio è una legge statistica, valida perché i numeri sono grandi, non perché qualcosa sia\n      impedito. Secondo: \"in media 16 rimescolamenti\" non vuol dire \"al sedicesimo\". Se rimescoli 16\n      volte con 4 molecole, la probabilità di averlo già visto almeno una volta è del 63 per cento,\n      non del 100. È la differenza fra media e certezza, ed è il genere di distinzione che conviene\n      tenere sempre separata invece di lasciarla scivolare.",
+  "paragone_p1": "Quattro molecole sono quattro monete. Lanciale davvero: quattro teste in un colpo capitano una\n  volta su sedici, e in un minuto di lanci ti capita. Questo sta tutto nel palmo di una mano.",
+  "paragone_p2": "Dieci molecole sono il tuo cuore. A un rimescolamento per battito servono in media 1024 battiti,\n  cioè circa un quarto d'ora: il tempo di un intervallo a scuola.",
+  "paragone_p3": "Cento molecole non stanno in nessuna cosa che il corpo conosce. Non c'è un paragone onesto: il\n  numero di tentativi supera tutto il tempo che c'è stato.",
+  "paragone_p4": "E l'entropia? La caduta di entropia di un tuo respiro che si raccoglie tutto da una parte è\n  0,12 joule per kelvin. Fondere il ghiaccio costa 333,55 joule per grammo, cioè 1,221 J/K per\n  grammo: 0,1198 diviso 1,221 fa circa un decimo di grammo di ghiaccio, due gocce d'acqua. Tutto quel\n  numero mostruoso di tentativi corrisponde, in entropia, a due gocce che si sciolgono in mano.",
+  "passo_1": "1 · Quanta aria metti nella scatola",
+  "passo_2": "2 · Scommetti, prima di vedere qualunque cosa",
+  "passo_3": "3 · Rimescola, e guarda",
+  "passo_conti": "4 · Rifai i conti a mano",
+  "passo_grandezze": "Le grandezze, per la scelta di adesso",
+  "passo_hist": "L'istogramma dei tuoi tentativi",
+  "scommessa_centinaio_det": "circa 100",
+  "scommessa_centinaio_nome": "Un centinaio",
+  "scommessa_decina_det": "circa 10",
+  "scommessa_decina_nome": "Una decina",
+  "scommessa_domanda": "Quante volte pensi di dover rimescolare, prima di vederle tutte quante nella metà\n  sinistra?",
+  "scommessa_meno10_det": "< 10",
+  "scommessa_meno10_nome": "Meno di dieci volte",
+  "scommessa_migliaio_det": "circa 1.000",
+  "scommessa_migliaio_nome": "Un migliaio",
+  "scommessa_milione_det": "> 1.000.000",
+  "scommessa_milione_nome": "Più di un milione",
+  "sorpresa_p1": "Ci si aspetta che il secondo principio della termodinamica sia una legge severa, che vieta. Non\n  vieta niente. L'aria che si raccoglie tutta in mezza stanza non è proibita da nessuna equazione: è\n  una configurazione perfettamente legale, che il rimescolamento raggiunge esattamente come tutte le\n  altre.",
+  "sorpresa_p2": "La sorpresa è dove si rompe. Con quattro molecole succede sotto i tuoi occhi, una volta su\n  sedici, in sedici secondi. Con dieci ci metti un quarto d'ora. Con novantanove molecole —\n  novantanove, non un numero mostruoso — un computer immaginario che rimescolasse mille miliardi di\n  volte al secondo dall'istante del Big Bang fino a oggi non ce l'avrebbe ancora fatta: avrebbe fatto\n  4,35×10²⁹ tentativi, e ne servirebbero 6,34×10²⁹. Novantotto ce la fa ancora, di misura;\n  novantanove no.",
+  "sorpresa_p3": "Ma quel novantanove non è una costante: dipende tutto dal ritmo di rimescolamento che gli\n  abbiamo concesso, che è assurdamente generoso. Col ritmo vero dell'aria dentro una scatola — un\n  rimescolamento ogni quattro minuti — la stessa soglia scende a cinquantuno molecole. Non è cambiata\n  una riga di matematica fra i due casi: è la stessa formula, p = 1/2<sup>N</sup>. È solo che\n  raddoppiare qualcosa cento volte esce dal mondo.",
+  "sorpresa_p4": "C'è una seconda sorpresa, sepolta nel caso del respiro, e vale quanto la prima. In questo\n  momento, nella stanza dove sei, l'aria non è divisa esattamente a metà: da una parte ce n'è di più.\n  Nel volume di un tuo respiro, tipicamente, una parte supera la metà esatta di 56 miliardi di\n  molecole. Cinquantasei miliardi di molecole in più, adesso, e non te ne accorgi — perché su\n  1,25×10²² sono quattro parti su mille miliardi. Il mondo che ti sembra fermo è pieno di\n  fluttuazioni enormi in numero assoluto e invisibili in proporzione. È lo stesso motivo per cui una\n  moneta lanciata quattro volte fa quello che vuole, e lanciata un miliardo di volte dà sempre metà e\n  metà.",
+  "summary_formule": "le sette formule, con l'esempio N = 4 svolto",
+  "tab_r1_caso": "Quattro molecole: sistemazioni, probabilità, entropia",
+  "tab_r1_risultato": "16; 1/16 (6,25%); −3,83×10⁻²³ J/K",
+  "tab_r2_caso": "Dieci molecole: probabilità e tempo",
+  "tab_r2_risultato": "1/1024; 51,2 s a 20/s; 878 s a un battito per rimescolamento",
+  "tab_r3_caso": "Novantotto / novantanove molecole, computer a 10¹²/s dal Big Bang",
+  "tab_r3_risultato": "98 ce la fa (3,17×10²⁹ &lt; 4,35×10²⁹); 99 no (6,34×10²⁹ &gt; 4,35×10²⁹)",
+  "tab_r4_caso": "Cento molecole: probabilità e tempo",
+  "tab_r4_risultato": "1/1,27×10³⁰; 2,9 età dell'universo a 10¹²/s; 2,0×10²¹ anni a 20/s",
+  "tab_r5_caso": "Cento molecole: quanto capita davvero in 100.000 rimescolamenti",
+  "tab_r5_risultato": "circa 4 volte almeno 70 a sinistra; mai 80; mai 100",
+  "tab_r6_caso": "Un respiro: molecole, squilibrio, entropia",
+  "tab_r6_risultato": "1,25×10²² molecole; 5,59×10¹⁰ in più della metà esatta; 0,1198 J/K per due strade indipendenti",
+  "tab_th_caso": "Caso",
+  "tab_th_deve_dare": "Deve dare",
+  "titolo_pagina": "Quante volte devi rimescolare perché l'aria vada tutta a sinistra",
+  "unit_anni": " anni",
+  "unit_giorni": " giorni",
+  "unit_mila_molecole": " mila molecole",
+  "unit_minuti": " minuti",
+  "unit_molecole": " molecole",
+  "unit_ore": " ore",
+  "unit_secondi": " secondi"
+}
+};
+TESTI.en = JSON.parse(JSON.stringify(TESTI.it));  // PENDING: traduzione richiesta, non ancora arrivata
+/* English: reviewed translation merged from the lab translation pass. Keys not listed here fall back to the Italian text. */
+Object.assign(TESTI.en, {"aria_quattro_nota": "You count them on your fingers, like four coins on the table. The full hit comes almost at once.", "btn_reset": "start again", "btn_rimescola": "STIR", "btn_salta": "skip forward a million", "formula_et_1": "How many arrangements there are", "formula_h4_1": "Probability of the full hit", "formula_h4_2": "How many times you must stir", "formula_h4_3": "How many arrangements have k molecules on the left", "formula_h4_4": "Typical imbalance", "formula_h4_5": "Entropy (Boltzmann-Planck)", "formula_h4_6": "Entropy drop when they all go to the left", "formula_spiega_1": "Each molecule can be on the left or on the right: two possibilities each, and the choices are independent, so the possibilities multiply.", "formula_spiega_2": "Among all the W arrangements there is only one with all of them on the left.", "formula_spiega_3": "If an event happens once in 16, on average you have to try 16 times to see it once. It is the same reason why, rolling a die, on average you need 6 rolls to get a 6. Mind the “on average”: sometimes it comes sooner, sometimes much later.", "formula_spiega_4": "The exclamation mark is the factorial: 4! = 4×3×2×1 = 24.", "formula_spiega_5": "It is how many molecules, typically, one half exceeds the exact half N/2. (If you want the difference between the two halves, it is double: √N.)", "formula_spiega_6": "k = 1.380649×10⁻²³ joule per kelvin (exact by definition since 2019). “ln” is the natural logarithm: it is needed because when you put two boxes together the arrangements multiply, while entropy must add, and the logarithm turns products into sums.", "formula_spiega_7": "ln2 = 0.693. The minus sign says that entropy decreases: it is not forbidden, it is only rare, and the formula says exactly how much.", "g_lbl_entropia": "entropy you lose", "g_lbl_probabilita": "one time in", "g_lbl_squilibrio": "how many more than the exact half", "g_lbl_tempo": "stirrings on average, and the time at 20/s", "h2_paragone": "The body comparison", "h2_sorpresa": "The surprise", "hero_firme": "Statistical entropy S = k ln W\n    · <b>Ludwig Boltzmann, 1877<\/b> (the relation between entropy and probability)\n    · <b>Max Planck, 1900-1901<\/b> (the writing S = k log W in today’s form, and the constant k, named after Boltzmann)", "hero_kicker": "Stir a box of air and try to make it all go to one side. With four molecules you almost succeed at once. With a hundred you will never succeed, in any lifetime — and not because a law forbids it: it is simply that counting the possible arrangements grows faster than anything you know.", "hero_occhiello": "Physics laboratory · Experiment 7", "hero_titolo": "How many times you must stir before the air all goes to the left", "monete_et": "The gesture off the screen", "monete_p": "Take four real coins. Toss them together until four heads come up. Count the tosses, and compare with the number above.", "onesta_h2": "What this model does not say", "onesta_h3_controlli": "The checks this page must pass", "onesta_li2": "<b>The molecules are not really independent.<\/b> They collide, they take up space, two cannot be at the same point. The calculation p = 1/2<sup>N<\/sup> assumes that each molecule chooses its side without knowing anything about the others. In air it is an excellent approximation because air is almost empty: at 20 degrees and atmospheric pressure there are 2.5×10²⁵ molecules per cubic metre, that is one every 3.4 nanometres, while a nitrogen molecule is about 0.37 nanometres wide; they occupy 0.066 per cent of the volume. In a liquid or a solid this approximation collapses, and the formulas above give wrong results.", "onesta_li3": "<b>“Stirring” is not a real physical operation.<\/b> In the real box nobody stirs: the molecules move by themselves, and for the configuration to really forget how it was before, the time they take to cross the box colliding is needed. In a box of 10 centimetres, with a diffusion coefficient of about 2.2×10⁻⁵ m²/s, this time is about 230 seconds, almost four minutes. It means that real air is stirred about once every four minutes, not a thousand billion times a second. At the real rhythm, over the whole age of the universe one would reach 1.9×10¹⁵ stirrings, and the threshold would fall from 99 to 51 molecules. The imaginary computer of this laboratory is absurdly generous: in reality the conclusion is even sharper.", "onesta_li4": "<b>Molecules are identical, and that is not a detail.<\/b> In the drawing the balls are numbered and distinguishable; real molecules are not, and swapping two of them does not produce a different state. This changes the absolute value of entropy (it is the knot called the Gibbs paradox, which is resolved cleanly only with quantum mechanics), but it does not change the difference in entropy between before and after, which is what this laboratory shows. So the numbers in J/K remain valid; the absolute value of S for a gas does not.", "onesta_li5": "<b>What physics does not yet know.<\/b> The laws that govern the collision between two molecules work identically if you send time backwards: in the film run in reverse nothing illegal is seen. So why does time have only one direction in the large world? The standard answer is that disordered configurations are simply far more numerous, as this laboratory shows — but the question further upstream remains open: why did the universe start, nearly fourteen billion years ago, from a state of very low entropy? Counting does not explain that; at most cosmology does, and not definitively. It is called the arrow-of-time problem, and it is open: there is no box with balls in it that closes it.", "onesta_li6": "<b>Two true things one is tempted not to say.<\/b> First: in very small systems momentary violations of the second law are not only possible, they have been measured in the laboratory, on microspheres held with optical tweezers, and they are described by precise theorems (Evans, Cohen and Morriss 1993; Evans and Searles 1994; Jarzynski 1997; Crooks 1999). The second law is a statistical law, valid because the numbers are large, not because something is prevented. Second: “on average 16 stirrings” does not mean “at the sixteenth”. If you stir 16 times with 4 molecules, the probability of having seen it at least once is 63 per cent, not 100. It is the difference between average and certainty, and it is the kind of distinction worth always keeping separate rather than letting slip.", "paragone_p1": "Four molecules are four coins. Really toss them: four heads in one go comes up once in sixteen, and in a minute of tossing it happens to you. All of this fits in the palm of a hand.", "paragone_p2": "Ten molecules are your heart. At one stirring per beat, on average 1024 beats are needed, that is about a quarter of an hour: the length of a school break.", "paragone_p3": "A hundred molecules are not in anything the body knows. There is no honest comparison: the number of attempts exceeds all the time there has been.", "paragone_p4": "And entropy? The entropy drop of one of your breaths when it is all gathered on one side is 0.12 joule per kelvin. Melting ice costs 333.55 joule per gram, that is 1.221 J/K per gram: 0.1198 divided by 1.221 gives about a tenth of a gram of ice, two drops of water. All that monstrous number of attempts corresponds, in entropy, to two drops melting in your hand.", "passo_1": "1 · How much air you put in the box", "passo_2": "2 · Bet before you see anything", "passo_3": "3 · Stir, and watch", "passo_conti": "4 · Redo the calculations by hand", "passo_grandezze": "The quantities, for the current choice", "passo_hist": "The histogram of your attempts", "scommessa_domanda": "How many times do you think you will have to stir before you see them all in the left half?", "sorpresa_p1": "One expects the second law of thermodynamics to be a strict law, one that forbids. It forbids nothing. Air gathered entirely in half a room is not forbidden by any equation: it is a perfectly legal configuration, which stirring reaches exactly like all the others.", "sorpresa_p2": "The surprise is where it breaks down. With four molecules it happens before your eyes, once in sixteen, in sixteen seconds. With ten you take a quarter of an hour. With ninety-nine molecules — ninety-nine, not a monstrous number — an imaginary computer stirring a trillion times a second from the Big Bang until today would still not have managed it: it would have made 4.35×10²⁹ attempts, and 6.34×10²⁹ would be needed. Ninety-eight just makes it, barely; ninety-nine does not.", "sorpresa_p3": "But that ninety-nine is not a constant: it depends entirely on the stirring rate we have granted, which is absurdly generous. At the real rhythm of the air inside a box — one stirring every four minutes — the same threshold falls to fifty-one molecules. Not one line of mathematics has changed between the two cases: it is the same formula, p = 1/2<sup>N<\/sup>. It is just that doubling something a hundred times goes beyond the world.", "sorpresa_p4": "There is a second surprise, buried in the breath case, and it is worth as much as the first. Right now, in the room where you are, the air is not divided exactly in half: there is more on one side. In the volume of one of your breaths, typically, one side exceeds the exact half by 56 billion molecules. Fifty-six billion extra molecules, now, and you do not notice — because out of 1.25×10²² they are four parts in a thousand billion. The world that seems still is full of enormous fluctuations in absolute number and invisible in proportion. It is the same reason why a coin tossed four times does what it wants, and tossed a billion times always gives half and half.", "summary_formule": "the seven formulas, with the N = 4 example worked out", "tab_r1_caso": "Four molecules: arrangements, probability, entropy", "tab_r1_risultato": "16; 1/16 (6.25%); −3.83×10⁻²³ J/K", "tab_r2_caso": "Ten molecules: probability and time", "tab_r2_risultato": "1/1024; 51.2 s at 20/s; 878 s at one beat per stirring", "tab_r3_caso": "Ninety-eight / ninety-nine molecules, computer at 10¹²/s since the Big Bang", "tab_r3_risultato": "98 just makes it (3.17×10²⁹ &lt; 4.35×10²⁹); 99 does not (6.34×10²⁹ &gt; 4.35×10²⁹)", "tab_r4_caso": "A hundred molecules: probability and time", "tab_r4_risultato": "1/1.27×10³⁰; 2.9 universe ages at 10¹²/s; 2.0×10²¹ years at 20/s", "tab_r5_caso": "A hundred molecules: what really happens in 100,000 stirrings", "tab_r5_risultato": "about 4 times at least 70 on the left; never 80; never 100", "tab_r6_caso": "One breath: molecules, imbalance, entropy", "tab_r6_risultato": "1.25×10²² molecules; 5.59×10¹⁰ extra over the exact half; 0.1198 J/K for two independent roads", "tab_th_caso": "Case", "tab_th_deve_dare": "Must give", "titolo_pagina": "How many times you must stir before the air all goes to the left", "aria_cento_det": "a little cloud in a tiny dot", "aria_cento_nome": "One hundred molecules", "aria_dieci_det": "still countable by eye", "aria_dieci_nome": "Ten molecules", "aria_dieci_nota": "Still countable by eye. On average it takes 1024 reshuffles: a quarter of an hour at the pace of your heart.", "aria_quattro_det": "like four coins on the table", "aria_quattro_nome": "Four molecules", "aria_respiro_det": "1.25×10²² molecules", "aria_respiro_nome": "One breath of yours", "aria_respiro_nota": "Half a litre of air: 1.25×10²² molecules. On the screen they are no longer little balls but a uniform haze.", "badge_prefisso": "your bet: ", "badge_vuoto": "no bet yet", "footer_p1": "Physics laboratory · Experiment 7 of 10", "footer_p2": "No library, no network call: everything you see is computed here.", "formula_pre_1": "With 4 molecules: 2×2×2×2 = <b>16<\/b>. W reads \"number of microstates\".", "formula_pre_2": "With 4: p = 1/16 = <b>6.25%<\/b>", "formula_pre_3": "With 4: T = <b>16<\/b> reshuffles on average", "formula_pre_6": "With 4: ΔS = −4 × 1.380649×10⁻²³ × 0.693147 = <b>−3.83×10⁻²³ J/K<\/b>", "frag_1_su_10_elevato_a": "1 in 10 to the power ", "frag_a_destra": " on the right", "frag_a_destra_ci_sono": "on the right there are ", "frag_a_sinistra_ci_sono": "on the left there are ", "frag_a_sinistra_virgola": " on the left, ", "frag_cifre_suffix": " digits", "frag_cioe_lo": "that is ", "frag_esponente_ha_prefix": "the exponent alone has ", "frag_in_piu_esperimento": "% more. The contrast between the enormous number and the still image is the experiment.", "frag_molecole_a_sinistra_su": " molecules on the left out of ", "frag_molecole_in_piu_meta": " molecules more than the exact half", "frag_molecole_paren_open": " molecules (", "frag_rimescolamenti_punto": " reshuffles · ", "frag_servirebbe_mid": " reshuffles: with ", "frag_servirebbe_prefix": "on average it would take about ", "frag_servirebbe_suffix": " molecules you might never see it.", "frag_ultimo_record_prefix": "Last record: ", "frag_volte_eta_universo": " times the age of the universe", "hist_legenda_teorica": "<span class=\"sw\" style=\"background:#C9C1AC\"><\/span>the theoretical curve W(k)", "hist_legenda_veri": "<span class=\"sw\" style=\"background:#7C5CFF\"><\/span>your real reshuffles", "lbl_auto": "reshuffle by itself (20/s)", "lbl_colpo_pieno": "full hit: ", "lbl_miglior_tentativo": "best attempt: ", "lbl_rimescolamenti": "reshuffles: ", "lbl_volte": " times", "scommessa_centinaio_det": "about 100", "scommessa_centinaio_nome": "About a hundred", "scommessa_decina_det": "about 10", "scommessa_decina_nome": "About ten", "scommessa_meno10_nome": "Fewer than ten times", "scommessa_migliaio_det": "about 1,000", "scommessa_migliaio_nome": "About a thousand", "scommessa_milione_nome": "More than a million", "unit_anni": " years", "unit_giorni": " days", "unit_mila_molecole": " thousand molecules", "unit_minuti": " minutes", "unit_molecole": " molecules", "unit_ore": " hours", "unit_secondi": " seconds", "frag_1_su": "1 in "});
+TESTI.fr = JSON.parse(JSON.stringify(TESTI.it));  // PENDING
+TESTI.es = JSON.parse(JSON.stringify(TESTI.it));  // PENDING
+TESTI.de = JSON.parse(JSON.stringify(TESTI.it));  // PENDING
+
+window.__LINGUE = ['it','en','fr','es','de'];
+var LANG = 'en';
+
+/* Le quattro quantita' d'aria, con nomi di cose vere */
+var ARIA = [
+  { id:'quattro', N:4, tipo:'discreto' },
+  { id:'dieci', N:10, tipo:'discreto' },
+  { id:'cento', N:100, tipo:'discreto' },
+  { id:'respiro', N:null, tipo:'respiro' }
+];
+function ariaNome(item){ return TESTI[LANG]['aria_'+item.id+'_nome']; }
+function ariaDet(item){ return TESTI[LANG]['aria_'+item.id+'_det']; }
+function ariaNota(item){ return TESTI[LANG]['aria_'+item.id+'_nota']; }
+
+/* Le cinque scommesse, senza notazione scientifica */
+var SCOMMESSE = [
+  { id:'meno10' },
+  { id:'decina' },
+  { id:'centinaio' },
+  { id:'migliaio' },
+  { id:'milione' }
+];
+function scommessaNome(item){ return TESTI[LANG]['scommessa_'+item.id+'_nome']; }
+function scommessaDet(item){ return TESTI[LANG]['scommessa_'+item.id+'_det']; }
+
+/* ============================================================
+   RESPIRO — grandezze fisse, calcolate una volta sola.
+   n = PV/RT: mezzo litro, 20 °C, pressione atmosferica standard.
+   ============================================================ */
+var P_ATM = 101325, V_RESPIRO = 0.5e-3, T_RESPIRO = 293.15;
+var MOL_RESPIRO = P_ATM * V_RESPIRO / (R_GAS * T_RESPIRO);   /* ~0,020786 mol */
+var N_RESPIRO = MOL_RESPIRO * NA;                             /* ~1,2517e22 molecole */
+
+/* ============================================================
+   STATO
+   ============================================================ */
+var st = { aria:0, scommessa:-1, volte:0, pieni:0, record:null, bins:null,
+           autoOn:false, autoTimer:null, autoInizio:0 };
+
+/* ============================================================
+   COEFFICIENTI BINOMIALI — ricorrenza moltiplicativa, mai fattoriali
+   diretti: C(N,k+1) = C(N,k) * (N-k) / (k+1). Sicura fino a N=100 e oltre.
+   ============================================================ */
+function binom(N){
+  var c = [1];
+  for(var k=0; k<N; k++) c.push(c[k] * (N-k) / (k+1));
+  return c;
+}
+function pmfBinom(N){
+  var c = binom(N), p = Math.pow(0.5, N);
+  return c.map(function(v){ return v*p; });
+}
+
+/* ============================================================
+   NUMERI GRANDI — 2^N con BigInt, mai float, fino a N=1000.
+   ============================================================ */
+function bigPow2(N){ return BigInt(2) ** BigInt(N); }
+function bigSci(big, sig){
+  sig = sig || 3;
+  var neg = big < 0n; if(neg) big = -big;
+  var s = big.toString();
+  var e = s.length - 1;
+  var buf = (s + '000000').slice(0, sig+1);
+  var num = parseInt(buf, 10);
+  var scale = Math.pow(10, buf.length - sig);
+  var rounded = Math.round(num/scale);
+  var rs = String(rounded);
+  if(rs.length > sig){ e += 1; rs = rs.slice(0, sig); }
+  var mant = rs[0] + (sig>1 ? ',' + rs.slice(1) : '');
+  return (neg?'-':'') + mant + '×10' + esponente(e);
+}
+
+/* ============================================================
+   CAMPIONAMENTO
+   ============================================================ */
+function nuovaConfigurazioneDiscreta(N){
+  var sx = 0;
+  for(var i=0;i<N;i++) if(Math.random() < 0.5) sx++;
+  return sx;
+}
+/* Box-Muller: generatore gaussiano standard, media 0 varianza 1 */
+function gauss(){
+  var u1 = Math.random() || 1e-12, u2 = Math.random();
+  return Math.sqrt(-2*Math.log(u1)) * Math.cos(2*Math.PI*u2);
+}
+/* Per il respiro non si puo' ciclare 1e22 volte: si estrae il numero di
+   molecole a sinistra da una gaussiana di media N/2 e deviazione standard
+   sqrt(N)/2 (Box-Muller), che e' l'approssimazione normale della binomiale
+   ed e' esatta a tutti gli effetti pratici quando N e' enorme (teorema del
+   limite centrale / approssimazione di De Moivre-Laplace). */
+function nuovaConfigurazioneRespiro(){
+  var media = N_RESPIRO/2, sd = Math.sqrt(N_RESPIRO)/2;
+  return media + gauss()*sd;
+}
+/* Campionamento binomiale ESATTO per "salta avanti di un milione": non si
+   cicla molecola per molecola (N x 1e6 sarebbe troppo), si estrae k
+   direttamente per inversione della funzione di ripartizione, con ricerca
+   binaria sulla CDF gia' calcolata una sola volta: O(log N) a estrazione. */
+function cdfBinom(N){
+  var p = pmfBinom(N), c = [], s = 0;
+  for(var i=0;i<p.length;i++){ s += p[i]; c.push(s); }
+  c[c.length-1] = 1;
+  return c;
+}
+function campionaBinomiale(cdf){
+  var r = Math.random(), lo = 0, hi = cdf.length-1;
+  while(lo < hi){ var mid = (lo+hi) >> 1; if(cdf[mid] < r) lo = mid+1; else hi = mid; }
+  return lo;
+}
+
+/* ============================================================
+   FORMATTAZIONE — tre cifre significative, mai di piu', virgola italiana.
+   ============================================================ */
+function it(x, dec){
+  if(!isFinite(x)) return '—';
+  return x.toLocaleString('en-US',{minimumFractionDigits:dec, maximumFractionDigits:dec});
+}
+function tre(x){
+  if(x === 0) return '0';
+  var e = Math.floor(Math.log10(Math.abs(x)));
+  var dec = Math.max(0, 2-e);
+  if(dec > 6) dec = 6;
+  return it(x, dec);
+}
+function sci(x, sig){
+  if(x === 0) return '0';
+  var neg = x < 0; x = Math.abs(x);
+  var e = Math.floor(Math.log10(x));
+  var m = x / Math.pow(10, e);
+  /* correggi errori di arrotondamento ai bordi (es. 9,999 -> 10,0) */
+  var mr = parseFloat(m.toFixed((sig||3)-1));
+  if(mr >= 10){ mr = mr/10; e += 1; }
+  return (neg?'-':'') + it(mr, (sig||3)-1) + '×10' + esponente(e);
+}
+function esponente(e){
+  var su = {'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  return String(e).split('').map(function(c){ return su[c] || c; }).join('');
+}
+/* il numero enorme dell'esponente del respiro, scritto per intero:
+   "3.768.000.000.000.000.000.000" — raggruppato a tre cifre come le
+   migliaia italiane. sig = cifre significative della mantissa. */
+function raggruppa(s){
+  var out = '';
+  for(var i=0;i<s.length;i++){
+    if(i>0 && (s.length-i)%3===0) out += '.';
+    out += s[i];
+  }
+  return out;
+}
+function esponenteLiterale(expVal, sig){
+  var e = Math.floor(Math.log10(expVal));
+  var mant = expVal / Math.pow(10, e);
+  var mantRounded = Math.round(mant * Math.pow(10, sig-1));
+  var mantStr = String(mantRounded);
+  if(mantStr.length > sig){ e += 1; mantStr = mantStr.slice(0, sig); }
+  var zeri = e + 1 - mantStr.length;
+  var full = mantStr + new Array(Math.max(0,zeri)+1).join('0');
+  return { testo: raggruppa(full), cifre: full.length };
+}
+function fmtTempoEsteso(s){
+  if(s < 120) return tre(s) + TESTI[LANG].unit_secondi;
+  if(s < 7200) return tre(s/60) + TESTI[LANG].unit_minuti;
+  if(s < 2*86400) return tre(s/3600) + TESTI[LANG].unit_ore;
+  if(s < 2*ANNO_S) return tre(s/86400) + TESTI[LANG].unit_giorni;
+  if(s < 1e4*ANNO_S) return tre(s/ANNO_S) + TESTI[LANG].unit_anni;
+  var volteEta = s / AGE_S;
+  if(volteEta < 1e6) return tre(volteEta) + TESTI[LANG].frag_volte_eta_universo;
+  return sci(volteEta,3) + TESTI[LANG].frag_volte_eta_universo;
+}
+function fmtMolecole(x){
+  if(x < 1000) return tre(x) + TESTI[LANG].unit_molecole;
+  if(x < 1e6) return tre(x/1000) + TESTI[LANG].unit_mila_molecole;
+  return sci(x,3) + TESTI[LANG].unit_molecole;
+}
+
+/* ============================================================
+   SCHEDE
+   ============================================================ */
+function costruisciSchede(cont, lista, attivo, onClick, bloccate, testoFn){
+  cont.innerHTML = '';
+  lista.forEach(function(el, i){
+    var b = document.createElement('button');
+    b.className = 'scheda'; b.type = 'button';
+    b.setAttribute('aria-pressed', i === attivo ? 'true' : 'false');
+    if(bloccate) b.disabled = true;
+    var testo = testoFn(el);
+    var n = document.createElement('span'); n.className='n'; n.textContent = testo.nome;
+    var d = document.createElement('span'); d.className='d'; d.textContent = testo.det;
+    b.appendChild(n); b.appendChild(d);
+    b.addEventListener('click', function(){ onClick(i); });
+    cont.appendChild(b);
+  });
+}
+
+/* ============================================================
+   CANVAS SCATOLA
+   ============================================================ */
+var vasca = document.getElementById('vasca');
+var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+var particelle = [];   /* {x,y, x0,y0, x1,y1, t0} normalizzate 0..1 nella loro meta' */
+var texturaRespiro = null;
+var ANIMA_MS = PREFERISCE_MOTO_RIDOTTO ? 0 : 180;
+
+function dimensiona(){
+  var r = window.devicePixelRatio || 1;
+  var w = cv.clientWidth, h = cv.clientHeight;
+  if(w<=0 || h<=0) return;
+  cv.width = Math.round(w*r); cv.height = Math.round(h*r);
+  ctx.setTransform(r,0,0,r,0,0);
+  var hc = document.getElementById('cv-hist');
+  var r2 = window.devicePixelRatio || 1;
+  var w2 = hc.clientWidth, h2 = hc.clientHeight;
+  if(w2>0 && h2>0){
+    hc.width = Math.round(w2*r2); hc.height = Math.round(h2*r2);
+    hc.getContext('2d').setTransform(r2,0,0,r2,0,0);
+  }
+}
+function easeInOutCubic(t){ return t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
+
+function creaTexturaRespiro(){
+  var off = document.createElement('canvas');
+  off.width = 160; off.height = 160;
+  var c = off.getContext('2d');
+  for(var i=0;i<900;i++){
+    c.fillStyle = 'rgba(233,238,255,' + (0.10 + Math.random()*0.18) + ')';
+    c.beginPath();
+    c.arc(Math.random()*160, Math.random()*160, 0.6+Math.random()*0.7, 0, 6.2832);
+    c.fill();
+  }
+  return off;
+}
+
+function nuoveParticelleDiscreto(sx, N){
+  var vecchie = particelle;
+  particelle = [];
+  for(var i=0;i<N;i++){
+    var lato = i < sx ? -1 : 1;
+    var vx = vecchie[i] ? vecchie[i].x : (Math.random()*0.42+0.06) * lato;
+    var vy = vecchie[i] ? vecchie[i].y : (Math.random()*0.86+0.07);
+    var nx = (Math.random()*0.42+0.06) * lato;
+    var ny = Math.random()*0.86+0.07;
+    particelle.push({ x0:vx, y0:vy, x1:nx, y1:ny, x:vx, y:vy, t0:performance.now() });
+  }
+}
+
+function disegnaDiscreto(){
+  var w = cv.clientWidth, h = cv.clientHeight;
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle = '#0A0D18'; ctx.fillRect(0,0,w,h);
+  ctx.strokeStyle = '#3A4260'; ctx.lineWidth = 1.5; ctx.setLineDash([6,5]);
+  ctx.beginPath(); ctx.moveTo(w/2,4); ctx.lineTo(w/2,h-4); ctx.stroke();
+  ctx.setLineDash([]);
+  var now = performance.now();
+  var r = ARIA[st.aria].N <= 4 ? 7 : (ARIA[st.aria].N <= 10 ? 6 : 5);
+  for(var i=0;i<particelle.length;i++){
+    var p = particelle[i];
+    var f = ANIMA_MS>0 ? Math.min(1,(now-p.t0)/ANIMA_MS) : 1;
+    var e = easeInOutCubic(f);
+    p.x = p.x0 + (p.x1-p.x0)*e; p.y = p.y0 + (p.y1-p.y0)*e;
+    var px = w/2 + p.x*w, py = p.y*h;
+    ctx.fillStyle = '#E9EEFF';
+    ctx.beginPath(); ctx.arc(px,py,r,0,6.2832); ctx.fill();
+  }
+}
+function disegnaRespiro(){
+  var w = cv.clientWidth, h = cv.clientHeight;
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle = '#0A0D18'; ctx.fillRect(0,0,w,h);
+  if(!texturaRespiro) texturaRespiro = creaTexturaRespiro();
+  var frazioneSx = 0.5;
+  if(st.ultimoRespiro != null) frazioneSx = st.ultimoRespiro / N_RESPIRO;
+  var pattL = ctx.createPattern(texturaRespiro, 'repeat');
+  var pattR = ctx.createPattern(texturaRespiro, 'repeat');
+  ctx.save();
+  ctx.globalAlpha = 0.55 + (frazioneSx-0.5)*4; /* modulazione reale, di fatto impercettibile */
+  ctx.fillStyle = pattL; ctx.fillRect(0,0,w/2,h);
+  ctx.restore();
+  ctx.save();
+  ctx.globalAlpha = 0.55 - (frazioneSx-0.5)*4;
+  ctx.fillStyle = pattR; ctx.fillRect(w/2,0,w/2,h);
+  ctx.restore();
+  ctx.strokeStyle = '#3A4260'; ctx.lineWidth = 1.5; ctx.setLineDash([6,5]);
+  ctx.beginPath(); ctx.moveTo(w/2,4); ctx.lineTo(w/2,h-4); ctx.stroke();
+  ctx.setLineDash([]);
+}
+function loopVasca(){
+  if(ARIA[st.aria].tipo === 'discreto') disegnaDiscreto(); else disegnaRespiro();
+  requestAnimationFrame(loopVasca);
+}
+
+/* ============================================================
+   ISTOGRAMMA
+   ============================================================ */
+function disegnaIstogramma(){
+  var hc = document.getElementById('cv-hist'), hctx = hc.getContext('2d');
+  var w = hc.clientWidth, h = hc.clientHeight;
+  hctx.clearRect(0,0,w,h);
+  var cfg = ARIA[st.aria];
+  if(cfg.tipo !== 'discreto' || !st.bins){ return; }
+  var N = cfg.N, bins = st.bins;
+  var teor = pmfBinom(N);
+  var maxOss = Math.max.apply(null, bins), maxTeor = Math.max.apply(null, teor);
+  var totale = st.volte || 1;
+  var maxAltezzaOss = maxOss || 1;
+  var maxAltezzaTeor = maxTeor * totale || 1;
+  var maxAltezza = Math.max(maxAltezzaOss, maxAltezzaTeor) || 1;
+  var bw = w / (N+1);
+  hctx.strokeStyle = '#C9C1AC'; hctx.lineWidth = 1.4;
+  hctx.beginPath();
+  for(var k=0;k<=N;k++){
+    var x = k*bw + bw/2;
+    var y = h - 18 - (teor[k]*totale/maxAltezza)*(h-30);
+    if(k===0) hctx.moveTo(x,y); else hctx.lineTo(x,y);
+  }
+  hctx.stroke();
+  for(var k2=0;k2<=N;k2++){
+    var hh = (bins[k2]/maxAltezza)*(h-30);
+    hctx.fillStyle = 'rgba(124,92,255,.72)';
+    hctx.fillRect(k2*bw+1, h-18-hh, Math.max(1,bw-2), hh);
+  }
+}
+
+/* ============================================================
+   GESTIONE ESITI
+   ============================================================ */
+function registraEsitoDiscreto(sx, N){
+  st.volte++;
+  var dx = N - sx, squil = Math.abs(sx-dx);
+  if(!st.record || squil > st.record.squil) st.record = {sx:sx, dx:dx, squil:squil};
+  if(sx === N){
+    st.pieni++;
+    if(N <= 10 && !PREFERISCE_MOTO_RIDOTTO){
+      vasca.classList.remove('flash'); void vasca.offsetWidth; vasca.classList.add('flash');
+    }
+  }
+  st.bins[sx] = (st.bins[sx]||0) + 1;
+}
+
+function rimescola(){
+  var cfg = ARIA[st.aria];
+  if(cfg.tipo === 'discreto'){
+    var sx = nuovaConfigurazioneDiscreta(cfg.N);
+    registraEsitoDiscreto(sx, cfg.N);
+    nuoveParticelleDiscreto(sx, cfg.N);
+  } else {
+    st.ultimoRespiro = nuovaConfigurazioneRespiro();
+    st.volte++;
+  }
+  aggiorna();
+}
+
+function saltaMilione(){
+  var cfg = ARIA[st.aria];
+  if(cfg.tipo !== 'discreto') return;
+  var N = cfg.N, cdf = cdfBinom(N);
+  var LOTTO = 1000000;
+  var bins = st.bins, pieni = 0, ultimoSx = 0;
+  var recSquil = st.record ? st.record.squil : -1, recSx = st.record?st.record.sx:0, recDx = st.record?st.record.dx:0;
+  for(var i=0;i<LOTTO;i++){
+    var sx = campionaBinomiale(cdf);
+    bins[sx] = (bins[sx]||0) + 1;
+    var dx = N-sx, squil = Math.abs(sx-dx);
+    if(squil > recSquil){ recSquil = squil; recSx = sx; recDx = dx; }
+    if(sx === N) pieni++;
+    ultimoSx = sx;
+  }
+  st.volte += LOTTO; st.pieni += pieni;
+  st.record = {sx:recSx, dx:recDx, squil:recSquil};
+  nuoveParticelleDiscreto(ultimoSx, N);
+  aggiorna();
+}
+
+/* ============================================================
+   AGGIORNAMENTO GENERALE
+   ============================================================ */
+function grandezzeTeoriche(N){
+  /* i valori TEORICI (non l'esito dell'ultimo rimescolamento): sono
+     quelli tabulati nella scheda e verificati dal collaudo. */
+  var scarto = Math.sqrt(N)/2;
+  var pctScarto = 1/(2*Math.sqrt(N))*100;
+  var dS = N * K_BOLTZMANN * LN2;
+  return { scarto:scarto, pctScarto:pctScarto, dS:dS };
+}
+
+function aggiornaBadge(){
+  var b = document.getElementById('badge');
+  if(st.scommessa < 0){ b.className='badge vuoto'; b.textContent = TESTI[LANG].badge_vuoto; return; }
+  b.className = 'badge';
+  b.innerHTML = TESTI[LANG].badge_prefisso + '<b>' + scommessaNome(SCOMMESSE[st.scommessa]).toLowerCase() + '</b>';
+}
+
+function aggiornaGrandezze(){
+  var cfg = ARIA[st.aria];
+  if(cfg.tipo === 'discreto'){
+    var N = cfg.N, W = bigPow2(N);
+    var g = grandezzeTeoriche(N);
+    document.getElementById('g-probabilita').textContent = TESTI[LANG].frag_1_su + bigSci(W,3);
+    var tSec = Number(W) / RATE_CLIC;
+    document.getElementById('g-tempo').textContent = bigSci(W,3) + TESTI[LANG].frag_rimescolamenti_punto + fmtTempoEsteso(tSec) + TESTI[LANG].frag_a_20s;
+    document.getElementById('g-squilibrio').textContent = tre(g.scarto) + TESTI[LANG].frag_molecole_paren_open + tre(g.pctScarto) + TESTI[LANG].frag_paren_close_pct;
+    document.getElementById('g-entropia').textContent = sci(g.dS,3) + ' J/K';
+  } else {
+    var g2 = grandezzeTeoriche(N_RESPIRO);
+    var espo = esponenteLiterale(N_RESPIRO*Math.log10(2), 4);
+    document.getElementById('g-probabilita').textContent = TESTI[LANG].frag_1_su_10_elevato_a + espo.testo;
+    document.getElementById('g-tempo').textContent = TESTI[LANG].frag_esponente_ha_prefix + espo.cifre + TESTI[LANG].frag_cifre_suffix;
+    document.getElementById('g-squilibrio').textContent = sci(g2.scarto,3) + TESTI[LANG].frag_molecole_paren_open + sci(g2.pctScarto/100,3) + TESTI[LANG].frag_paren_close;
+    document.getElementById('g-entropia').textContent = sci(g2.dS,3) + ' J/K';
+  }
+}
+
+function aggiornaContatori(){
+  var cfg = ARIA[st.aria];
+  document.getElementById('c-volte').textContent = it(st.volte,0);
+  if(cfg.tipo === 'discreto'){
+    document.getElementById('c-record').textContent = st.record
+      ? (st.record.sx + TESTI[LANG].frag_a_sinistra_virgola + st.record.dx + TESTI[LANG].frag_a_destra) : '—';
+    document.getElementById('c-pieni').textContent = it(st.pieni,0);
+    var W = bigPow2(cfg.N);
+    document.getElementById('c-servirebbe').textContent = st.pieni === 0
+      ? TESTI[LANG].frag_servirebbe_prefix + bigSci(W,3) + TESTI[LANG].frag_servirebbe_mid + cfg.N + TESTI[LANG].frag_servirebbe_suffix
+      : '';
+    document.getElementById('contatore-riga').style.display = '';
+    document.getElementById('blocco-istogramma').style.display = '';
+  } else {
+    var sx = st.ultimoRespiro != null ? st.ultimoRespiro : N_RESPIRO/2;
+    var diff = sx - N_RESPIRO/2;
+    document.getElementById('c-record').textContent =
+      (diff>=0?TESTI[LANG].frag_a_sinistra_ci_sono:TESTI[LANG].frag_a_destra_ci_sono) + tre(Math.abs(diff)) + TESTI[LANG].frag_molecole_in_piu_meta;
+    document.getElementById('c-pieni').textContent = '—';
+    document.getElementById('c-servirebbe').textContent =
+      TESTI[LANG].frag_cioe_lo + sci(Math.abs(diff)/N_RESPIRO*100,3) + TESTI[LANG].frag_in_piu_esperimento;
+    document.getElementById('contatore-riga').style.display = 'none';
+    document.getElementById('blocco-istogramma').style.display = 'none';
+  }
+}
+
+function aggiornaPulsanti(){
+  var cfg = ARIA[st.aria];
+  var haScommesso = st.scommessa >= 0;
+  document.getElementById('btn-rimescola').disabled = !haScommesso;
+  document.getElementById('chk-auto').disabled = !haScommesso || cfg.tipo !== 'discreto';
+  document.getElementById('btn-salta').disabled = !haScommesso || cfg.tipo !== 'discreto';
+  document.getElementById('btn-salta').style.display = cfg.tipo === 'discreto' ? '' : 'none';
+  document.querySelector('.pill').style.display = cfg.tipo === 'discreto' ? '' : 'none';
+}
+
+function aggiornaSchedaScommessaBlocco(){
+  var bloccate = st.volte > 0;
+  costruisciSchede(document.getElementById('sc-scommessa'), SCOMMESSE, st.scommessa, function(i){
+    if(st.volte > 0) return;
+    st.scommessa = i; aggiornaSchedaScommessaBlocco(); aggiornaBadge(); aggiornaPulsanti();
+  }, bloccate, function(el){ return {nome:scommessaNome(el), det:scommessaDet(el)}; });
+}
+
+function aggiorna(){
+  aggiornaBadge();
+  aggiornaGrandezze();
+  aggiornaContatori();
+  aggiornaPulsanti();
+  disegnaIstogramma();
+  var sr = document.getElementById('sr-scatola');
+  var cfg = ARIA[st.aria];
+  if(cfg.tipo === 'discreto' && st.record){
+    sr.textContent = TESTI[LANG].frag_ultimo_record_prefix + st.record.sx + TESTI[LANG].frag_molecole_a_sinistra_su + cfg.N + '.';
+  }
+}
+
+/* ============================================================
+   INTERNAZIONALIZZAZIONE — applica TESTI[LANG] a ogni elemento
+   marcato data-i18n, e permette il cambio lingua via console.
+   ============================================================ */
+function applicaTesti(){
+  var dizionario = TESTI[LANG] || TESTI.it;
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(dizionario[key] != null) el.innerHTML = dizionario[key];
+  });
+}
+function setLang(l){
+  if(!TESTI[l]) return;
+  LANG = l;
+  document.documentElement.lang = l;
+  document.title = TESTI[LANG].titolo_pagina;
+  applicaTesti();
+  ridisegnaSchedaAria();
+  aggiornaSchedaScommessaBlocco();
+  aggiorna();
+}
+window.setLang = setLang;
+
+/* ============================================================
+   AVVIO
+   ============================================================ */
+function ricomincia(){
+  var cfg = ARIA[st.aria];
+  st.volte = 0; st.pieni = 0; st.record = null; st.ultimoRespiro = null;
+  st.bins = cfg.tipo === 'discreto' ? new Array(cfg.N+1).fill(0) : null;
+  particelle = [];
+  if(cfg.tipo === 'discreto') nuoveParticelleDiscreto(Math.round(cfg.N/2), cfg.N);
+  fermaAuto();
+  aggiornaSchedaScommessaBlocco();
+  aggiorna();
+}
+
+function fermaAuto(){
+  st.autoOn = false;
+  if(st.autoTimer){ clearInterval(st.autoTimer); st.autoTimer = null; }
+  document.getElementById('chk-auto').checked = false;
+}
+
+function ridisegnaSchedaAria(){
+  costruisciSchede(document.getElementById('sc-aria'), ARIA, st.aria, function(i){
+    st.aria = i; document.getElementById('nota-aria').textContent = ariaNota(ARIA[i]);
+    ridisegnaSchedaAria(); ricomincia();
+  }, false, function(el){ return {nome:ariaNome(el), det:ariaDet(el)}; });
+  document.getElementById('nota-aria').textContent = ariaNota(ARIA[st.aria]);
+}
+
+document.getElementById('btn-rimescola').addEventListener('click', rimescola);
+document.getElementById('btn-salta').addEventListener('click', saltaMilione);
+document.getElementById('btn-reset').addEventListener('click', ricomincia);
+document.getElementById('chk-auto').addEventListener('change', function(e){
+  if(e.target.checked){
+    st.autoOn = true; st.autoInizio = Date.now();
+    st.autoTimer = setInterval(function(){
+      if(Date.now() - st.autoInizio > 120000){ fermaAuto(); return; }
+      rimescola();
+    }, 1000/RATE_CLIC);
+  } else {
+    fermaAuto();
+  }
+});
+window.addEventListener('resize', dimensiona);
+
+applicaTesti();
+ridisegnaSchedaAria();
+dimensiona();
+particelle = [];
+nuoveParticelleDiscreto(2, 4);
+st.bins = new Array(5).fill(0);
+aggiornaSchedaScommessaBlocco();
+aggiorna();
+requestAnimationFrame(loopVasca);
+
+/* ------------------------------------------------------------
+   AUTOCOLLAUDO — gira in console, non tocca la pagina.
+   Verifica ogni numero della tabella "casi verificati" della scheda
+   e alcune invarianti fisiche (conservazione della probabilità totale,
+   le due strade per l'entropia che devono coincidere).
+   Se uno di questi salta, la pagina sta mentendo.
+   ------------------------------------------------------------ */
+(function collaudo(){
+  var esiti = [];
+  function ok(nome, avuto, atteso, toll){
+    var passa = Math.abs(avuto-atteso)/Math.abs(atteso) < (toll||0.01);
+    esiti.push((passa?'OK  ':'NO  ') + nome + '  = ' + avuto.toPrecision(5) +
+               (passa ? '' : '   atteso ' + atteso));
+    return passa;
+  }
+
+  /* --- N = 4: sistemazioni, probabilita', entropia --- */
+  var W4 = binom(4);
+  ok('binomio(4) somma = 2^4', W4.reduce(function(a,b){return a+b;},0), 16);
+  ok('binomio(4) profilo k=1 (deve fare 4)', W4[1], 4);
+  ok('binomio(4) profilo k=2 (deve fare 6, il più affollato)', W4[2], 6);
+  ok('W(4) = 2^4', Number(bigPow2(4)), 16);
+  ok('p(4) = 1/16', 1/Number(bigPow2(4)), 0.0625);
+  ok('probabilità "due e due" = 6/16', W4[2]/16, 0.375);
+  ok('caduta di entropia N=4 (J/K)', -4*K_BOLTZMANN*LN2, -3.8280e-23, 0.003);
+
+  /* --- N = 10 --- */
+  ok('W(10) = 2^10', Number(bigPow2(10)), 1024);
+  ok('tempo a 20/s per N=10 (s)', Number(bigPow2(10))/RATE_CLIC, 51.2);
+  ok('tempo a un battito per rimescolamento, 70 bpm (s)', 1024*60/70, 877.7, 0.005);
+  ok('probabilità di averlo già visto dopo 1024 prove', 1-Math.pow(1023/1024,1024), 0.6323, 0.01);
+
+  /* --- soglia 98/99 molecole, computer immaginario dal Big Bang --- */
+  ok('età universo in secondi', AGE_S, 4.350846e17, 0.0001);
+  var tentativiComputer = AGE_S * RATE_IMMAGINARIO;
+  ok('tentativi del computer immaginario', tentativiComputer, 4.350846e29, 0.0001);
+  ok('log2(tentativi) ~ 98,46', Math.log2(tentativiComputer), 98.457, 0.001);
+  var soglia98 = Number(bigPow2(98)), soglia99 = Number(bigPow2(99));
+  esiti.push((soglia98 < tentativiComputer ? 'OK  ':'NO  ') + '2^98 < tentativi (98 ce la fa)  = ' + soglia98.toPrecision(4));
+  esiti.push((soglia99 > tentativiComputer ? 'OK  ':'NO  ') + '2^99 > tentativi (99 non ce la fa)  = ' + soglia99.toPrecision(4));
+
+  /* --- N = 100 --- */
+  var W100 = Number(bigPow2(100));
+  ok('W(100) = 2^100', W100, 1.267650600228229e30, 0.0001);
+  ok('tempo N=100 a 10^12/s, in volte l’età dell’universo', (W100/RATE_IMMAGINARIO)/AGE_S, 2.9136, 0.005);
+  var anni20 = (W100/RATE_CLIC)/ANNO_S;
+  ok('tempo N=100 a 20/s (anni)', anni20, 2.0085e21, 0.005);
+  ok('tempo N=100 a 20/s, volte l’età dell’universo', anni20/AGE_ANNI, 145.68e9, 0.01);
+
+  /* --- N = 100: code della binomiale, quel che capita davvero --- */
+  var pmf100 = pmfBinom(100);
+  function coda(kmin){ var s=0; for(var k=kmin;k<pmf100.length;k++) s+=pmf100[k]; return s; }
+  ok('P(>=60 su 100)', coda(60), 0.028444, 0.01);
+  ok('P(>=70 su 100)', coda(70), 3.9251e-5, 0.01);
+  ok('attese su 100.000 rimescolamenti (>=70)', coda(70)*100000, 3.925, 0.01);
+  ok('P(>=80 su 100)', coda(80), 5.5795e-10, 0.02);
+  ok('P(>=90 su 100)', coda(90), 1.5316e-17, 0.03);
+  ok('P(tutte e 100 a sinistra) = 2^-100', pmf100[100], Math.pow(2,-100), 0.001);
+  /* invariante: la probabilità totale deve fare 1 (nessuna sistemazione persa per strada) */
+  ok('somma pmf(100) = 1 (conservazione)', pmf100.reduce(function(a,b){return a+b;},0), 1, 0.0001);
+  ok('somma binom(10) = 2^10 (conservazione)', binom(10).reduce(function(a,b){return a+b;},0), 1024, 0.0001);
+
+  /* --- il respiro --- */
+  ok('moli in mezzo litro (n = PV/RT)', MOL_RESPIRO, 0.020786, 0.001);
+  ok('molecole nel respiro (N = n NA)', N_RESPIRO, 1.251738e22, 0.0005);
+  var espDecimale = N_RESPIRO * Math.log10(2);
+  ok('esponente decimale N log10(2)', espDecimale, 3.768107e21, 0.0005);
+  var lit = esponenteLiterale(espDecimale, 4);
+  esiti.push((lit.cifre===22?'OK  ':'NO  ') + 'esponente letterale ha 22 cifre  = ' + lit.cifre);
+  var g = grandezzeTeoriche(N_RESPIRO);
+  ok('scarto tipico respiro (molecole)', g.scarto, 5.59405e10, 0.001);
+  ok('scarto tipico respiro (%)', g.pctScarto, 4.469e-10, 0.02);
+  /* invariante fisico: le due strade per l'entropia devono coincidere,
+     perchè N*k = n*NA*(R/NA) = n*R identicamente */
+  var dS_conteggio = N_RESPIRO * K_BOLTZMANN * LN2;
+  var dS_chimica = MOL_RESPIRO * R_GAS * LN2;
+  ok('entropia respiro, via conteggio (J/K)', dS_conteggio, 0.11979, 0.001);
+  ok('le due strade per l’entropia coincidono', dS_conteggio/dS_chimica, 1, 0.0001);
+  ok('equivalente in grammi di ghiaccio', dS_conteggio/ETA_GHIACCIO, 0.09811, 0.005);
+
+  /* --- generatore gaussiano: media 0, varianza 1 --- */
+  var s1=0, s2=0, N=40000;
+  for(var i=0;i<N;i++){ var v=gauss(); s1+=v; s2+=v*v; }
+  ok('gauss: media', s1/N + 1, 1, 0.03);
+  ok('gauss: varianza', s2/N, 1, 0.04);
+
+  /* --- l'approssimazione gaussiana della binomiale, su scala gestibile --- */
+  var Ntest = 2000, media = Ntest/2, sd = Math.sqrt(Ntest)/2, ss=0, ss2=0, M=20000;
+  for(var j=0;j<M;j++){ var camp = media + gauss()*sd; ss+=camp; ss2+=(camp-media)*(camp-media); }
+  ok('approssimazione gaussiana: media ~ N/2', ss/M, media, 0.01);
+  ok('approssimazione gaussiana: sd ~ sqrt(N)/2', Math.sqrt(ss2/M), sd, 0.05);
+
+  /* --- campionamento binomiale esatto per il salto di un milione --- */
+  var cdfTest = cdfBinom(10), campioni = new Array(11).fill(0), MM=30000;
+  for(var m=0;m<MM;m++) campioni[campionaBinomiale(cdfTest)]++;
+  ok('campionamento esatto: media vicina a N/2 (N=10)', campioni.reduce(function(a,v,k){return a+v*k;},0)/MM, 5, 0.06);
+
+  var falliti = esiti.filter(function(e){ return e.indexOf('NO') === 0; }).length;
+  console.log('%cAutocollaudo esperimento 7 — ' + (falliti ? falliti + ' CONTROLLI FALLITI' : 'tutti i controlli passati (' + esiti.length + ')'),
+              'font-weight:bold;color:' + (falliti ? '#c00' : '#0a0'));
+  esiti.forEach(function(e){ console.log('  ' + e); });
+})();
+
+})();
+
+try{ if(typeof setLang==='function') setLang('en'); }catch(e){}
+</script>
+</body>
+</html>

@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quanti muoni ti attraversano la mano adesso</title>
+<style>
+
+:root{
+  --scuro-1:#16224A; --scuro-2:#0D1120; --scuro-3:#04060E;
+  --carta:#FAF7F1; --inchiostro:#33302B; --tenue:#7E7768;
+  --oro:#E5A50A; --oro-chiaro:#FFD86E; --viola:#7C5CFF; --acqua:#2DD4BF;
+  --bordo:#E7E1D3; --panna:#FCFAF6;
+  --tit:'Bebas Neue','Avenir Next Condensed','Oswald',sans-serif;
+  --testo:'DM Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'DM Mono','SF Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;overflow-x:hidden}
+body{
+  background:var(--carta); color:var(--inchiostro);
+  font-family:var(--testo); font-size:17px; line-height:1.62;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 18px 90px}
+
+/* ---- fascia alta ---- */
+.hero{
+  background:radial-gradient(120% 95% at 50% 30%,
+    var(--scuro-1) 0%, var(--scuro-2) 45%, var(--scuro-3) 78%, var(--carta) 100%);
+  color:#fff; padding:54px 0 62px; margin-bottom:34px;
+}
+.hero .wrap{padding-bottom:0}
+.occhiello{
+  font-family:var(--mono); font-size:12px; letter-spacing:.22em;
+  text-transform:uppercase; color:#8F97B8; margin:0 0 14px;
+}
+.hero h1{
+  font-family:var(--tit); font-weight:500; font-size:clamp(34px,6.6vw,58px);
+  line-height:.98; letter-spacing:.01em; margin:0 0 20px; max-width:16ch;
+}
+.kicker{color:#C9CEE2; font-size:17.5px; max-width:56ch; margin:0 0 22px}
+.firme{
+  font-family:var(--mono); font-size:12.5px; line-height:1.75;
+  color:#7F87A8; max-width:62ch; margin:0;
+}
+.firme b{color:#AEB6D4; font-weight:400}
+
+/* ---- struttura ---- */
+.passo{
+  font-family:var(--mono); font-size:12px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--tenue); margin:38px 0 14px;
+}
+h2{font-family:var(--tit);font-weight:500;font-size:30px;letter-spacing:.01em;margin:34px 0 12px}
+h3{font-size:18px;margin:26px 0 8px}
+p{margin:0 0 15px}
+.tenue{color:var(--tenue);font-size:15.5px}
+
+/* ---- convenzione ---- */
+.convenzione{
+  border:1.5px solid var(--oro);border-radius:12px;background:#FFFBEF;
+  padding:16px 19px;margin:0 0 30px;font-size:15.5px;
+}
+.convenzione .et{color:#A08420;margin:0 0 6px}
+
+/* ---- schede di scelta ---- */
+.schede{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:8px}
+@media(max-width:640px){.schede{grid-template-columns:1fr}}
+.scheda{
+  border:1.5px solid var(--bordo); border-radius:11px; background:var(--panna);
+  padding:13px 15px; cursor:pointer; text-align:left; font:inherit;
+  color:inherit; transition:border-color .16s, background .16s;
+  min-height:48px;
+}
+.scheda:hover{border-color:#C9C1AC}
+.scheda[aria-pressed="true"]{border-color:var(--oro);background:#FFFBEF}
+.scheda .n{display:block;font-size:16.5px;margin-bottom:2px}
+.scheda .d{
+  display:block;font-family:var(--mono);font-size:11.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--tenue);
+}
+.scheda[aria-pressed="true"] .d{color:#A08420}
+.nota-scheda{font-size:14px;color:var(--tenue);margin:10px 0 0}
+
+/* ---- colonna atmosfera ---- */
+.colonna-wrap{display:flex;gap:20px;align-items:stretch;margin:6px 0 8px}
+.colonna-atm{
+  position:relative;width:52px;min-width:52px;height:230px;border-radius:10px;
+  overflow:visible;
+}
+.colonna-atm svg{position:absolute;inset:0;width:100%;height:100%;border-radius:10px}
+.tacca{
+  position:absolute;left:56px;transform:translateY(-50%);
+  font-family:var(--mono);font-size:11px;color:var(--tenue);white-space:nowrap;
+}
+.tacca .linea{
+  position:absolute;left:-24px;top:50%;width:20px;height:1px;background:var(--bordo);
+}
+.cursore-quota{
+  position:absolute;left:-9px;right:-9px;height:48px;transform:translateY(-50%);
+  cursor:grab;touch-action:none;display:flex;align-items:center;justify-content:center;
+}
+.cursore-quota:active{cursor:grabbing}
+.cursore-quota .barra{
+  position:absolute;left:0;right:0;top:50%;height:5px;transform:translateY(-50%);
+  background:var(--oro);border-radius:3px;box-shadow:0 0 0 3px rgba(229,165,10,.28);
+}
+.cursore-quota:focus{outline:none}
+.cursore-quota:focus .barra{box-shadow:0 0 0 4px rgba(229,165,10,.5)}
+.quota-info{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0}
+.quota-grande{font-family:var(--tit);font-weight:500;font-size:clamp(30px,6vw,44px);line-height:1;margin:0 0 6px}
+.quota-grande .u{font-size:.42em;color:var(--tenue);letter-spacing:.02em}
+.quota-vicino{font-family:var(--mono);font-size:12.5px;color:var(--tenue);margin:0}
+@media(max-width:620px){
+  .colonna-wrap{flex-direction:column}
+  .colonna-atm{width:100%;height:56px;min-width:0}
+  .cursore-quota{left:50%;right:auto;top:-9px;bottom:-9px;width:48px;height:auto;transform:translateX(-50%)}
+  .cursore-quota .barra{left:50%;top:0;bottom:0;right:auto;width:5px;height:auto;transform:translateX(-50%)}
+  .tacca{left:auto;top:64px;transform:translateX(-50%)}
+  .tacca .linea{left:50%;top:-24px;width:1px;height:20px;transform:translateX(-50%)}
+}
+
+/* ---- il pulsante centrale ---- */
+.raddoppia{
+  display:block;width:100%;margin:22px 0 8px;padding:18px 18px;
+  border:none;border-radius:13px;cursor:pointer;
+  background:var(--scuro-2);color:#fff;font-family:var(--tit);font-weight:500;
+  font-size:23px;letter-spacing:.04em;min-height:56px;
+  transition:transform .09s, background .16s;
+}
+.raddoppia:hover{background:#1B2440}
+.raddoppia:active{transform:scale(.985)}
+
+/* ---- riquadro risultato ---- */
+.box{border:1px solid var(--bordo);border-radius:13px;background:var(--panna);padding:19px 21px;margin:18px 0}
+.box.oro{border-color:#EBD9A4;background:#FFFBEF}
+.box.scuro{background:var(--scuro-2);border-color:#26304F;color:#E8EAF2}
+.box.scuro .et{color:#8F97B8}
+.et{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--tenue);margin:0 0 7px;
+}
+.grande{font-family:var(--tit);font-weight:500;font-size:clamp(28px,5.6vw,40px);line-height:1.02;margin:0}
+.grande .u{font-size:.46em;color:var(--tenue);letter-spacing:.02em}
+.box.scuro .grande .u{color:#8F97B8}
+.sotto-numero{font-size:13.5px;color:var(--tenue);margin:8px 0 0}
+
+.coppia{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.coppia{grid-template-columns:1fr}}
+
+/* ---- barra logaritmica ---- */
+.logbar{position:relative;height:78px;margin:10px 0 6px}
+.logbar .pista{
+  position:absolute;left:0;right:0;top:24px;height:5px;border-radius:3px;
+  background:linear-gradient(90deg,#EFE9DA,#E0D8C4);
+}
+.logbar .tickw{position:absolute;top:31px;width:1px;height:9px;background:#C9C1AC}
+.logbar .tickw span{
+  position:absolute;left:50%;top:12px;transform:translateX(-50%);
+  font-family:var(--mono);font-size:8.5px;color:var(--tenue);white-space:nowrap;
+}
+.logbar .cur{
+  position:absolute;top:17px;width:3px;height:19px;border-radius:2px;background:var(--oro);
+  transition:left .4s cubic-bezier(.34,.9,.4,1);
+}
+.logbar.des .cur{background:var(--acqua)}
+
+/* ---- canvas pioggia di muoni ---- */
+.vasca{
+  position:relative;border:1px solid var(--bordo);border-radius:12px;
+  overflow:hidden;background:#0A0D18;margin:16px 0 6px;
+}
+canvas{display:block;width:100%;height:42vh;min-height:240px;max-height:360px}
+.contatore{
+  display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:12.5px;color:var(--tenue);margin-bottom:14px;
+}
+.contatore b{color:var(--inchiostro);font-weight:400}
+.reset{
+  background:none;border:none;font:inherit;color:var(--tenue);
+  text-decoration:underline;cursor:pointer;padding:8px 0;min-height:44px;
+}
+
+/* ---- quattro numeri ---- */
+.quattro{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:18px 0}
+@media(max-width:560px){.quattro{grid-template-columns:1fr}}
+.quattro .box{margin:0}
+
+/* ---- mani/orologi ---- */
+.orologi{display:flex;gap:22px;align-items:center;justify-content:center;flex-wrap:wrap;margin:6px 0 4px}
+.orologio{display:flex;flex-direction:column;align-items:center;gap:8px}
+.orologio svg{display:block}
+.orologio .etichetta{font-family:var(--mono);font-size:11px;color:var(--tenue);text-align:center}
+
+/* ---- METTI LA MANO overlay ---- */
+.btn-mano{
+  display:block;width:100%;margin:26px 0 10px;padding:18px;border:none;border-radius:13px;
+  cursor:pointer;background:var(--viola);color:#fff;font-family:var(--tit);font-weight:500;
+  font-size:22px;letter-spacing:.05em;min-height:56px;
+}
+.overlay{
+  position:fixed;inset:0;background:rgba(4,6,14,.88);z-index:50;
+  display:none;align-items:center;justify-content:center;padding:18px;
+}
+.overlay.aperto{display:flex}
+.pannello-mano{
+  background:var(--carta);border-radius:16px;max-width:520px;width:100%;
+  padding:26px 24px;max-height:90vh;overflow-y:auto;
+}
+.pannello-mano h2{margin-top:0}
+.chiudi-mano{
+  display:block;margin:18px 0 0;padding:16px;border:none;border-radius:11px;
+  background:var(--scuro-2);color:#fff;font-family:var(--tit);font-size:19px;
+  letter-spacing:.04em;cursor:pointer;width:100%;min-height:48px;
+}
+.due-mani{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0}
+@media(max-width:480px){.due-mani{grid-template-columns:1fr}}
+.mano-lato{border:1px solid var(--bordo);border-radius:12px;padding:16px;text-align:center;background:var(--panna)}
+.mano-lato.viva{border-color:var(--acqua);background:#EDFBF8}
+.mano-lato .tic{font-family:var(--tit);font-size:36px;margin:8px 0}
+.mano-lato .did{font-size:13px;color:var(--tenue)}
+.lampo{transition:opacity .12s}
+
+/* ---- pannelli di approfondimento ---- */
+details.pannello{
+  border:1px solid var(--bordo);border-radius:12px;background:var(--panna);
+  margin:12px 0;overflow:hidden;
+}
+details.pannello summary{
+  cursor:pointer;list-style:none;padding:15px 18px;font-family:var(--tit);
+  font-size:19px;letter-spacing:.02em;min-height:48px;display:flex;align-items:center;
+  justify-content:space-between;
+}
+details.pannello summary::-webkit-details-marker{display:none}
+details.pannello summary::after{content:'+';font-family:var(--testo);font-size:22px;color:var(--tenue)}
+details.pannello[open] summary::after{content:'–'}
+details.pannello .corpo{padding:0 18px 18px}
+
+/* ---- conti a mano ---- */
+.formulaBox{
+  border-left:3px solid var(--oro);background:#FFFBEF;border-radius:0 10px 10px 0;
+  padding:15px 18px;margin:18px 0;
+}
+.formulaBox .et{color:#A08420}
+pre{
+  font-family:var(--mono);font-size:12.5px;line-height:1.62;margin:0;
+  white-space:pre-wrap;word-wrap:break-word;color:#4A463F;
+}
+pre b{color:var(--inchiostro);font-weight:400;background:#FBEFC9;padding:0 3px;border-radius:3px}
+
+/* ---- sezione onesta ---- */
+.onesta{border-top:1px solid var(--bordo);margin-top:46px;padding-top:8px}
+.onesta h2{color:var(--inchiostro)}
+.onesta li{margin-bottom:15px}
+.onesta ol{padding-left:20px}
+.onesta b{font-weight:600}
+
+table{border-collapse:collapse;width:100%;font-size:14px;margin:14px 0}
+th,td{border-bottom:1px solid var(--bordo);padding:8px 9px;text-align:left;vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--tenue);font-weight:400}
+.tab-wrap{overflow-x:auto}
+
+footer{border-top:1px solid var(--bordo);margin-top:44px;padding-top:18px}
+footer p{font-family:var(--mono);font-size:12px;color:var(--tenue);margin:0 0 6px}
+
+</style>
+</head>
+<body>
+<a href="../index.html" style="display:inline-block;margin:14px;font:12px monospace;color:inherit">&larr; All experiments</a>
+
+
+<header class="hero">
+  <div class="wrap">
+<div class="lab-hero-ico" style="width:52px;height:52px;color:#8A6A07;margin:0 0 10px"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16"/><path d="M4 11h16"/><path d="M4 17h16"/><path d="M12 2v20" stroke-dasharray="2 2.4"/></svg></div>
+    <p class="occhiello" data-i18n="hero_occhiello"></p>
+    <h1 data-i18n="hero_titolo"></h1>
+    <p class="kicker" data-i18n="hero_kicker"></p>
+    <p class="firme" data-i18n="hero_firme"></p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="convenzione">
+    <p class="et" data-i18n="convenzione_et"></p>
+    <p style="margin:0" data-i18n="convenzione_testo"></p>
+  </div>
+
+  <p class="passo" data-i18n="passo1"></p>
+  <div class="schede" id="sc-muoni"></div>
+  <p class="nota-scheda" id="nota-muone"></p>
+
+  <p class="passo" data-i18n="passo2"></p>
+  <div class="colonna-wrap">
+    <div class="colonna-atm" id="colonna-atm">
+      <svg viewBox="0 0 52 230" preserveAspectRatio="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="gradAtm" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#050815"/>
+            <stop offset="55%" stop-color="#1B3A66"/>
+            <stop offset="100%" stop-color="#BFE3F0"/>
+          </linearGradient>
+        </defs>
+        <rect x="14" y="0" width="24" height="230" rx="9" fill="url(#gradAtm)"/>
+        <circle cx="26" cy="10" r="9" fill="#FFD86E" opacity=".4"/>
+      </svg>
+      <div id="tacche-atm"></div>
+      <div class="cursore-quota" id="cursore-quota" tabindex="0" role="slider"
+           aria-valuemin="0" aria-valuemax="15000" data-i18n-aria-label="quota_aria_label" aria-label="Quota del rivelatore, in metri">
+        <div class="barra"></div>
+      </div>
+    </div>
+    <div class="quota-info">
+      <p class="quota-grande"><span id="v-quota">—</span> <span class="u">m</span></p>
+      <p class="quota-vicino" id="v-quota-vicino">—</p>
+    </div>
+  </div>
+  <p class="tenue" data-i18n="quota_tenue"></p>
+
+  <p class="passo" data-i18n="passo3"></p>
+  <div class="coppia">
+    <div class="box">
+      <p class="et" data-i18n="et_senza_dilatazione"></p>
+      <p class="grande"><span id="v-nclass">—</span></p>
+      <p class="sotto-numero" id="v-nclass-nota"></p>
+      <div class="logbar" id="logbar-sin"></div>
+    </div>
+    <div class="box oro">
+      <p class="et" data-i18n="et_mondo_vero"></p>
+      <p class="grande"><span id="v-nrel">—</span></p>
+      <p class="sotto-numero" id="v-nrel-nota"></p>
+      <div class="logbar des" id="logbar-des"></div>
+    </div>
+  </div>
+  <p class="tenue" data-i18n="due_mondi_tenue"></p>
+
+  <p class="passo" data-i18n="passo4"></p>
+  <div class="vasca"><canvas id="cv"></canvas></div>
+  <div class="contatore">
+    <span><span data-i18n="contatore_prefisso"></span><b data-i18n="lbl_senza_dilatazione"></b>: <b id="c-sin">200</b>/200
+    (~<b id="c-sin-muoni">10.000</b> <span data-i18n="parola_muoni"></span>)</span>
+  </div>
+  <div class="contatore">
+    <span><span data-i18n="contatore_prefisso"></span><b data-i18n="lbl_mondo_vero"></b>: <b id="c-des">200</b>/200
+    (~<b id="c-des-muoni">10.000</b> <span data-i18n="parola_muoni"></span>)</span>
+    <button class="reset" id="btn-rilancia" data-i18n="btn_rilancia"></button>
+  </div>
+  <p class="tenue" data-i18n="pioggia_tenue"></p>
+
+  <p class="passo" data-i18n="passo5"></p>
+  <div class="orologi">
+    <div class="orologio">
+      <svg width="86" height="86" viewBox="0 0 86 86">
+        <circle cx="43" cy="43" r="39" fill="none" stroke="#E7E1D3" stroke-width="3"/>
+        <line id="lancetta-noi" x1="43" y1="43" x2="43" y2="14" stroke="#33302B" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="43" cy="43" r="3" fill="#33302B"/>
+      </svg>
+      <p class="etichetta"><span data-i18n="lbl_orologio_noi"></span><br><b id="v-t-noi">—</b></p>
+    </div>
+    <div class="orologio">
+      <svg width="86" height="86" viewBox="0 0 86 86">
+        <circle cx="43" cy="43" r="39" fill="none" stroke="#EBD9A4" stroke-width="3"/>
+        <line id="lancetta-muone" x1="43" y1="43" x2="43" y2="14" stroke="var(--oro)" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="43" cy="43" r="3" fill="var(--oro)"/>
+      </svg>
+      <p class="etichetta"><span data-i18n="lbl_orologio_muone"></span><br><b id="v-t-muone">—</b></p>
+    </div>
+  </div>
+  <div class="quattro">
+    <div class="box">
+      <p class="et" data-i18n="et_spessore"></p>
+      <p class="grande" style="font-size:clamp(22px,4.4vw,30px)"><span id="v-dprop">—</span></p>
+    </div>
+    <div class="box">
+      <p class="et" data-i18n="et_rapporto"></p>
+      <p class="grande" style="font-size:clamp(22px,4.4vw,30px)"><span id="v-rapporto">—</span></p>
+    </div>
+  </div>
+
+  <button class="btn-mano" id="btn-mano" data-i18n="btn_mano"></button>
+
+  <div class="overlay" id="overlay-mano">
+    <div class="pannello-mano">
+      <p class="et" style="color:var(--tenue)" data-i18n="mano_et"></p>
+      <h2 style="margin-top:2px" data-i18n="mano_h2"></h2>
+      <p data-i18n="mano_intro"></p>
+      <div class="due-mani">
+        <div class="mano-lato">
+          <p class="did" data-i18n="mano_lato_senza"></p>
+          <p class="tic" id="mano-sin">0</p>
+          <p class="did" id="mano-sin-attesa" data-i18n="mano_sin_attesa_placeholder"></p>
+        </div>
+        <div class="mano-lato viva">
+          <p class="did" data-i18n="mano_lato_vero"></p>
+          <p class="tic" id="mano-des">0</p>
+          <p class="did"><span id="lampo-mano" class="lampo">●</span> <span data-i18n="mano_tic_ogni"></span><b id="mano-des-intervallo">—</b></p>
+        </div>
+      </div>
+      <p class="tenue" data-i18n="mano_tenue"></p>
+      <button class="chiudi-mano" id="btn-chiudi-mano" data-i18n="btn_chiudi_mano"></button>
+    </div>
+  </div>
+
+  <p class="passo" data-i18n="passo6"></p>
+  <div class="formulaBox">
+    <p class="et" data-i18n="formule_et"></p>
+    <pre id="conti-formule">—</pre>
+  </div>
+
+  <h2 data-i18n="pista_h2"></h2>
+  <p data-i18n="pista_p"></p>
+
+  <h2 data-i18n="sorpresa_h2"></h2>
+  <p data-i18n="sorpresa_p1"></p>
+  <p data-i18n="sorpresa_p2"></p>
+
+  <p class="passo" data-i18n="passo7"></p>
+
+  <details class="pannello">
+    <summary data-i18n="summary_storico"></summary>
+    <div class="corpo" id="pannello-storico">—</div>
+  </details>
+
+  <details class="pannello">
+    <summary data-i18n="summary_gps"></summary>
+    <div class="corpo" id="pannello-gps">—</div>
+  </details>
+
+  <details class="pannello">
+    <summary data-i18n="summary_formule_statiche"></summary>
+    <div class="corpo">
+      <div class="formulaBox" style="margin-top:12px">
+        <pre id="pannello-formule-statiche">—</pre>
+      </div>
+    </div>
+  </details>
+
+  <div class="onesta">
+    <h2 data-i18n="onesta_h2"></h2>
+
+    <ol>
+      <li><span data-i18n="onesta_li1"></span></li>
+      <li><span data-i18n="onesta_li2"></span></li>
+      <li><span data-i18n="onesta_li3"></span></li>
+      <li><span data-i18n="onesta_li4"></span></li>
+      <li><span data-i18n="onesta_li5"></span></li>
+      <li><span data-i18n="onesta_li6"></span></li>
+      <li><span data-i18n="onesta_li7"></span></li>
+      <li><span data-i18n="onesta_li8"></span></li>
+      <li><span data-i18n="onesta_li9"></span></li>
+      <li><span data-i18n="onesta_li10"></span></li>
+      <li><span data-i18n="onesta_li11"></span></li>
+      <li><span data-i18n="onesta_li12"></span></li>
+    </ol>
+
+    <h3 data-i18n="onesta_h3"></h3>
+    <div class="tab-wrap">
+    <table>
+      <tr><th data-i18n="tab_hdr_caso"></th><th data-i18n="tab_hdr_deve_dare"></th></tr>
+      <tr><td data-i18n="tab_r1_caso"></td><td data-i18n="tab_r1_val"></td></tr>
+      <tr><td data-i18n="tab_r2_caso"></td><td data-i18n="tab_r2_val"></td></tr>
+      <tr><td data-i18n="tab_r3_caso"></td><td data-i18n="tab_r3_val"></td></tr>
+      <tr><td data-i18n="tab_r4_caso"></td><td data-i18n="tab_r4_val"></td></tr>
+      <tr><td data-i18n="tab_r5_caso"></td><td data-i18n="tab_r5_val"></td></tr>
+      <tr><td data-i18n="tab_r6_caso"></td><td data-i18n="tab_r6_val"></td></tr>
+      <tr><td data-i18n="tab_r7_caso"></td><td data-i18n="tab_r7_val"></td></tr>
+      <tr><td data-i18n="tab_r8_caso"></td><td data-i18n="tab_r8_val"></td></tr>
+      <tr><td data-i18n="tab_r9_caso"></td><td data-i18n="tab_r9_val"></td></tr>
+      <tr><td data-i18n="tab_r10_caso"></td><td data-i18n="tab_r10_val"></td></tr>
+      <tr><td data-i18n="tab_r11_caso"></td><td data-i18n="tab_r11_val"></td></tr>
+      <tr><td data-i18n="tab_r12_caso"></td><td data-i18n="tab_r12_val"></td></tr>
+    </table>
+    </div>
+  </div>
+
+  
+
+
+<footer style="padding:24px;text-align:center;font:12px monospace;opacity:.7">physics-experiments-lab &middot; MIT License &middot; Copyright (c) 2026 Capitan AI</footer>
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   TESTI — dizionario di tutte le stringhe italiane visibili.
+   TESTI.en/fr/es/de sono copie dell'italiano in attesa della
+   traduzione .
+   ============================================================ */
+var TESTI = {
+  it: {
+    pagina_titolo: `Quanti muoni ti attraversano la mano adesso`,
+    hero_occhiello: `Laboratorio di fisica · Esperimento 9`,
+    hero_titolo: `Quanti muoni ti attraversano la mano adesso`,
+    hero_kicker: `Apri la mano: in questo istante ci passa attraverso un muone ogni sei decimi di secondo. Nascono a 15 chilometri di quota e vivono in media 2,2 microsecondi: dovrebbero fare al massimo 659 metri prima di sparire. Devono attraversarne 15.000. Eppure arrivano, e non a spizzichi: a miliardi. Il motivo non è che vivono di più. È che il loro orologio non segna il tuo tempo.`,
+    hero_firme: `Dilatazione del tempo, relatività ristretta · γ = 1/√(1−v²/c²) · <b>Albert Einstein, 1905</b> (Zur Elektrodynamik bewegter Körper, §4) · <b>Bruno Rossi e David B. Hall, 1941</b> (prima verifica sui muoni cosmici) · <b>David H. Frisch e James H. Smith, 1963</b> (ripetizione più precisa, Monte Washington)`,
+    convenzione_et: `Una convenzione dichiarata, da tenere ferma in tutto l'esperimento`,
+    convenzione_testo: `Le energie dei tre pulsanti qui sotto sono <b>energie alla nascita, a 15 km di quota</b>, non a terra. Un muone perde energia lungo la discesa: il muone tipico da 4 GeV alla nascita arriva a terra con circa 2 GeV. Se non lo dichiariamo, ogni confronto con numeri letti altrove diventa ambiguo.`,
+    passo1: `1 · Scegli quale muone stai seguendo`,
+    passo2: `2 · Scorri la quota del rivelatore`,
+    passo3: `3 · I due mondi, allo stesso ritmo`,
+    passo4: `4 · Guardali cadere davvero`,
+    passo5: `5 · I quattro numeri`,
+    passo6: `6 · Rifai i conti a mano`,
+    passo7: `7 · Approfondisci`,
+    quota_aria_label: `Quota del rivelatore, in metri`,
+    quota_tenue: `Trascina la barra dorata (o usa le frecce della tastiera, passo 100 m). Si aggancia da sola vicino a quattro quote vere: la nascita a 15.000 m, la crociera di un aereo di linea a 11.000 m, la cima del Monte Bianco a 4.800 m, la spiaggia a 0 m.`,
+    et_senza_dilatazione: `In un mondo senza dilatazione del tempo`,
+    et_mondo_vero: `Nel mondo vero`,
+    due_mondi_tenue: `Su 10.000 muoni lasciati cadere insieme dai 15 km di quota. Le due barre sotto i numeri sono in scala logaritmica, da 10⁻⁶ a 10⁴: su una scala normale la barra di sinistra sparirebbe.`,
+    lbl_senza_dilatazione: `senza dilatazione`,
+    lbl_mondo_vero: `mondo vero`,
+    contatore_prefisso: `ancora vivi in questo istante — `,
+    parola_muoni: `muoni`,
+    btn_rilancia: `rilancia la pioggia`,
+    pioggia_tenue: `Duecento punti per colonna: ogni punto vale 50 muoni. Ognuno ha una quota di morte estratta a caso prima di partire; quando la scende raggiunge, il punto si spegne con un piccolo lampo. La linea dorata orizzontale è il rivelatore, alla quota che hai scelto sopra.`,
+    lbl_orologio_noi: `il nostro orologio`,
+    lbl_orologio_muone: `l'orologio del muone`,
+    et_spessore: `Spessore d'atmosfera visto dal muone`,
+    et_rapporto: `Rapporto fra i due mondi, a questa quota`,
+    btn_mano: `METTI LA MANO`,
+    mano_et: `Dalla scala del laboratorio alla scala del corpo`,
+    mano_h2: `Il palmo della tua mano`,
+    mano_intro: `Cento centimetri quadrati, al livello del mare, per il muone tipico. Stesso rapporto fra i due mondi che hai appena visto sopra, portato sulla tua pelle.`,
+    mano_lato_senza: `mondo senza dilatazione`,
+    mano_sin_attesa_placeholder: `prossimo muone atteso fra — anni`,
+    mano_lato_vero: `mondo vero`,
+    mano_tic_ogni: `un tic ogni `,
+    mano_tenue: `Un cuore a riposo batte circa 70 volte al minuto. Nel mondo vero, sulla tua mano ne passa uno e mezzo per ogni battito.`,
+    btn_chiudi_mano: `richiudi la mano`,
+    mano_attesa_fra: `prossimo muone atteso fra `,
+    mano_attesa_anni_e: ` anni e `,
+    mano_attesa_mesi: ` mesi`,
+    formule_et: `Le formule, con i numeri del muone che hai scelto`,
+    pista_h2: `Il giro di pista`,
+    pista_p: `Per noi che stiamo fermi a terra, il muone tipico attraversa 15 chilometri d'atmosfera in circa 50 microsecondi. Per il muone, quella stessa atmosfera è spessa <b>396 metri</b>: un giro di pista d'atletica. Il suo orologio segna <b>1,32 microsecondi</b>, meno di una vita media: dal suo punto di vista muore giovane come sempre. Non ha guadagnato tempo. Ha trovato meno strada.`,
+    sorpresa_h2: `La sorpresa, in due tempi`,
+    sorpresa_p1: `Un muone campa 2,2 microsecondi. In quel tempo, andando al 99,97% della velocità della luce, percorre 659 metri. Deve attraversarne 15.000: ventidue vite medie una dietro l'altra. Il conto senza relatività dice che al livello del mare, su 10.000 partiti dalla cima, ne arriva poco più di un milionesimo. Con la relatività, invece, ne arrivano 5478. Il fattore è 4,3 miliardi.`,
+    sorpresa_p2: `Qui viene il secondo ribaltamento, ed è quello che conta davvero. Verrebbe da dire che il muone "vive più a lungo". È falso: sul suo orologio passa lo stesso tempo di sempre, meno di una vita media. Due racconti opposti — "il suo orologio va piano" e "la sua strada è corta" — danno esattamente lo stesso numero di sopravvissuti, alla quarta cifra decimale. Non è che il tempo sia elastico e lo spazio rigido, né il contrario: "quanto dura" e "quanto è lungo" non sono proprietà delle cose. Sono risposte che dipendono da chi le misura, e cambiano insieme in modo che il conto finale venga uguale per tutti.`,
+    summary_storico: `L'esperimento vero del 1963`,
+    summary_gps: `Il GPS: velocità e gravità, in verso opposto`,
+    summary_formule_statiche: `Le formule per rifarle a mano`,
+    onesta_h2: `Che cosa questo modello non dice`,
+    onesta_li1: `<b>Qui tutti i muoni nascono a 15 km esatti e con la stessa energia.</b> Nella realtà nascono sparpagliati fra i 10 e i 20 km di quota, e le loro energie coprono un intervallo enorme, da frazioni di GeV fino a migliaia. Attenzione al confronto con i dati che trovi altrove: il valore tabulato di circa 4 GeV è l'energia media dei muoni <b>a terra</b>, mentre qui i 4 GeV sono l'energia <b>alla nascita</b>. Siccome attraversando l'atmosfera un muone ne perde circa 2, un muone che arriva a terra con 4 GeV alla nascita ne aveva circa 6, e il nostro "muone tipico" arriva a terra con circa 2 GeV: è un po' più fiacco del muone medio che arriva davvero. La convenzione è dichiarata perché senza dichiararla i conti non si possono nemmeno confrontare.`,
+    onesta_li2: `<b>Il muone rallenta scendendo</b>, quindi il suo γ cala lungo il tragitto, e i conti fatti a γ fisso sbagliano un po' per eccesso: contano più sopravvissuti di quanti ce ne siano. Non è una scusa generica: lo si vede misurato. Sull'esperimento di Frisch e Smith il modello a γ fisso prevede 423 muoni all'ora, il conto che tiene conto del rallentamento ne prevede 398, e la misura vera dà 408.`,
+    onesta_li3: `<b>Non è "attrito".</b> Il muone perde energia strappando elettroni alle molecole d'aria che attraversa (si chiama perdita per ionizzazione, ed è descritta dalla formula di Bethe: circa 2 MeV per ogni grammo per centimetro quadrato attraversato). L'immagine dell'attrito si può usare, ma sapendo che è un'immagine: non c'è nessuna forza di contatto.`,
+    onesta_li4: `<b>Ci sono due modi di sparire, e ne stiamo contando uno solo.</b> Un muone può decadere, oppure può essere fermato e assorbito dall'aria. Questo esperimento conta solo i decadimenti. È il motivo per cui l'opzione "muone lento da 1 GeV" va presa per quello che è: sullo schermo ne arrivano 889 su 10.000, ma nella realtà un muone nato con 1 GeV si ferma per strada prima di toccare terra, perché di GeV ne perderebbe due. Non muore di vecchiaia: muore di ionizzazione.`,
+    onesta_li5: `<b>Il flusso di 1 muone per cm² al minuto è un ordine di grandezza, non una costante.</b> Dipende dalla soglia di energia del rivelatore, dalla latitudine, dall'attività del Sole e dalla pressione atmosferica del giorno, e varia facilmente di qualche decina per cento. Il "cento al minuto sulla mano" è giusto come cifra tonda, non come misura.`,
+    onesta_li6: `<b>La legge esponenziale è una legge sulla folla, non sul singolo.</b> N = N₀·e^(−t/τ) dice quale frazione di diecimila muoni sopravvive. Non dice quando morirà quel muone lì. E qui non è che ci manchi lo strumento: nessuno ha mai trovato dentro un muone un meccanismo, un orologio, un contatore che decida l'istante. La meccanica quantistica fornisce solo la probabilità. Se sotto ci sia qualcos'altro è una domanda ancora aperta e discussa, non un buco che si chiude costruendo un rivelatore migliore. Aperta però non vuol dire libera: l'idea che dentro ci sia un meccanismo nascosto e locale, un orologio che decide l'istante e che noi non riusciamo a vedere, non è una possibilità rimasta in piedi. È stata esclusa per via sperimentale, con i test delle disuguaglianze di Bell, ripetuti e affinati per sessant'anni e premiati col Nobel per la fisica nel 2022. Quello che resta aperto è come interpretare la probabilità quantistica, non se ci sia un ingranaggio da scoprire sotto.`,
+    onesta_li7: `<b>Attenzione a una parola: "vita media" non vuol dire "metà".</b> Dopo 2,197 microsecondi non ne sopravvive metà ma il 37%. La metà se ne va prima, dopo 1,523 microsecondi. È l'errore più comune che si fa su questi conti.`,
+    onesta_li8: `<b>Qui la gravità non c'entra</b>, e ce lo possiamo permettere perché su 15 km la correzione gravitazionale vale 1,6 parti su mille miliardi contro un effetto di velocità del 3686%. Ma non vale sempre: nel pannello sul GPS i due effetti sono confrontabili e vanno in verso opposto (−7,2 e +45,7 microsecondi al giorno), e per il conto della parte gravitazionale serve la relatività generale, che è una teoria diversa da questa e non è quella che stiamo misurando qui.`,
+    onesta_li9: `<b>Non è il paradosso dei gemelli.</b> Qualcuno obietterà: se dal punto di vista del muone siamo noi a muoverci, non dovrebbe vedere i nostri orologi rallentati? Sì, li vede rallentati. E non c'è contraddizione, perché nessuno torna indietro: non stiamo confrontando due orologi rimessi fianco a fianco alla fine, stiamo confrontando due misure diverse di due eventi diversi. Il conto che tutti e due i riferimenti devono azzeccare è uno solo, quanti muoni arrivano, e su quello sono d'accordo.`,
+    onesta_li10: `<b>Quanto pesa un arrotondamento, e su che cosa.</b> La quota del Monte Bianco l'abbiamo arrotondata a 4800 m. Spostandola di 8 metri il contatore del mondo vero cambia dello 0,03% (da 6642 a 6644), quello senza dilatazione dell'1,2% (da 0,00187 a 0,00189). La stessa variazione d'ingresso pesa in modo molto diverso su grandezze diverse, e conviene guardare su quale.`,
+    onesta_li11: `<b>Lo scarto residuo del 4% su Frisch e Smith.</b> È dello stesso ordine dell'incertezza della misura, perché i 408 muoni all'ora sono dichiarati a circa ±9, cioè il 2 per cento. È compatibile con la perdita di energia lungo la discesa, che rallenta il muone e abbassa γ — e infatti il conto che ne tiene conto prevede 398, e il valore misurato cade in mezzo fra le due stime — ma con questi dati non lo si può attribuire con certezza a quell'effetto. Quello che l'esperimento dimostra senza ambiguità è il confronto grande: 408 misurati contro i 31 che si prevederebbero senza dilatazione del tempo. Non conferma la relatività al millesimo: la conferma per un fattore 13.`,
+    onesta_li12: `<b>Che cosa la fisica ancora non sa, in questo campo.</b> Non sa perché il muone esista. È un elettrone identico in tutto, salvo che pesa 207 volte tanto e si disfa in due microsecondi. Il Modello Standard misura quella massa con una precisione altissima e non la spiega, e nessuno sa perché di famiglie di queste particelle ce ne siano esattamente tre e non due o dieci. Il momento magnetico del muone si misura e si calcola con dodici cifre, ed è stato per anni il punto più sorvegliato in cerca di una crepa nel Modello Standard. Poi il conto teorico è stato rifatto con metodi diversi, e la distanza fra misura e previsione si è ridotta fino quasi a sparire: quella che sembrava una promessa di fisica nuova oggi non lo è più, e il lavoro si è spostato sul mettere d'accordo fra loro i metodi di calcolo. È un buon esempio di come si comporta una crepa quando non c'è: non viene smentita con un colpo di scena, si assottiglia man mano che si misura meglio. Nulla di tutto questo tocca la dilatazione del tempo, che è verificata da ottant'anni in decine di modi indipendenti. Ma vale la pena sapere che la particella con cui abbiamo appena verificato Einstein è, in sé, una delle cose che capiamo meno.`,
+    onesta_h3: `I controlli che questa pagina deve superare`,
+    tab_hdr_caso: `Caso`,
+    tab_hdr_deve_dare: `Deve dare`,
+    tab_r1_caso: `Distanza in una vita media, senza dilatazione (c·τ₀)`,
+    tab_r1_val: `659 metri`,
+    tab_r2_caso: `Livello del mare, muone tipico — mondo vero`,
+    tab_r2_val: `5478 su 10.000`,
+    tab_r3_caso: `Livello del mare, muone tipico — senza dilatazione`,
+    tab_r3_val: `0,00000128 su 10.000`,
+    tab_r4_caso: `Cima del Monte Bianco (4800 m) — mondo vero`,
+    tab_r4_val: `6642 su 10.000`,
+    tab_r5_caso: `Quota di crociera (11.000 m) — mondo vero`,
+    tab_r5_val: `8517 su 10.000`,
+    tab_r6_caso: `Muone lento, livello del mare — mondo vero`,
+    tab_r6_val: `889 su 10.000`,
+    tab_r7_caso: `Spessore d'atmosfera visto dal muone tipico`,
+    tab_r7_val: `396 metri`,
+    tab_r8_caso: `Tempo proprio del muone tipico fino al mare`,
+    tab_r8_val: `1,32 microsecondi`,
+    tab_r9_caso: `Frisch e Smith, ricalcolo senza dilatazione`,
+    tab_r9_val: `31 all'ora`,
+    tab_r10_caso: `Frisch e Smith, ricalcolo con dilatazione (γ fisso)`,
+    tab_r10_val: `423 all'ora`,
+    tab_r11_caso: `Il palmo della mano, mondo vero`,
+    tab_r11_val: `un muone ogni 0,60 s`,
+    tab_r12_caso: `Il palmo della mano, senza dilatazione`,
+    tab_r12_val: `un muone ogni 81,6 anni`,
+    footer_riga1: `Laboratorio di fisica · Esperimento 9 di 10`,
+    footer_riga2: `Nessuna libreria, nessuna chiamata di rete: tutto quello che vedi è calcolato qui, dalle stesse quattro costanti scritte in cima al codice.`,
+    muone_tipico_nome: `Il muone tipico`,
+    muone_tipico_det: `4 GeV alla nascita`,
+    muone_tipico_nota: `Opzione di partenza. Arriva a terra con circa 2 GeV: lungo la discesa ne perde in media due.`,
+    muone_lento_nome: `Il muone lento`,
+    muone_lento_det: `1 GeV alla nascita`,
+    muone_lento_nota: `Uno dei più fiacchi che si contino. Nella realtà si ferma per strada prima di toccare terra: qui contiamo solo il decadimento, non l’assorbimento (vedi punto 4 della sezione onesta).`,
+    muone_alta_nome: `Il muone di alta energia`,
+    muone_alta_det: `100 GeV alla nascita`,
+    muone_alta_nota: `Raro. È di quelli che si trovano anche sotto centinaia di metri di roccia.`,
+    fermata_nascita: `la nascita`,
+    fermata_crociera: `crociera di un aereo di linea`,
+    fermata_bianco: `cima del Monte Bianco`,
+    fermata_spiaggia: `la spiaggia`,
+    quota_esattamente: `esattamente `,
+    quota_vicino_a: `vicino a `,
+    unita_nanosecondi: `nanosecondi`,
+    unita_microsecondi: `microsecondi`,
+    unita_millisecondi: `millisecondi`,
+    unita_secondi: `secondi`,
+    unita_minuti: `minuti`,
+    unita_ore: `ore`,
+    unita_centimetri: `centimetri`,
+    unita_metro: `metro`,
+    unita_metri: `metri`,
+    unita_chilometri: `chilometri`,
+    frase_servirebbero_prefisso: `per vederne arrivare uno bisognerebbe farne partire `,
+    parola_miliardi: `miliardi`,
+    parola_milioni: `milioni`,
+    parola_mila: `mila`,
+    f_titolo_gamma: `FATTORE DI LORENTZ (di quanto rallenta l’orologio del muone)`,
+    f_c_definizione: `c = 299 792 458 m/s (esatto, per definizione del metro).`,
+    f_titolo_gamma_energia: `LO STESSO FATTORE, PARTENDO DALL’ENERGIA (così lo si calcola in pratica)`,
+    f_riga_E: `E = {E} MeV ({nome}, alla nascita)`,
+    f_mc2_riposo: `m·c² = 105,6583755 MeV (energia di riposo del muone, tabulata)`,
+    f_titolo_quanto_lontano: `QUANTO LONTANO ARRIVA UN MUONE IN UNA VITA MEDIA, SENZA DILATAZIONE`,
+    f_riga_L0_def: `   L₀ = v × τ₀,   con τ₀ = 2,1969811 microsecondi (vita media da fermo, tabulata)`,
+    f_riga_L0_valore: `   L₀ = <b>{L0} metri</b>`,
+    f_659_metri: `659 metri contro i 15.000 da attraversare: 22,8 vite medie una dietro l’altra.`,
+    f_titolo_tempo_volo: `TEMPO DI VOLO, MISURATO DA NOI CHE STIAMO A TERRA`,
+    f_riga_d: `d = {d} m (dalla nascita fino alla quota scelta)`,
+    f_riga_t_valore: `   t = {tsci} s = <b>{tus} microsecondi</b>`,
+    f_titolo_quanti_sopravvivono: `QUANTI NE SOPRAVVIVONO (stessa formula per i due contatori, cambia una sola lettera)`,
+    f_riga_contatore_sin: `contatore di sinistra, mondo senza dilatazione:  τ = τ₀ = 2,197 microsecondi`,
+    f_riga_N_valore: `   N = <b>{N}</b> su 10.000`,
+    f_riga_contatore_des: `contatore di destra, mondo vero:                 τ = γ·τ₀ = {tau} microsecondi`,
+    f_titolo_vista_muone: `LA STESSA COSA VISTA DAL MUONE (e viene lo stesso numero)`,
+    f_muone_non_vive_piu: `Il muone non vive più a lungo: attraversa una cosa più corta.`,
+    f_titolo_trappola: `ATTENZIONE, UNA TRAPPOLA: VITA MEDIA NON VUOL DIRE METÀ`,
+    f_riga_thalf: `   t½ = τ₀ × ln2 = 2,197 × 0,6931 = <b>{v} microsecondi</b>`,
+    f_dopo_2197: `Dopo 2,197 microsecondi non ne è sopravvissuto metà, ma il 37% (cioè 1/e).`,
+    f_meta_gia: `Metà se ne sono andati già dopo {v} microsecondi.`,
+    fs_costanti: `Costanti: c = 299 792 458 m/s · τ₀ = 2,1969811 µs · m·c² = 105,6583755 MeV`,
+    fs_esempio: `Esempio, muone tipico fino al mare: γ = {g}, t = {t} µs → mondo vero <b>{Nrel}</b>, senza dilatazione <b>{Ncla}</b> su 10.000.`,
+    ps_par1: `Monte Washington, New Hampshire. Frisch e Smith contarono i muoni cosmici in cima (1907 m sopra la stazione di misura a valle) e li ricontarono in fondo, selezionando con un rivelatore Cherenkov solo quelli con velocità fra 0,9950c e 0,9954c: 563 al ora in cima.`,
+    ps_riga_beta: `β = 0,9952 (nel mezzo dell’intervallo selezionato)`,
+    ps_riga_senza: `senza dilatazione: 563 × e^(−t/τ₀) = <b>{v} all’ora</b>`,
+    ps_riga_condil: `con dilatazione, γ fisso: 563 × e^(−t/(γτ₀)) = <b>{v} all’ora</b>`,
+    ps_riga_gammamedio: `con il γ medio dichiarato dagli autori (8,4): <b>{v} all’ora</b>`,
+    ps_misurato: `Misurato davvero: {m} all’ora`,
+    ps_incertezza: `(incertezza circa ±{inc}).`,
+    ps_attenzione: `Attenzione all’attribuzione: i {sd} all’ora qui sopra sono il <i>nostro</i> ricalcolo semplificato a velocità costante. La cifra che Frisch e Smith pubblicano per l’attesa senza dilatazione è circa {storico} all’ora, perché loro tengono conto del rallentamento del muone lungo la discesa. Entrambe vanno mostrate, etichettate per quello che sono.`,
+    pg_par1: `Un satellite GPS gira più veloce di un orologio fermo (effetto di velocità, lo rallenta) ma anche più lontano dalla massa della Terra (effetto di gravità, lo accelera). I due effetti vanno in verso opposto, e qui è l’unico punto del laboratorio dove entrano insieme: la parte gravitazionale non è la relatività ristretta di questo esperimento, è relatività generale, una teoria diversa, e va segnalato per quello che è.`,
+    pg_riga_costanti: `orbita r = 26.560 km · superficie r = 6.371 km · GM = 3,986005×10¹⁴ m³/s²`,
+    pg_riga_perdita: `perdita per velocità: (v²/2c²)×86.400 = <b>{v} µs/giorno</b>`,
+    pg_riga_guadagno: `guadagno per gravità: (GM/c²)(1/r_Terra − 1/r_sat)×86.400 = <b>{v} µs/giorno</b>`,
+    pg_riga_netto: `netto: <b>+{v} µs/giorno</b>`,
+    pg_riga_errore: `ignorandolo, errore di posizione: netto × c = <b>{v} km al giorno</b>`,
+  }
+};
+TESTI.en = JSON.parse(JSON.stringify(TESTI.it));  // PENDING: traduzione richiesta, non ancora arrivata
+/* English: reviewed translation merged from the lab translation pass. Keys not listed here fall back to the Italian text. */
+Object.assign(TESTI.en, {"pagina_titolo": "How many muons are passing through your hand right now", "hero_occhiello": "Physics laboratory · Experiment 9", "hero_titolo": "How many muons are passing through your hand right now", "hero_kicker": "Open your hand: at this very moment a muon passes through it every six tenths of a second. They are born at 15 kilometres of altitude and live on average 2.2 microseconds: they should travel at most 659 metres before disappearing. They have to cross 15,000. And yet they arrive, not in trickles but by the billion. The reason is not that they live longer. It is that their clock does not show your time.", "hero_firme": "Time dilation, special relativity · γ = 1/√(1−v²/c²) · <b>Albert Einstein, 1905<\/b> (Zur Elektrodynamik bewegter Körper, §4) · <b>Bruno Rossi and David B. Hall, 1941<\/b> (first test with cosmic muons) · <b>David H. Frisch and James H. Smith, 1963<\/b> (more precise repeat, Mount Washington)", "convenzione_et": "A declared convention, to keep fixed throughout the experiment", "convenzione_testo": "The energies of the three buttons below are <b>energies at birth, at 15 km of altitude<\/b>, not at ground level. A muon loses energy on the way down: the typical 4 GeV muon at birth reaches the ground with about 2 GeV. If we do not declare this, every comparison with numbers read elsewhere becomes ambiguous.", "passo1": "1 · Choose which muon you are following", "passo2": "2 · Move the detector’s altitude", "passo3": "3 · The two worlds, at the same rhythm", "passo4": "4 · Watch them fall for real", "passo5": "5 · The four numbers", "passo6": "6 · Redo the calculations by hand", "passo7": "7 · Go deeper", "quota_tenue": "Drag the golden bar (or use the arrow keys, 100 m steps). It snaps by itself close to four real altitudes: birth at 15,000 m, the cruise of a passenger jet at 11,000 m, the summit of Mont Blanc at 4,800 m, the beach at 0 m.", "et_senza_dilatazione": "In a world without time dilation", "et_mondo_vero": "In the real world", "due_mondi_tenue": "Out of 10,000 muons let fall together from 15 km of altitude. The two bars below the numbers are on a logarithmic scale, from 10⁻⁶ to 10⁴: on a normal scale the left-hand bar would disappear.", "lbl_mondo_vero": "real world", "btn_rilancia": "restart the rain", "pioggia_tenue": "Two hundred dots per column: each dot is worth 50 muons. Each has a death altitude drawn at random before setting off; when it reaches that altitude the dot goes out with a small flash. The horizontal golden line is the detector, at the altitude you chose above.", "et_spessore": "Thickness of the atmosphere as seen by the muon", "et_rapporto": "Ratio between the two worlds, at this altitude", "btn_mano": "PUT YOUR HAND IN", "mano_et": "From the laboratory scale to the body scale", "mano_h2": "The palm of your hand", "mano_intro": "One hundred square centimetres, at sea level, for the typical muon. The same ratio between the two worlds that you have just seen above, brought onto your skin.", "mano_lato_senza": "world without dilation", "mano_sin_attesa_placeholder": "next muon expected in — years", "mano_lato_vero": "real world", "mano_tenue": "A resting heart beats about 70 times a minute. In the real world, one and a half of them pass through your hand for every heartbeat.", "btn_chiudi_mano": "close your hand again", "formule_et": "The formulas, with the muon numbers you have chosen", "pista_h2": "The lap of the track", "pista_p": "For us, standing still on the ground, the typical muon crosses 15 kilometres of atmosphere in about 50 microseconds. For the muon, that same atmosphere is <b>396 metres<\/b> thick: one lap of an athletics track. Its clock shows <b>1.32 microseconds<\/b>, less than one mean lifetime: from its point of view it dies young, as always. It has not gained time. It has found less road.", "sorpresa_h2": "The surprise, in two steps", "sorpresa_p1": "A muon lives 2.2 microseconds. In that time, travelling at 99.97% of the speed of light, it covers 659 metres. It has to cover 15,000: twenty-two mean lifetimes one after the other. The calculation without relativity says that at sea level, out of 10,000 set off from the summit, just over a millionth arrive. With relativity, on the other hand, 5478 arrive. The factor is 4.3 billion.", "sorpresa_p2": "Here comes the second reversal, and it is the one that really counts. You would say the muon “lives longer”. That is false: on its clock the same time passes as always, less than one mean lifetime. Two opposite stories — “its clock runs slowly” and “its road is short” — give exactly the same number of survivors, to the fourth decimal place. It is not that time is elastic and space rigid, or the other way round: “how long it lasts” and “how long it is” are not properties of things. They are answers that depend on who measures them, and they change together so that the final count comes out the same for everyone.", "summary_storico": "The real experiment of 1963", "summary_gps": "GPS: speed and gravity, in opposite directions", "summary_formule_statiche": "The formulas, to redo by hand", "onesta_h2": "What this model does not say", "onesta_h3": "The checks this page must pass", "tab_hdr_caso": "Case", "tab_hdr_deve_dare": "Must give", "tab_r1_caso": "Distance in one mean lifetime, without dilation (c·τ₀)", "tab_r1_val": "659 metres", "tab_r2_caso": "Sea level, typical muon — real world", "tab_r2_val": "5478 out of 10,000", "tab_r3_caso": "Sea level, typical muon — without dilation", "tab_r3_val": "0.00000128 out of 10,000", "tab_r4_caso": "Summit of Mont Blanc (4800 m) — real world", "tab_r4_val": "6642 out of 10,000", "tab_r5_caso": "Cruising altitude (11,000 m) — real world", "tab_r5_val": "8517 out of 10,000", "tab_r6_caso": "Slow muon, sea level — real world", "tab_r6_val": "889 out of 10,000", "tab_r7_caso": "Thickness of the atmosphere as seen by the typical muon", "tab_r7_val": "396 metres", "tab_r8_caso": "Proper time of the typical muon down to the sea", "tab_r8_val": "1.32 microseconds", "tab_r9_caso": "Frisch and Smith, recalculation without dilation", "tab_r9_val": "31 per hour", "tab_r10_caso": "Frisch and Smith, recalculation with dilation (fixed γ)", "tab_r10_val": "423 per hour", "tab_r11_caso": "The palm of the hand, real world", "tab_r11_val": "one muon every 0.60 s", "tab_r12_caso": "The palm of the hand, without dilation", "tab_r12_val": "one muon every 81.6 years", "muone_tipico_nota": "Starting option. It reaches the ground with about 2 GeV: on the way down it loses two, on average.", "ps_par1": "Mount Washington, New Hampshire. Frisch and Smith counted cosmic muons at the summit (1907 m above the measuring station below) and counted them again at the bottom, selecting with a Cherenkov detector only those with a speed between 0.9950c and 0.9954c: 563 per hour at the summit.", "pg_par1": "A GPS satellite moves faster than a clock at rest (a speed effect, which slows it down) but is also further from the mass of the Earth (a gravity effect, which speeds it up). The two effects go in opposite directions, and here is the only point of the laboratory where they come in together: the gravitational part is not the special relativity of this experiment, it is general relativity, a different theory, and it must be flagged as such.", "quota_aria_label": "Detector altitude, in metres", "lbl_senza_dilatazione": "without dilation", "contatore_prefisso": "still alive at this instant — ", "parola_muoni": "muons", "lbl_orologio_noi": "our clock", "lbl_orologio_muone": "the muon's clock", "mano_tic_ogni": "one tick every ", "mano_attesa_fra": "next muon expected in ", "mano_attesa_anni_e": " years and ", "mano_attesa_mesi": " months", "footer_riga1": "Physics laboratory · Experiment 9 of 10", "muone_tipico_nome": "The typical muon", "muone_tipico_det": "4 GeV at birth", "muone_lento_nome": "The slow muon", "muone_lento_det": "1 GeV at birth", "muone_alta_nome": "The high-energy muon", "muone_alta_det": "100 GeV at birth", "muone_alta_nota": "Rare. It is one of those found even under hundreds of metres of rock.", "fermata_nascita": "birth", "fermata_crociera": "cruising altitude of an airliner", "fermata_bianco": "top of Mont Blanc", "fermata_spiaggia": "the beach", "quota_esattamente": "exactly ", "quota_vicino_a": "close to ", "unita_nanosecondi": "nanoseconds", "unita_microsecondi": "microseconds", "unita_millisecondi": "milliseconds", "unita_secondi": "seconds", "unita_minuti": "minutes", "unita_ore": "hours", "unita_centimetri": "centimetres", "unita_metro": "metre", "unita_metri": "metres", "unita_chilometri": "kilometres", "frase_servirebbero_prefisso": "to see one arrive you would have to send off ", "parola_miliardi": "billion", "parola_milioni": "million", "parola_mila": "thousand", "f_titolo_gamma": "LORENTZ FACTOR (how much the muon's clock slows down)", "f_c_definizione": "c = 299 792 458 m/s (exact, by definition of the metre).", "f_titolo_gamma_energia": "THE SAME FACTOR, STARTING FROM THE ENERGY (how it is computed in practice)", "f_riga_E": "E = {E} MeV ({nome}, at birth)", "f_mc2_riposo": "m·c² = 105.6583755 MeV (rest energy of the muon, tabulated)", "f_titolo_quanto_lontano": "HOW FAR A MUON GOES IN ONE MEAN LIFETIME, WITHOUT DILATION", "f_riga_L0_def": "   L₀ = v × τ₀,   with τ₀ = 2.1969811 microseconds (mean life at rest, tabulated)", "f_riga_L0_valore": "   L₀ = <b>{L0} metres<\/b>", "f_659_metri": "659 metres against the 15,000 to cross: 22.8 mean lifetimes one after the other.", "f_titolo_tempo_volo": "FLIGHT TIME, MEASURED BY US STANDING ON THE GROUND", "f_riga_d": "d = {d} m (from birth down to the chosen altitude)", "f_riga_t_valore": "   t = {tsci} s = <b>{tus} microseconds<\/b>", "f_titolo_quanti_sopravvivono": "HOW MANY SURVIVE (same formula for the two counters, a single letter changes)", "f_riga_contatore_sin": "left counter, world without dilation:  τ = τ₀ = 2.197 microseconds", "f_riga_contatore_des": "right counter, real world:              τ = γ·τ₀ = {tau} microseconds", "f_titolo_vista_muone": "THE SAME THING SEEN BY THE MUON (and the same number comes out)", "f_muone_non_vive_piu": "The muon does not live longer: it crosses something shorter.", "f_titolo_trappola": "CAREFUL, A TRAP: MEAN LIFETIME DOES NOT MEAN HALF", "f_riga_thalf": "   t½ = τ₀ × ln2 = 2.197 × 0.6931 = <b>{v} microseconds<\/b>", "f_dopo_2197": "After 2.197 microseconds half have not survived: 37% have (that is, 1/e).", "f_meta_gia": "Half are already gone after {v} microseconds.", "fs_costanti": "Constants: c = 299 792 458 m/s · τ₀ = 2.1969811 µs · m·c² = 105.6583755 MeV", "ps_riga_beta": "β = 0.9952 (in the middle of the selected interval)", "ps_riga_senza": "without dilation: 563 × e^(−t/τ₀) = <b>{v} per hour<\/b>", "ps_riga_condil": "with dilation, fixed γ: 563 × e^(−t/(γτ₀)) = <b>{v} per hour<\/b>", "ps_riga_gammamedio": "with the mean γ stated by the authors (8.4): <b>{v} per hour<\/b>", "ps_misurato": "Actually measured: {m} per hour", "ps_incertezza": "(uncertainty about ±{inc}).", "pg_riga_costanti": "orbit r = 26,560 km · surface r = 6,371 km · GM = 3.986005×10¹⁴ m³/s²", "pg_riga_perdita": "loss from speed: (v²/2c²)×86,400 = <b>{v} µs/day<\/b>", "pg_riga_guadagno": "gain from gravity: (GM/c²)(1/r_Earth − 1/r_sat)×86,400 = <b>{v} µs/day<\/b>", "pg_riga_netto": "net: <b>+{v} µs/day<\/b>", "pg_riga_errore": "ignoring it, position error: net × c = <b>{v} km per day<\/b>", "f_riga_N_valore": "   N = <b>{N}<\/b> out of 10,000"});
+TESTI.fr = JSON.parse(JSON.stringify(TESTI.it));  // PENDING: traduzione richiesta, non ancora arrivata
+TESTI.es = JSON.parse(JSON.stringify(TESTI.it));  // PENDING: traduzione richiesta, non ancora arrivata
+TESTI.de = JSON.parse(JSON.stringify(TESTI.it));  // PENDING: traduzione richiesta, non ancora arrivata
+
+window.__LINGUE = ['it','en','fr','es','de'];
+var LANG = 'en';
+
+/* tpl: sostituisce {token} dentro una stringa di TESTI con i valori numerici/testuali correnti */
+function tpl(str, vals){
+  return str.replace(/\{(\w+)\}/g, function(_, k){ return (k in vals) ? vals[k] : '{'+k+'}'; });
+}
+
+/* applica il dizionario a tutti gli elementi statici marcati data-i18n / data-i18n-attr */
+function applyI18n(){
+  document.title = TESTI[LANG].pagina_titolo;
+  document.documentElement.setAttribute('lang', LANG);
+  var nodi = document.querySelectorAll('[data-i18n]');
+  nodi.forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    if(TESTI[LANG][key] !== undefined) el.innerHTML = TESTI[LANG][key];
+  });
+  var ariaNodi = document.querySelectorAll('[data-i18n-aria-label]');
+  ariaNodi.forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria-label');
+    if(TESTI[LANG][key] !== undefined) el.setAttribute('aria-label', TESTI[LANG][key]);
+  });
+}
+
+/* cambia lingua e ri-applica tutte le viste dinamiche */
+function setLang(l){
+  if(window.__LINGUE.indexOf(l) === -1) return;
+  LANG = l;
+  applyI18n();
+  costruisciSchede();
+  costruisciTacche();
+  posizionaCursore();
+  aggiorna();
+  aggiornaFormuleStatiche();
+  aggiornaPannelloStorico();
+  aggiornaPannelloGPS();
+}
+window.setLang = setLang;
+
+/* ============================================================
+   COSTANTI — scritte una volta sola qui. Tutto il resto si deriva:
+   nessun valore della tabella dei casi verificati è incollato a mano.
+   ============================================================ */
+var C_LUCE      = 299792458;        /* m/s — esatto, per definizione del metro */
+var TAU0        = 2.1969811e-6;     /* s — vita media del muone da fermo, tabulata */
+var MC2_MUONE   = 105.6583755;      /* MeV — energia di riposo del muone, tabulata */
+var QUOTA_NASCITA = 15000;          /* m */
+var N0          = 10000;            /* muoni di prova */
+var FLUSSO_MARE = 1;                /* muone / cm² / minuto, livello del mare, ordine di grandezza */
+var AREA_PALMO  = 100;              /* cm² */
+var G_ACC       = 9.81;             /* m/s², per il confronto con la gravità */
+var GM_TERRA    = 3.986005e14;      /* m³/s² */
+var R_TERRA     = 6371e3;           /* m */
+var R_ORBITA_GPS= 26560e3;          /* m */
+
+function gammaDa(E_MeV){ return E_MeV / MC2_MUONE; }
+function betaDa(g){ return Math.sqrt(1 - 1/(g*g)); }
+function velocitaDa(b){ return b * C_LUCE; }
+function Nrelativistico(t, g){ return N0 * Math.exp(-t / (g*TAU0)); }
+function Nclassico(t){ return N0 * Math.exp(-t / TAU0); }
+
+var MUONI = [
+  { id:'tipico', E:4000 },
+  { id:'lento', E:1000 },
+  { id:'alta', E:100000 }
+];
+function muoneNome(m){ return TESTI[LANG]['muone_'+m.id+'_nome']; }
+function muoneDet(m){ return TESTI[LANG]['muone_'+m.id+'_det']; }
+function muoneNota(m){ return TESTI[LANG]['muone_'+m.id+'_nota']; }
+
+var FERMATE = [
+  { quota:15000, chiave:'nascita' },
+  { quota:11000, chiave:'crociera' },
+  { quota:4800,  chiave:'bianco' },
+  { quota:0,     chiave:'spiaggia' }
+];
+function fermataNome(f){ return TESTI[LANG]['fermata_'+f.chiave]; }
+
+/* ============================================================
+   STATO
+   ============================================================ */
+var st = { quota:0, muone:0 };
+
+/* ============================================================
+   FISICA — tutto derivato dalle costanti in cima al file
+   ============================================================ */
+function datiOra(){
+  var m = MUONI[st.muone];
+  var g = gammaDa(m.E);
+  var b = betaDa(g);
+  var v = velocitaDa(b);
+  var d = QUOTA_NASCITA - st.quota;
+  var t = (d <= 0) ? 0 : d / v;
+  var Nrel = Nrelativistico(t, g);
+  var Ncla = Nclassico(t);
+  var tProprio = t / g;
+  var dProprio = d / g;
+  return { m:m, g:g, b:b, v:v, d:d, t:t, Nrel:Nrel, Ncla:Ncla, tProprio:tProprio, dProprio:dProprio };
+}
+function datiA(muoneIdx, quota){
+  var salvaQ = st.quota, salvaM = st.muone;
+  st.quota = quota; st.muone = muoneIdx;
+  var r = datiOra();
+  st.quota = salvaQ; st.muone = salvaM;
+  return r;
+}
+
+/* Frisch & Smith, 1963: tutto dalle stesse due costanti C_LUCE e TAU0 */
+function frischSmith(){
+  var beta = 0.9952;                 /* nel mezzo dell'intervallo dichiarato, 0,9950-0,9954c */
+  var g = 1/Math.sqrt(1 - beta*beta);
+  var v = beta*C_LUCE;
+  var dislivello = 1907;             /* m, Monte Washington */
+  var t = dislivello/v;
+  var tassoCima = 563;               /* muoni/ora misurati in cima */
+  var senzaDilatazione = tassoCima*Math.exp(-t/TAU0);
+  var conDilatazione = tassoCima*Math.exp(-t/(g*TAU0));
+  var gammaMedioAutori = 8.4;        /* dichiarato dagli autori */
+  var conGammaMedio = tassoCima*Math.exp(-t/(gammaMedioAutori*TAU0));
+  return { beta:beta, g:g, t:t, senzaDilatazione:senzaDilatazione, conDilatazione:conDilatazione,
+           conGammaMedio:conGammaMedio, misurato:408, misuratoIncertezza:9,
+           storicoSenzaDilatazione:27 };
+}
+
+/* GPS: velocità e gravità viste insieme */
+function gps(){
+  var v = Math.sqrt(GM_TERRA/R_ORBITA_GPS);
+  var perditaVelocita = (v*v/(2*C_LUCE*C_LUCE)) * 86400;         /* s/giorno, perde per la velocità */
+  var guadagnoGravita = (GM_TERRA/(C_LUCE*C_LUCE)) * (1/R_TERRA - 1/R_ORBITA_GPS) * 86400; /* s/giorno */
+  var netto = guadagnoGravita - perditaVelocita;
+  var erroreMetri = netto * C_LUCE;
+  return { v:v, perditaVelocita:perditaVelocita, guadagnoGravita:guadagnoGravita, netto:netto, erroreMetri:erroreMetri };
+}
+
+/* ============================================================
+   FORMATTAZIONE — tre cifre significative, mai di più.
+   ============================================================ */
+function it(x, dec){
+  if(!isFinite(x)) return '—';
+  return x.toLocaleString('en-US',{minimumFractionDigits:dec, maximumFractionDigits:dec});
+}
+function tre(x){
+  if(x === 0) return '0';
+  var e = Math.floor(Math.log10(Math.abs(x)));
+  var dec = Math.max(0, 2 - e);
+  if(dec > 8) dec = 8;
+  return it(x, dec);
+}
+function sci(x, sig){
+  if(x === 0) return '0';
+  var e = Math.floor(Math.log10(Math.abs(x)));
+  var m = x / Math.pow(10, e);
+  return it(m, (sig||3)-1) + '×10' + esponente(e);
+}
+function esponente(e){
+  var su = {'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  return String(e).split('').map(function(c){ return su[c] || c; }).join('');
+}
+function fmtTempo(s){
+  if(s < 1e-6)   return { n: tre(s*1e9),  u:TESTI[LANG].unita_nanosecondi };
+  if(s < 1e-3)   return { n: tre(s*1e6),  u:TESTI[LANG].unita_microsecondi };
+  if(s < 1)      return { n: tre(s*1e3),  u:TESTI[LANG].unita_millisecondi };
+  if(s < 120)    return { n: tre(s),      u:TESTI[LANG].unita_secondi };
+  if(s < 7200)   return { n: tre(s/60),   u:TESTI[LANG].unita_minuti };
+  return { n: tre(s/3600), u:TESTI[LANG].unita_ore };
+}
+function fmtLunghezza(m){
+  if(m < 1)     return { n: tre(m*100), u:TESTI[LANG].unita_centimetri };
+  if(m < 1000)  return { n: tre(m),     u: (Math.abs(m-1)<1e-9 ? TESTI[LANG].unita_metro : TESTI[LANG].unita_metri) };
+  return { n: tre(m/1000), u:TESTI[LANG].unita_chilometri };
+}
+/* numero di muoni: se >=1 e' un conteggio (arrotondato), sotto 1 va con la
+   forma piccola più la frase leggibile, come richiesto dalla scheda */
+function fmtMuoni(N){
+  if(N >= 1) return it(Math.round(N), 0);
+  return tre(N);
+}
+function fraseServirebbero(N){
+  if(N <= 0) return '';
+  var serv = N0/N;
+  return TESTI[LANG].frase_servirebbero_prefisso + paroleGrandi(serv);
+}
+function paroleGrandi(x){
+  if(x >= 1e9) return tre(x/1e9) + ' ' + TESTI[LANG].parola_miliardi;
+  if(x >= 1e6) return tre(x/1e6) + ' ' + TESTI[LANG].parola_milioni;
+  if(x >= 1e3) return tre(x/1e3) + ' ' + TESTI[LANG].parola_mila;
+  return tre(x);
+}
+function annoInMinuti(){ return 365.25*24*60; }
+
+/* ============================================================
+   SCHEDE MUONE
+   ============================================================ */
+function costruisciSchede(){
+  var cont = document.getElementById('sc-muoni');
+  cont.innerHTML = '';
+  MUONI.forEach(function(el, i){
+    var b = document.createElement('button');
+    b.className = 'scheda'; b.type = 'button';
+    b.setAttribute('aria-pressed', i === st.muone ? 'true' : 'false');
+    var n = document.createElement('span'); n.className='n'; n.textContent = muoneNome(el);
+    var d = document.createElement('span'); d.className='d'; d.textContent = muoneDet(el);
+    b.appendChild(n); b.appendChild(d);
+    b.addEventListener('click', function(){ st.muone = i; costruisciSchede(); aggiorna(); rilanciaPioggia(); });
+    cont.appendChild(b);
+  });
+  document.getElementById('nota-muone').textContent = muoneNota(MUONI[st.muone]);
+}
+
+/* ============================================================
+   COLONNA ATMOSFERA — cursore trascinabile + tastiera
+   ============================================================ */
+var colonna = document.getElementById('colonna-atm');
+var cursore = document.getElementById('cursore-quota');
+var tacche  = document.getElementById('tacche-atm');
+function orizzontale(){ return window.matchMedia('(max-width:620px)').matches; }
+
+function costruisciTacche(){
+  tacche.innerHTML = '';
+  FERMATE.forEach(function(f){
+    var pct = 100 * (1 - f.quota/QUOTA_NASCITA);
+    var el = document.createElement('div');
+    el.className = 'tacca';
+    if(orizzontale()) el.style.left = (100-pct) + '%'; else el.style.top = pct + '%';
+    el.innerHTML = '<span class="linea"></span>' + it(f.quota,0) + ' m · ' + fermataNome(f);
+    tacche.appendChild(el);
+  });
+}
+function posizionaCursore(){
+  var pct = 100 * (1 - st.quota/QUOTA_NASCITA);
+  if(orizzontale()){ cursore.style.top = 'auto'; cursore.style.left = (100-pct)+'%'; }
+  else { cursore.style.left = 'auto'; cursore.style.top = pct + '%'; }
+  cursore.setAttribute('aria-valuenow', Math.round(st.quota));
+}
+function impostaQuotaDaEvento(clientX, clientY){
+  var r = colonna.getBoundingClientRect();
+  var frac;
+  if(orizzontale()) frac = (clientX - r.left) / r.width;
+  else frac = (clientY - r.top) / r.height;
+  frac = Math.max(0, Math.min(1, frac));
+  var quota = QUOTA_NASCITA * (1 - frac);
+  /* aggancio magnetico entro 300 m */
+  for(var i=0;i<FERMATE.length;i++){
+    if(Math.abs(quota - FERMATE[i].quota) < 300){ quota = FERMATE[i].quota; break; }
+  }
+  st.quota = Math.round(quota);
+  aggiorna();
+}
+var trascinando = false;
+cursore.addEventListener('pointerdown', function(e){ trascinando = true; cursore.setPointerCapture(e.pointerId); impostaQuotaDaEvento(e.clientX,e.clientY); });
+cursore.addEventListener('pointermove', function(e){ if(trascinando) impostaQuotaDaEvento(e.clientX,e.clientY); });
+cursore.addEventListener('pointerup', function(){ trascinando = false; });
+colonna.addEventListener('pointerdown', function(e){ if(e.target===cursore || cursore.contains(e.target)) return; impostaQuotaDaEvento(e.clientX,e.clientY); });
+cursore.addEventListener('keydown', function(e){
+  var passo = 100;
+  if(e.key === 'ArrowUp' || e.key === 'ArrowRight'){ st.quota = Math.min(QUOTA_NASCITA, st.quota+passo); aggiorna(); e.preventDefault(); }
+  else if(e.key === 'ArrowDown' || e.key === 'ArrowLeft'){ st.quota = Math.max(0, st.quota-passo); aggiorna(); e.preventDefault(); }
+});
+
+/* ============================================================
+   BARRE LOGARITMICHE — da 10^-6 a 10^4
+   ============================================================ */
+var LOG_MIN = -6, LOG_MAX = 4;
+function costruisciLogbar(id){
+  var el = document.getElementById(id);
+  el.innerHTML = '';
+  var pista = document.createElement('div'); pista.className='pista'; el.appendChild(pista);
+  for(var e=LOG_MIN; e<=LOG_MAX; e++){
+    var p = (e-LOG_MIN)/(LOG_MAX-LOG_MIN)*100;
+    var t = document.createElement('div'); t.className='tickw'; t.style.left = p+'%';
+    var s = document.createElement('span'); s.textContent = '10' + esponente(e); t.appendChild(s);
+    el.appendChild(t);
+  }
+  var cur = document.createElement('div'); cur.className='cur'; el.appendChild(cur);
+  return cur;
+}
+var curSin = costruisciLogbar('logbar-sin');
+var curDes = costruisciLogbar('logbar-des');
+function posizionaLogCursore(cur, N){
+  var v = Math.max(Math.pow(10,LOG_MIN), Math.min(Math.pow(10,LOG_MAX), N));
+  var p = (Math.log10(v)-LOG_MIN)/(LOG_MAX-LOG_MIN)*100;
+  cur.style.left = p + '%';
+}
+
+/* ============================================================
+   PIOGGIA DI MUONI — canvas, un fronte che scende e si dirada
+   ============================================================ */
+var N_PUNTI = 200;
+var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+var puntiSin = [], puntiDes = [];
+var animRunning = false, tAnimStart = 0;
+var DURATA_MS = 3000;
+
+function generaPioggia(){
+  var d = datiOra();
+  puntiSin = []; puntiDes = [];
+  var i, u, dist, quotaMorte;
+  for(i=0;i<N_PUNTI;i++){
+    u = Math.random() || 1e-12;
+    dist = d.v * TAU0 * (-Math.log(u));
+    quotaMorte = QUOTA_NASCITA - dist;
+    puntiSin.push({ x: Math.random(), quotaMorte: quotaMorte, morto:false });
+  }
+  for(i=0;i<N_PUNTI;i++){
+    u = Math.random() || 1e-12;
+    dist = d.v * (d.g*TAU0) * (-Math.log(u));
+    quotaMorte = QUOTA_NASCITA - dist;
+    puntiDes.push({ x: Math.random(), quotaMorte: quotaMorte, morto:false });
+  }
+}
+function rilanciaPioggia(){
+  generaPioggia();
+  tAnimStart = performance.now();
+  animRunning = true;
+}
+function dimensiona(){
+  var r = window.devicePixelRatio || 1;
+  var w = cv.clientWidth, h = cv.clientHeight;
+  cv.width = Math.round(w*r); cv.height = Math.round(h*r);
+  ctx.setTransform(r,0,0,r,0,0);
+}
+function yDiQuota(quota, h){ return h * (1 - quota/QUOTA_NASCITA); }
+function disegnaPioggia(quotaFronte){
+  var w = cv.clientWidth, h = cv.clientHeight;
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle = '#0A0D18'; ctx.fillRect(0,0,w,h);
+
+  var metaW = w/2;
+  var yFronte = yDiQuota(quotaFronte, h);
+  var vivSin = 0, vivDes = 0;
+
+  /* linea del rivelatore: la quota scelta dall'utente */
+  var yRiv = yDiQuota(st.quota, h);
+  ctx.strokeStyle = 'rgba(229,165,10,.55)'; ctx.lineWidth = 1.5; ctx.setLineDash([5,4]);
+  ctx.beginPath(); ctx.moveTo(0,yRiv); ctx.lineTo(w,yRiv); ctx.stroke();
+  ctx.setLineDash([]);
+
+  /* divisorio centrale */
+  ctx.strokeStyle = 'rgba(255,255,255,.08)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(metaW,0); ctx.lineTo(metaW,h); ctx.stroke();
+
+  puntiSin.forEach(function(p){
+    var vivo = p.quotaMorte < 0 || quotaFronte > p.quotaMorte;
+    if(!vivo) return;
+    vivSin++;
+    var x = p.x*(metaW-16)+8;
+    ctx.fillStyle = 'rgba(233,238,255,.75)';
+    ctx.beginPath(); ctx.arc(x, yFronte, 2, 0, 6.2832); ctx.fill();
+  });
+  puntiDes.forEach(function(p){
+    var vivo = p.quotaMorte < 0 || quotaFronte > p.quotaMorte;
+    if(!vivo) return;
+    vivDes++;
+    var x = metaW + p.x*(metaW-16)+8;
+    ctx.fillStyle = 'rgba(45,212,191,.85)';
+    ctx.beginPath(); ctx.arc(x, yFronte, 2, 0, 6.2832); ctx.fill();
+  });
+
+  ctx.fillStyle = '#8F97B8'; ctx.font = '11px ui-monospace, Menlo, monospace'; ctx.textAlign='center';
+  ctx.fillText(TESTI[LANG].lbl_senza_dilatazione, metaW/2, 14);
+  ctx.fillText(TESTI[LANG].lbl_mondo_vero, metaW+metaW/2, 14);
+
+  document.getElementById('c-sin').textContent = vivSin;
+  document.getElementById('c-des').textContent = vivDes;
+  document.getElementById('c-sin-muoni').textContent = it(vivSin*50,0);
+  document.getElementById('c-des-muoni').textContent = it(vivDes*50,0);
+}
+function passoAnimazione(now){
+  if(animRunning){
+    var f = (now - tAnimStart) / DURATA_MS;
+    if(f >= 1){ f = 1; animRunning = false; }
+    var quotaFronte = QUOTA_NASCITA * (1 - f);
+    disegnaPioggia(quotaFronte);
+  }
+  requestAnimationFrame(passoAnimazione);
+}
+
+/* ============================================================
+   OROLOGI — la lancetta gira in proporzione al tempo trascorso
+   rispetto al tempo di volo fino al mare, per il muone scelto
+   ============================================================ */
+function ruotaLancetta(id, frazione){
+  var ang = frazione * 360 - 90;
+  var rad = ang * Math.PI/180;
+  var x2 = 43 + 26*Math.cos(rad), y2 = 43 + 26*Math.sin(rad);
+  var l = document.getElementById(id);
+  l.setAttribute('x2', x2.toFixed(1)); l.setAttribute('y2', y2.toFixed(1));
+}
+
+/* ============================================================
+   METTI LA MANO
+   ============================================================ */
+var manoTimer = null, manoConteggio = 0;
+function apriMano(){
+  var d15 = datiA(0, 0); /* muone tipico, livello del mare: caso canonico verificato */
+  var dSelezionato = datiA(st.muone, 0);
+  var rapporto = dSelezionato.Nrel / dSelezionato.Ncla;
+  var realeAlMin = FLUSSO_MARE * AREA_PALMO;               /* 100/min, tabulato, indipendente dal tipo */
+  var secPerMuoneReale = 60/realeAlMin;                     /* 0,60 s */
+  var classicoAlMin = realeAlMin / rapporto;
+  var minPerMuoneClassico = 1/classicoAlMin;
+  var anni = minPerMuoneClassico / annoInMinuti();
+  var anniInt = Math.floor(anni), mesi = Math.round((anni-anniInt)*12);
+  if(mesi === 12){ anniInt++; mesi = 0; }
+
+  document.getElementById('mano-des-intervallo').textContent = tre(secPerMuoneReale) + ' s';
+  document.getElementById('mano-sin-attesa').textContent =
+    TESTI[LANG].mano_attesa_fra + anniInt + TESTI[LANG].mano_attesa_anni_e + mesi + TESTI[LANG].mano_attesa_mesi;
+  document.getElementById('mano-sin').textContent = '0';
+  manoConteggio = 0;
+  document.getElementById('mano-des').textContent = '0';
+
+  document.getElementById('overlay-mano').classList.add('aperto');
+  if(manoTimer) clearInterval(manoTimer);
+  manoTimer = setInterval(function(){
+    manoConteggio++;
+    document.getElementById('mano-des').textContent = manoConteggio;
+    var lampo = document.getElementById('lampo-mano');
+    lampo.style.opacity = '0.15';
+    setTimeout(function(){ lampo.style.opacity = '1'; }, 140);
+  }, Math.max(80, secPerMuoneReale*1000));
+}
+function chiudiMano(){
+  document.getElementById('overlay-mano').classList.remove('aperto');
+  if(manoTimer){ clearInterval(manoTimer); manoTimer = null; }
+}
+document.getElementById('btn-mano').addEventListener('click', apriMano);
+document.getElementById('btn-chiudi-mano').addEventListener('click', chiudiMano);
+document.getElementById('overlay-mano').addEventListener('click', function(e){
+  if(e.target === this) chiudiMano();
+});
+
+/* ============================================================
+   FORMULE — testo ricostruito con i numeri attuali
+   ============================================================ */
+function aggiornaFormule(){
+  var d = datiOra();
+  var T = TESTI[LANG];
+  var righe = [];
+  righe.push(T.f_titolo_gamma);
+  righe.push('   γ = 1 / √(1 − v²/c²)');
+  righe.push(T.f_c_definizione);
+  righe.push('');
+  righe.push(T.f_titolo_gamma_energia);
+  righe.push('   γ = E / (m·c²)');
+  righe.push(tpl(T.f_riga_E, { E: it(d.m.E,0), nome: muoneNome(d.m).toLowerCase() }));
+  righe.push(T.f_mc2_riposo);
+  righe.push('   γ = ' + it(d.m.E,0) + ' / 105,6583755 = <b>' + tre(d.g) + '</b>');
+  righe.push('');
+  righe.push(T.f_titolo_quanto_lontano);
+  righe.push(T.f_riga_L0_def);
+  righe.push(tpl(T.f_riga_L0_valore, { L0: tre(C_LUCE*TAU0) }));
+  righe.push(T.f_659_metri);
+  righe.push('');
+  righe.push(T.f_titolo_tempo_volo);
+  righe.push('   t = d / v');
+  righe.push(tpl(T.f_riga_d, { d: it(d.d,0) }));
+  righe.push(tpl(T.f_riga_t_valore, { tsci: sci(d.t,4), tus: tre(d.t*1e6) }));
+  righe.push('');
+  righe.push(T.f_titolo_quanti_sopravvivono);
+  righe.push('   N = N₀ × e^(−t/τ)');
+  righe.push(T.f_riga_contatore_sin);
+  righe.push(tpl(T.f_riga_N_valore, { N: fmtMuoni(d.Ncla) }));
+  righe.push(tpl(T.f_riga_contatore_des, { tau: tre(d.g*TAU0*1e6) }));
+  righe.push(tpl(T.f_riga_N_valore, { N: fmtMuoni(d.Nrel) }));
+  righe.push('');
+  righe.push(T.f_titolo_vista_muone);
+  righe.push('   t′ = t / γ = ' + sci(d.tProprio,4) + ' s');
+  righe.push('   d′ = d / γ = ' + tre(d.dProprio) + ' m');
+  righe.push(T.f_muone_non_vive_piu);
+  righe.push('');
+  righe.push(T.f_titolo_trappola);
+  righe.push(tpl(T.f_riga_thalf, { v: tre(TAU0*Math.LN2*1e6) }));
+  righe.push(T.f_dopo_2197);
+  righe.push(tpl(T.f_meta_gia, { v: tre(TAU0*Math.LN2*1e6) }));
+  document.getElementById('conti-formule').innerHTML = righe.join('\n');
+}
+
+/* Formule statiche, per il pannello "rifarle a mano": stesse funzioni, muone tipico, mare */
+function aggiornaFormuleStatiche(){
+  var d = datiA(0, 0);
+  var T = TESTI[LANG];
+  var righe = [];
+  righe.push(T.fs_costanti);
+  righe.push('');
+  righe.push('γ = E / (m·c²)');
+  righe.push('β = √(1 − 1/γ²)');
+  righe.push('v = β·c');
+  righe.push('t = d / v');
+  righe.push('N_vero = N₀ · e^(−t / (γ·τ₀))');
+  righe.push('N_senza = N₀ · e^(−t / τ₀)');
+  righe.push('t′ = t / γ      d′ = d / γ');
+  righe.push('');
+  righe.push(tpl(T.fs_esempio, { g: tre(d.g), t: tre(d.t*1e6), Nrel: fmtMuoni(d.Nrel), Ncla: fmtMuoni(d.Ncla) }));
+  document.getElementById('pannello-formule-statiche').innerHTML = righe.join('\n');
+}
+
+/* ============================================================
+   PANNELLO STORICO E PANNELLO GPS
+   ============================================================ */
+function aggiornaPannelloStorico(){
+  var f = frischSmith();
+  var T = TESTI[LANG];
+  var html = '';
+  html += '<p>' + T.ps_par1 + '</p>';
+  html += '<div class="formulaBox"><pre>';
+  html += T.ps_riga_beta + '\n';
+  html += 'γ = ' + tre(f.g) + '\n';
+  html += 't = 1907 m / v = ' + tre(f.t*1e6) + ' µs\n\n';
+  html += tpl(T.ps_riga_senza, { v: tre(f.senzaDilatazione) }) + '\n';
+  html += tpl(T.ps_riga_condil, { v: tre(f.conDilatazione) }) + '\n';
+  html += tpl(T.ps_riga_gammamedio, { v: tre(f.conGammaMedio) });
+  html += '</pre></div>';
+  html += '<p><b>' + tpl(T.ps_misurato, { m: f.misurato }) + '</b> ' + tpl(T.ps_incertezza, { inc: f.misuratoIncertezza }) + '</p>';
+  html += '<p class="tenue">' + tpl(T.ps_attenzione, { sd: Math.round(f.senzaDilatazione), storico: f.storicoSenzaDilatazione }) + '</p>';
+  document.getElementById('pannello-storico').innerHTML = html;
+}
+function aggiornaPannelloGPS(){
+  var g = gps();
+  var T = TESTI[LANG];
+  var html = '';
+  html += '<p>' + T.pg_par1 + '</p>';
+  html += '<div class="formulaBox"><pre>';
+  html += T.pg_riga_costanti + '\n\n';
+  html += 'v = √(GM/r) = <b>' + tre(g.v) + ' m/s</b>\n';
+  html += tpl(T.pg_riga_perdita, { v: tre(g.perditaVelocita*1e6) }) + '\n';
+  html += tpl(T.pg_riga_guadagno, { v: tre(g.guadagnoGravita*1e6) }) + '\n';
+  html += tpl(T.pg_riga_netto, { v: tre(g.netto*1e6) }) + '\n';
+  html += tpl(T.pg_riga_errore, { v: tre(g.erroreMetri/1000) });
+  html += '</pre></div>';
+  document.getElementById('pannello-gps').innerHTML = html;
+}
+
+/* ============================================================
+   AGGIORNAMENTO GENERALE
+   ============================================================ */
+function nomeVicino(quota){
+  var best=null, bd=Infinity;
+  FERMATE.forEach(function(f){ var dd=Math.abs(f.quota-quota); if(dd<bd){bd=dd;best=f;} });
+  return best;
+}
+function aggiorna(){
+  posizionaCursore();
+  var d = datiOra();
+  document.getElementById('v-quota').textContent = it(st.quota,0);
+  var vic = nomeVicino(st.quota);
+  document.getElementById('v-quota-vicino').textContent =
+    (Math.abs(vic.quota-st.quota) < 1 ? TESTI[LANG].quota_esattamente : TESTI[LANG].quota_vicino_a) + fermataNome(vic) + ' (' + it(vic.quota,0) + ' m)';
+
+  document.getElementById('v-nrel').textContent = fmtMuoni(d.Nrel);
+  document.getElementById('v-nclass').textContent = fmtMuoni(d.Ncla);
+  document.getElementById('v-nrel-nota').textContent = d.Nrel < 1 ? fraseServirebbero(d.Nrel) : '';
+  document.getElementById('v-nclass-nota').textContent = d.Ncla < 1 ? fraseServirebbero(d.Ncla) : '';
+  posizionaLogCursore(curSin, d.Ncla);
+  posizionaLogCursore(curDes, d.Nrel);
+
+  var lt = fmtTempo(d.t), ltp = fmtTempo(d.tProprio), ld = fmtLunghezza(d.dProprio);
+  document.getElementById('v-t-noi').textContent = lt.n + ' ' + lt.u;
+  document.getElementById('v-t-muone').textContent = ltp.n + ' ' + ltp.u;
+  document.getElementById('v-dprop').innerHTML = ld.n + ' <span class="u">' + ld.u + '</span>';
+  var rapp = d.Ncla > 0 ? d.Nrel/d.Ncla : Infinity;
+  document.getElementById('v-rapporto').innerHTML = isFinite(rapp) ?
+    (rapp<1.5 ? tre(rapp) : paroleGrandi(rapp)) : '—';
+
+  var fraz = d.t > 0 ? Math.min(1, d.t/(50.052e-6*3)) : 0; /* giro di lancetta scalato sul tempo del mare */
+  ruotaLancetta('lancetta-noi', fraz);
+  ruotaLancetta('lancetta-muone', d.t>0 ? Math.min(1, d.tProprio/(1.3221e-6*3)) : 0);
+
+  aggiornaFormule();
+}
+
+/* ============================================================
+   AVVIO
+   ============================================================ */
+window.addEventListener('resize', function(){ dimensiona(); costruisciTacche(); posizionaCursore(); });
+document.getElementById('btn-rilancia').addEventListener('click', rilanciaPioggia);
+
+applyI18n();
+costruisciSchede();
+costruisciTacche();
+dimensiona();
+aggiorna();
+aggiornaFormuleStatiche();
+aggiornaPannelloStorico();
+aggiornaPannelloGPS();
+generaPioggia();
+tAnimStart = performance.now();
+animRunning = true;
+requestAnimationFrame(passoAnimazione);
+
+/* ------------------------------------------------------------
+   AUTOCOLLAUDO — gira in console, non tocca la pagina.
+   Verifica ogni caso della tabella della scheda 9, più le
+   invarianti fisiche del modello (decadimento esponenziale,
+   coerenza fra i due racconti, generatore casuale).
+   ------------------------------------------------------------ */
+(function collaudo(){
+  var esiti = [];
+  function ok(nome, avuto, atteso, toll){
+    var passa = Math.abs(avuto-atteso)/Math.abs(atteso) < (toll||0.01);
+    esiti.push((passa?'OK  ':'NO  ') + nome + '  = ' + avuto.toPrecision(5) +
+               (passa ? '' : '   atteso ' + atteso));
+    return passa;
+  }
+  var salva = { quota:st.quota, muone:st.muone };
+
+  /* --- controllo di partenza: alla nascita, entrambi i contatori a 10.000, per ognuno dei tre muoni --- */
+  [0,1,2].forEach(function(i){
+    var d0 = datiA(i, 15000);
+    ok('quota nascita, ' + MUONI[i].id + ': mondo vero = 10.000', d0.Nrel, 10000, 1e-6);
+    ok('quota nascita, ' + MUONI[i].id + ': senza dilatazione = 10.000', d0.Ncla, 10000, 1e-6);
+  });
+
+  /* --- fattori di Lorentz dei tre muoni --- */
+  ok('gamma muone tipico', gammaDa(4000), 37.858, 0.001);
+  ok('gamma muone lento', gammaDa(1000), 9.4645, 0.001);
+  ok('gamma muone alta energia', gammaDa(100000), 946.45, 0.001);
+
+  /* --- distanza in una vita media, senza dilatazione (c*tau0) --- */
+  ok('L0 = c×τ0 (metri)', C_LUCE*TAU0, 658.64, 0.01);
+
+  /* --- livello del mare, muone tipico: i due contatori affiancati --- */
+  var mare = datiA(0, 0);
+  ok('livello del mare, mondo vero', mare.Nrel, 5478, 0.01);
+  ok('livello del mare, senza dilatazione', mare.Ncla, 1.2759e-6, 0.02);
+  ok('livello del mare, rapporto fra i due mondi', mare.Nrel/mare.Ncla, 4.2937e9, 0.02);
+
+  /* --- cima del Monte Bianco, 4800 m --- */
+  var bianco = datiA(0, 4800);
+  ok('Monte Bianco, mondo vero', bianco.Nrel, 6642, 0.01);
+  ok('Monte Bianco, senza dilatazione', bianco.Ncla, 0.0018705, 0.02);
+
+  /* --- quota di crociera, 11.000 m --- */
+  var aereo = datiA(0, 11000);
+  ok('aereo di linea, mondo vero', aereo.Nrel, 8517, 0.01);
+  ok('aereo di linea, senza dilatazione', aereo.Ncla, 22.99, 0.01);
+
+  /* --- muone lento, livello del mare --- */
+  var lento = datiA(1, 0);
+  ok('muone lento, mondo vero', lento.Nrel, 889.36, 0.01);
+
+  /* --- l'atmosfera vista dal muone: i due racconti devono coincidere alla quarta cifra --- */
+  ok('coerenza: t/γ coincide con d′/v (µs)', mare.tProprio*1e6, (mare.dProprio/mare.v)*1e6, 1e-4);
+  ok('spessore visto dal muone (m)', mare.dProprio, 396.22, 0.01);
+  ok('tempo proprio del muone (µs)', mare.tProprio*1e6, 1.3221, 0.01);
+  ok('verifica incrociata: 396 m percorsi a v danno lo stesso µs',
+     (396.219/mare.v)*1e6, mare.tProprio*1e6, 0.005);
+
+  /* --- invariante fisica: vita media non è la metà --- */
+  ok('vita media τ0 → sopravvive 1/e (37%)', Math.exp(-1), 0.36788, 0.001);
+  ok('tempo di dimezzamento t½ = τ0·ln2 (µs)', TAU0*Math.LN2*1e6, 1.5228, 0.001);
+  ok('a t½ sopravvive esattamente metà', Math.exp(-Math.LN2), 0.5, 0.0001);
+
+  /* --- decadimento esponenziale: N(2τ0)/N0 = e^-2, invariante generale del modello --- */
+  ok('decadimento esponenziale a 2 vite medie', Math.exp(-2), Nclassico(2*TAU0)/N0, 1e-9);
+  ok('decadimento esponenziale a 5 vite medie', Math.exp(-5), Nclassico(5*TAU0)/N0, 1e-9);
+
+  /* --- gravità, trascurabile su 15 km --- */
+  var correzioneGrav = G_ACC*QUOTA_NASCITA/(C_LUCE*C_LUCE);
+  ok('correzione gravitazionale (parti su 10^12)', correzioneGrav*1e12, 1.637, 0.01);
+  ok('rapporto velocità/gravità su 15 km', (mare.g-1)/correzioneGrav, 2.251e13, 0.02);
+
+  /* --- Frisch & Smith 1963, dalle stesse costanti in cima al file --- */
+  var fs = frischSmith();
+  ok('Frisch-Smith, senza dilatazione (nostro ricalcolo)', fs.senzaDilatazione, 30.69, 0.02);
+  ok('Frisch-Smith, con dilatazione a γ fisso', fs.conDilatazione, 423.51, 0.02);
+  ok('Frisch-Smith, con γ medio dichiarato 8,4', fs.conGammaMedio, 398.19, 0.02);
+
+  /* --- GPS: velocità e gravità in verso opposto --- */
+  var g = gps();
+  ok('GPS: velocità del satellite (m/s)', g.v, 3873.96, 0.001);
+  ok('GPS: perdita per velocità (µs/giorno)', g.perditaVelocita*1e6, 7.2136, 0.01);
+  ok('GPS: guadagno per gravità (µs/giorno)', g.guadagnoGravita*1e6, 45.718, 0.01);
+  ok('GPS: netto (µs/giorno)', g.netto*1e6, 38.505, 0.01);
+  ok('GPS: errore di posizione (km/giorno)', g.erroreMetri/1000, 11.543, 0.01);
+
+  /* --- il palmo della mano: muone tipico, livello del mare --- */
+  var rapportoMano = mare.Nrel/mare.Ncla;
+  var realeAlMin = FLUSSO_MARE*AREA_PALMO;
+  ok('palmo della mano: mondo vero (muoni/min)', realeAlMin, 100, 1e-9);
+  ok('palmo della mano: un tic ogni (s)', 60/realeAlMin, 0.60, 0.001);
+  var classicoAlMin = realeAlMin/rapportoMano;
+  var anniAttesa = (1/classicoAlMin)/annoInMinuti();
+  ok('palmo della mano: senza dilatazione (anni di attesa)', anniAttesa, 81.636, 0.02);
+
+  /* --- generatore esponenziale usato per la pioggia: media di -ln(u) deve valere 1 --- */
+  var s=0, N=60000, i;
+  for(i=0;i<N;i++){ var u=Math.random()||1e-12; s += -Math.log(u); }
+  ok('generatore esponenziale: media di -ln(u)', s/N, 1, 0.03);
+
+  st.quota = salva.quota; st.muone = salva.muone;
+  var falliti = esiti.filter(function(e){ return e.indexOf('NO') === 0; }).length;
+  console.log('%cAutocollaudo esperimento 9 — ' + (falliti ? falliti + ' CONTROLLI FALLITI' : 'tutti i ' + esiti.length + ' controlli passati'),
+              'font-weight:bold;color:' + (falliti ? '#c00' : '#0a0'));
+  esiti.forEach(function(e){ console.log('  ' + e); });
+})();
+
+})();
+
+try{ if(typeof setLang==='function') setLang('en'); }catch(e){}
+</script>
+</body>
+</html>

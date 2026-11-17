@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quanto piccolo diventa un vortice</title>
+<style>
+
+:root{
+  --scuro-1:#16224A; --scuro-2:#0D1120; --scuro-3:#04060E;
+  --carta:#FAF7F1; --inchiostro:#33302B; --tenue:#7E7768;
+  --oro:#E5A50A; --oro-chiaro:#FFD86E; --viola:#7C5CFF; --acqua:#2DD4BF;
+  --bordo:#E7E1D3; --panna:#FCFAF6;
+  --tit:'Bebas Neue','Avenir Next Condensed','Oswald',sans-serif;
+  --testo:'DM Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'DM Mono','SF Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--carta); color:var(--inchiostro);
+  font-family:var(--testo); font-size:17px; line-height:1.62;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 18px 90px}
+
+/* ---- fascia alta ---- */
+.hero{
+  background:radial-gradient(120% 95% at 50% 30%,
+    var(--scuro-1) 0%, var(--scuro-2) 45%, var(--scuro-3) 78%, var(--carta) 100%);
+  color:#fff; padding:54px 0 62px; margin-bottom:34px;
+}
+.hero .wrap{padding-bottom:0}
+.occhiello{
+  font-family:var(--mono); font-size:12px; letter-spacing:.22em;
+  text-transform:uppercase; color:#8F97B8; margin:0 0 14px;
+}
+.hero h1{
+  font-family:var(--tit); font-weight:500; font-size:clamp(38px,7.2vw,62px);
+  line-height:.98; letter-spacing:.01em; margin:0 0 20px; max-width:15ch;
+}
+.kicker{color:#C9CEE2; font-size:17.5px; max-width:56ch; margin:0 0 22px}
+
+/* ---- struttura ---- */
+.passo{
+  font-family:var(--mono); font-size:12px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--tenue); margin:38px 0 14px;
+}
+h2{font-family:var(--tit);font-weight:500;font-size:30px;letter-spacing:.01em;margin:34px 0 12px}
+p{margin:0 0 15px}
+.grande{font-size:19px}
+.tenue{color:var(--tenue);font-size:15.5px}
+
+/* ---- schede di scelta ---- */
+.schede{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin-bottom:16px}
+.scheda{
+  border:1.5px solid var(--bordo); border-radius:11px; background:var(--panna);
+  padding:13px 15px; cursor:pointer; text-align:left; font:inherit;
+  color:inherit; transition:border-color .16s, background .16s;
+  min-height:48px;
+}
+.scheda:hover{border-color:#C9C1AC}
+.scheda[aria-pressed="true"]{border-color:var(--oro);background:#FFFBEF}
+.scheda .n{display:block;font-size:16.5px;margin-bottom:2px}
+.scheda .d{
+  display:block;font-family:var(--mono);font-size:11.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--tenue);
+}
+.scheda[aria-pressed="true"] .d{color:#A08420}
+
+/* ---- cursore ---- */
+.cursore{display:flex;align-items:center;gap:14px;margin:6px 0 22px}
+.cursore input{flex:1;accent-color:var(--oro)}
+.cursore label{font-family:var(--mono);font-size:11.5px;color:var(--tenue);
+                 letter-spacing:.08em;white-space:nowrap}
+
+/* ---- risultati ---- */
+.risultati{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.ris{background:var(--panna);border:1px solid #EFE9DA;border-radius:16px;padding:16px 14px;text-align:center}
+.ris .et{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;
+           text-transform:uppercase;color:var(--tenue);margin-bottom:6px}
+.ris .val{font-family:var(--tit);font-size:34px;
+            line-height:1;color:var(--inchiostro)}
+.ris .un{font-family:var(--mono);font-size:12px;color:var(--oro);margin-top:3px}
+.ris .cfr{font-size:12.5px;color:var(--tenue);margin-top:8px;line-height:1.4}
+
+/* ---- confronto visivo con un capello ---- */
+.righello{margin-top:24px;padding:18px 16px;background:var(--panna);
+            border:1px solid #EFE9DA;border-radius:16px}
+.righello .tit{font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+                 text-transform:uppercase;color:var(--tenue);margin-bottom:14px}
+.barra{position:relative;height:34px;margin-bottom:12px}
+.barra .nome{position:absolute;left:0;top:0;font-size:12.5px;color:var(--inchiostro);width:150px}
+.barra .linea{position:absolute;left:158px;right:10px;top:9px;height:15px}
+.barra .riemp{height:100%;border-radius:8px;transition:width .35s ease}
+.barra .mis{position:absolute;top:0;font-size:11.5px;font-family:var(--mono);
+              color:var(--tenue);transition:left .35s ease;white-space:nowrap}
+
+.nota{background:#F4F1E8;border-left:3px solid var(--oro);border-radius:0 12px 12px 0;
+        padding:16px 18px;margin:22px 0;font-size:15.5px;color:#4A463F}
+.nota b{color:var(--inchiostro)}
+
+.formule{background:var(--scuro-2);color:#D8DEF5;border-radius:18px;padding:22px 22px 18px;margin:22px 0}
+.formule .tit{font-family:var(--mono);font-size:11px;letter-spacing:.16em;
+                text-transform:uppercase;color:var(--oro-chiaro);margin-bottom:12px}
+.formule code{display:block;font-family:var(--mono);font-size:15px;
+                color:#fff;margin:7px 0;letter-spacing:.02em}
+.formule .sp{font-size:13.5px;color:#9AA0B4;margin-top:12px}
+
+/* ---- cascata e spettro ---- */
+.cascata{background:#fff;border:1px solid var(--bordo);border-radius:22px;padding:26px 24px 28px;
+           box-shadow:0 8px 26px rgba(160,140,90,.10);margin:22px 0 8px}
+.tela{width:100%;height:230px;display:block;border-radius:14px;background:#0D1120}
+.grafico{position:relative;margin-top:20px;background:var(--panna);border:1px solid #EFE9DA;
+           border-radius:16px;padding:18px 16px 14px}
+.grafico canvas{width:100%;height:250px;display:block}
+.misura{display:flex;flex-wrap:wrap;align-items:center;gap:14px;margin-top:14px}
+.misura .pend{font-family:var(--tit);font-size:32px;
+                line-height:1;color:var(--inchiostro)}
+.misura .eti{font-family:var(--mono);font-size:11px;letter-spacing:.12em;
+               text-transform:uppercase;color:var(--tenue)}
+.misura .esito{font-size:14px;color:var(--tenue)}
+.misura .esito b{color:#17805A}
+.bottoni{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.bt{border:1px solid var(--bordo);background:var(--panna);border-radius:12px;padding:9px 15px;
+      font-family:var(--mono);font-size:12px;letter-spacing:.06em;cursor:pointer;
+      color:var(--inchiostro);transition:border-color .18s,background .18s;min-height:48px}
+.bt:hover{border-color:var(--oro);background:#FFF8E6}
+.bt.on{border-color:var(--oro);background:#FFF8E6;box-shadow:0 0 0 3px rgba(229,165,10,.16)}
+
+/* ---- gioco di Leo ---- */
+.gioco{background:#fff;border:1px solid var(--bordo);border-radius:22px;padding:26px 24px 28px;
+         box-shadow:0 8px 26px rgba(160,140,90,.10);margin:22px 0 8px}
+.modi{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.modo{flex:1;min-width:200px;border:1px solid var(--bordo);background:var(--panna);border-radius:14px;
+        padding:13px 15px;cursor:pointer;transition:border-color .18s,background .18s;min-height:48px}
+.modo:hover{border-color:var(--oro)}
+.modo.on{border-color:var(--oro);background:#FFF8E6;box-shadow:0 0 0 3px rgba(229,165,10,.16)}
+.modo .t{font-family:var(--tit);font-size:21px;line-height:1}
+.modo .d{font-size:12.5px;color:var(--tenue);margin-top:3px}
+
+.band{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin:16px 0}
+.bnd{border:1px solid var(--bordo);background:var(--panna);border-radius:12px;padding:11px 8px;
+       text-align:center;font-size:13px;cursor:pointer;transition:all .16s;user-select:none;min-height:48px}
+.bnd:hover{border-color:var(--oro)}
+.bnd.sel{border-color:var(--oro);background:#FFF8E6;font-weight:600}
+.bnd.ko{border-color:#D98B80;background:#FBEDEB;color:#B23A2E}
+.bnd.fissa{cursor:default;opacity:.55}
+.bnd.fissa.sel{opacity:1}
+
+.cron{display:flex;gap:18px;flex-wrap:wrap;align-items:center;margin-top:6px;
+        font-family:var(--mono);font-size:12px;color:var(--tenue)}
+.cron b{font-family:var(--tit);font-size:26px;
+          color:var(--inchiostro);font-weight:400}
+.verdetto{margin-top:16px;padding:14px 16px;border-radius:12px;font-size:15px;display:none}
+.verdetto.si{display:block;background:#EAF5EF;border-left:3px solid #17805A;color:#14603F}
+.verdetto.no{display:block;background:#FBEDEB;border-left:3px solid #B23A2E;color:#8E2D24}
+.confronto{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+.conf-box{background:var(--panna);border:1px solid #EFE9DA;border-radius:14px;padding:15px;text-align:center}
+.conf-box .n{font-family:var(--tit);font-size:30px;line-height:1}
+.conf-box .e{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+               text-transform:uppercase;color:var(--tenue);margin-bottom:5px}
+
+footer{border-top:1px solid var(--bordo);margin-top:44px;padding-top:18px}
+footer p{font-family:var(--mono);font-size:12px;color:var(--tenue);margin:0 0 6px}
+
+@media(max-width:560px){
+  .risultati{grid-template-columns:1fr}
+  .band{grid-template-columns:repeat(2,1fr)}
+  .confronto{grid-template-columns:1fr}
+  .barra .nome{width:110px;font-size:11.5px}
+  .barra .linea{left:118px}
+}
+@media(max-width:420px){
+  .scheda .n{font-size:15px}
+  .scheda .d{font-size:10.5px;line-height:1.25}
+  .modo{min-width:0}
+  .modo .t{font-size:19px}
+  .modo .d{font-size:11.5px}
+  .bnd{font-size:12px;padding:10px 6px}
+  .band{gap:7px}
+  .ris .val{font-size:30px}
+}
+
+</style>
+</head>
+<body>
+<a href="../index.html" style="display:inline-block;margin:14px;font:12px monospace;color:inherit">&larr; All experiments</a>
+
+
+<header class="hero">
+  <div class="wrap">
+<div class="lab-hero-ico" style="width:52px;height:52px;color:#8A6A07;margin:0 0 10px"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20a8 8 0 1 1 8-8"/><path d="M12 16a4 4 0 1 1 4-4"/><path d="M12 12h.01"/></svg></div>
+    <p class="occhiello" data-i18n="occhiello">Laboratorio di fisica · Esperimento 1</p>
+    <h1 data-i18n="hero_titolo">Quanto piccolo diventa un vortice?</h1>
+    <p class="kicker" data-i18n="hero_kicker">Mescoli il latte nel caffè e vedi disegni che si arricciano sempre più piccoli. Fino a dove? C'è un punto in cui la natura si ferma — e non è dove ti aspetti.</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <p class="passo" data-i18n="passo_1">1 · Il fatto</p>
+  <h2 data-i18n="h2_fatto">I vortici grandi si spezzano in vortici piccoli</h2>
+  <p class="grande" data-i18n="p_fatto_1">Quando l'aria o l'acqua si muovono in modo disordinato, l'energia passa dai vortici grandi a quelli più piccoli, poi a quelli ancora più piccoli. È una cascata. Ma a un certo punto i vortici diventano così minuscoli che l'attrito interno del fluido — la <b>viscosità</b>, cioè quanto è «appiccicoso» — li cancella e li trasforma in calore.</p>
+  <p data-i18n="p_fatto_2">Nel 1941 il matematico <b>Andrej Kolmogorov</b> ha calcolato esattamente dove succede. Quel punto ha un nome: <b>microscala di Kolmogorov</b>. E si può calcolare, per l'aria di questa stanza come per un temporale.</p>
+
+  <p class="passo" data-i18n="passo_2">2 · Provalo</p>
+  <h2 style="margin-bottom:18px" data-i18n="h2_prova">Scegli quanto mescoli forte</h2>
+
+  <div class="schede" id="sc-casi"></div>
+
+  <div class="cursore">
+    <label data-i18n="label_meno">più delicato</label>
+    <input type="range" id="slider" min="-2.3" max="3.2" step="0.05" value="0">
+    <label data-i18n="label_piu">più violento</label>
+  </div>
+
+  <div class="risultati">
+    <div class="ris">
+      <div class="et" data-i18n="et_vortice">il vortice più piccolo</div>
+      <div class="val" id="v-eta">—</div>
+      <div class="un" id="u-eta">&nbsp;</div>
+      <div class="cfr" id="c-eta">&nbsp;</div>
+    </div>
+    <div class="ris">
+      <div class="et" data-i18n="et_velocita">a che velocità gira</div>
+      <div class="val" id="v-u">—</div>
+      <div class="un" data-i18n="un_vel">cm al secondo</div>
+      <div class="cfr" id="c-u">&nbsp;</div>
+    </div>
+    <div class="ris">
+      <div class="et" data-i18n="et_tempo">quanto vive</div>
+      <div class="val" id="v-t">—</div>
+      <div class="un" data-i18n="un_tempo">secondi</div>
+      <div class="cfr" id="c-t">&nbsp;</div>
+    </div>
+  </div>
+
+  <div class="righello">
+    <div class="tit" data-i18n="tit_righello">quanto è piccolo, in confronto</div>
+    <div class="barra">
+      <span class="nome" data-i18n="nome_capello">un capello</span>
+      <div class="linea"><div class="riemp" style="width:70%;background:linear-gradient(90deg,#C8C0B0,#9A9382)"></div></div>
+      <span class="mis" style="left:calc(158px + 70% - 10px)">70 µm</span>
+    </div>
+    <div class="barra">
+      <span class="nome" data-i18n="nome_vortice">il tuo vortice</span>
+      <div class="linea"><div class="riemp" id="barra-eta" style="width:20%;background:linear-gradient(90deg,var(--oro-chiaro),var(--oro))"></div></div>
+      <span class="mis" id="mis-eta" style="left:158px">—</span>
+    </div>
+  </div>
+
+  <div class="nota" id="lezione">
+    <b data-i18n="sorpresa_titolo">La sorpresa:</b> <span data-i18n="sorpresa_testo">anche mescolando fortissimo, il vortice più piccolo gira a <b>pochi centimetri al secondo</b> — la velocità di una formica. Non c'è niente, in questa storia, che vada vicino alla velocità della luce.</span>
+  </div>
+
+  <p class="passo" data-i18n="passo_3">3 · Approfondimento · sotto l'esperimento 1</p>
+  <h2 data-i18n="h2_cascata">La cascata: dove finisce l'energia</h2>
+  <p class="tenue" data-i18n="p_cascata_intro">segue l'esperimento 1 — hai misurato dove finisce la cascata, qui vedi come ci arriva</p>
+  <p class="grande" data-i18n="p_cascata_1">Il vortice grande non sparisce: si rompe in vortici più piccoli, che si rompono ancora. L'energia scende di gradino in gradino come l'acqua di una cascata, finché l'ultimo gradino — quello che hai misurato nell'esperimento 1 — la trasforma in calore.</p>
+  <p data-i18n="p_cascata_2">Guarda la cascata partire. Poi, sotto, c'è la domanda seria: <b>quanta energia resta a ogni gradino?</b> La risposta è una delle leggi più solide della fisica dei fluidi, e la puoi misurare tu.</p>
+
+  <div class="cascata">
+    <canvas class="tela" id="tela-cascata"></canvas>
+
+    <div class="bottoni">
+      <button class="bt on" data-liv="1" data-i18n="bt_liv1">un vortice grande</button>
+      <button class="bt" data-liv="2" data-i18n="bt_liv2">si spezza</button>
+      <button class="bt" data-liv="3" data-i18n="bt_liv3">e ancora</button>
+      <button class="bt" data-liv="4" data-i18n="bt_liv4">fino al calore</button>
+    </div>
+
+    <div class="grafico">
+      <canvas id="tela-spettro"></canvas>
+      <div class="misura">
+        <div>
+          <div class="eti" data-i18n="eti_pendenza">pendenza che hai misurato</div>
+          <div class="pend" id="pendenza">—</div>
+        </div>
+        <div class="esito" id="esito-pend" data-i18n="esito_pend_0">Trascina i due punti sul grafico per misurare la pendenza.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nota" data-i18n="nota_pendenza">
+    <b>−5/3, cioè −1,667.</b> Questo numero l'ha ricavato Kolmogorov nel 1941 e da allora è stato <b>misurato migliaia di volte</b>: nell'atmosfera, negli oceani, nelle gallerie del vento, perfino nelle stelle. Non è una nostra idea né una teoria da verificare: è una delle leggi meglio confermate della fisica dei fluidi. Qui la vedi disegnata — se hai dati veri di un anemometro, puoi rifare la stessa misura e ottenere lo stesso numero.
+  </div>
+
+  <p class="passo" data-i18n="passo_4">4 · Approfondimento · il costo del calcolo</p>
+  <h2 data-i18n="h2_gioco">Controllare è facile. Trovare, no.</h2>
+  <p class="grande" data-i18n="p_gioco_intro">Leo ha sedici anni e deve organizzare il concerto di fine anno. Ci sono dieci band, ne può far suonare cinque, ma alcune hanno musicisti in comune: non possono stare nella stessa serata.</p>
+  <p data-i18n="p_gioco_due">Prima <b>controlla</b> una scaletta che ti diamo noi. Poi <b>trovane una tu</b>. Guarda l'orologio in tutte e due i casi.</p>
+
+  <div class="gioco">
+    <div class="modi">
+      <div class="modo on" data-m="v">
+        <div class="t" data-i18n="modo_1_titolo">1 · Controlla</div>
+        <div class="d" data-i18n="modo_1_desc">ti diamo una scaletta: funziona sì o no?</div>
+      </div>
+      <div class="modo" data-m="t">
+        <div class="t" data-i18n="modo_2_titolo">2 · Trovala tu</div>
+        <div class="d" data-i18n="modo_2_desc">scegli cinque band che possono suonare insieme</div>
+      </div>
+    </div>
+
+    <div class="band" id="band"></div>
+
+    <div class="cron">
+      <span data-i18n="cron_tempo_pre">tempo <b id="tempo">0,0</b> s</span>
+      <span data-i18n="cron_tent_pre">tentativi <b id="tent">0</b></span>
+      <span id="quante"></span>
+    </div>
+
+    <div class="verdetto" id="verdetto"></div>
+  </div>
+
+  <div class="confronto">
+    <div class="conf-box">
+      <div class="e" data-i18n="conf_e_1">per controllare</div>
+      <div class="n">10</div>
+      <div style="font-size:12.5px;color:var(--tenue);margin-top:4px" data-i18n="conf_desc_1">coppie da guardare</div>
+    </div>
+    <div class="conf-box">
+      <div class="e" data-i18n="conf_e_2">per trovare</div>
+      <div class="n">252</div>
+      <div style="font-size:12.5px;color:var(--tenue);margin-top:4px" data-i18n="conf_desc_2">scalette possibili, e solo 4 funzionano</div>
+    </div>
+  </div>
+
+  <div class="nota" data-i18n="nota_leo">
+    <b>E con le trenta band vere di Leo?</b> Controllare una scaletta resta facile: 45 coppie. Ma le scalette possibili diventano <b>30.045.015</b>. Controllare cresce piano, trovare esplode: è tutta qui la differenza che hai appena sentito sulle dita.
+  </div>
+
+  <p class="passo" data-i18n="passo_5">5 · Controlla tu stesso</p>
+  <h2 data-i18n="h2_formule">Le formule sono tre, e sono corte</h2>
+  <p data-i18n="p_formule">Non devi crederci sulla parola. Prendi una calcolatrice: con la viscosità dell'aria (ν = 0,000015 m²/s) e l'energia che immetti (ε, in watt per chilogrammo) ottieni gli stessi numeri che vedi qui sopra.</p>
+
+  <div class="formule">
+    <div class="tit" data-i18n="tit_formule">le tre microscale</div>
+    <code data-i18n="formula_1">lunghezza  η  =  ( ν³ / ε ) elevato a ¼</code>
+    <code data-i18n="formula_2">velocità   u  =  ( ν · ε ) elevato a ¼</code>
+    <code data-i18n="formula_3">tempo      τ  =  ( ν / ε ) elevato a ½</code>
+    <div class="sp" data-i18n="nota_formule">Nota che l'ultima è una <b>radice quadrata</b>, non quarta: le tre grandezze non seguono tutte la stessa regola. È il genere di dettaglio che conviene controllare sempre, invece di fidarsi di una formula che «funziona per tutto».</div>
+  </div>
+
+  <div class="nota" data-i18n="nota_confine">
+    <b>Il confine non è una linea, è una zona.</b> La dissipazione non si accende di colpo a η: il massimo si trova intorno a <b>24 volte η</b>. In natura le cose finiscono quasi sempre in modo sfumato — e dirlo è più corretto che disegnare un bordo netto.
+  </div>
+
+  
+
+
+<footer style="padding:24px;text-align:center;font:12px monospace;opacity:.7">physics-experiments-lab &middot; MIT License &middot; Copyright (c) 2026 Capitan AI</footer>
+<script>
+(function(){
+'use strict';
+
+var TESTI = {
+  it: {
+    titolo_pagina: "Quanto piccolo diventa un vortice",
+    occhiello: "Laboratorio di fisica · Esperimento 1",
+    hero_titolo: "Quanto piccolo diventa un vortice?",
+    hero_kicker: "Mescoli il latte nel caffè e vedi disegni che si arricciano sempre più piccoli. Fino a dove? C'è un punto in cui la natura si ferma — e non è dove ti aspetti.",
+    passo_1: "1 · Il fatto",
+    h2_fatto: "I vortici grandi si spezzano in vortici piccoli",
+    p_fatto_1: "Quando l'aria o l'acqua si muovono in modo disordinato, l'energia passa dai vortici grandi a quelli più piccoli, poi a quelli ancora più piccoli. È una cascata. Ma a un certo punto i vortici diventano così minuscoli che l'attrito interno del fluido — la <b>viscosità</b>, cioè quanto è «appiccicoso» — li cancella e li trasforma in calore.",
+    p_fatto_2: "Nel 1941 il matematico <b>Andrej Kolmogorov</b> ha calcolato esattamente dove succede. Quel punto ha un nome: <b>microscala di Kolmogorov</b>. E si può calcolare, per l'aria di questa stanza come per un temporale.",
+    passo_2: "2 · Provalo",
+    h2_prova: "Scegli quanto mescoli forte",
+    label_meno: "più delicato",
+    label_piu: "più violento",
+    et_vortice: "il vortice più piccolo",
+    et_velocita: "a che velocità gira",
+    un_vel: "cm al secondo",
+    et_tempo: "quanto vive",
+    un_tempo: "secondi",
+    tit_righello: "quanto è piccolo, in confronto",
+    nome_capello: "un capello",
+    nome_vortice: "il tuo vortice",
+    sorpresa_titolo: "La sorpresa:",
+    sorpresa_testo: "anche mescolando fortissimo, il vortice più piccolo gira a <b>pochi centimetri al secondo</b> — la velocità di una formica. Non c'è niente, in questa storia, che vada vicino alla velocità della luce.",
+    passo_3: "3 · Approfondimento · sotto l'esperimento 1",
+    h2_cascata: "La cascata: dove finisce l'energia",
+    p_cascata_intro: "segue l'esperimento 1 — hai misurato dove finisce la cascata, qui vedi come ci arriva",
+    p_cascata_1: "Il vortice grande non sparisce: si rompe in vortici più piccoli, che si rompono ancora. L'energia scende di gradino in gradino come l'acqua di una cascata, finché l'ultimo gradino — quello che hai misurato nell'esperimento 1 — la trasforma in calore.",
+    p_cascata_2: "Guarda la cascata partire. Poi, sotto, c'è la domanda seria: <b>quanta energia resta a ogni gradino?</b> La risposta è una delle leggi più solide della fisica dei fluidi, e la puoi misurare tu.",
+    bt_liv1: "un vortice grande",
+    bt_liv2: "si spezza",
+    bt_liv3: "e ancora",
+    bt_liv4: "fino al calore",
+    eti_pendenza: "pendenza che hai misurato",
+    esito_pend_0: "Trascina i due punti sul grafico per misurare la pendenza.",
+    esito_pend_1: "Qualunque coppia di punti scegli, viene sempre lo stesso numero: <b>−1,667</b>, cioè −5/3. È questo che rende una legge una legge.",
+    esito_pend_2: "Sposta i punti: la pendenza non cambia.",
+    nota_pendenza: "−5/3, cioè −1,667. Questo numero l'ha ricavato Kolmogorov nel 1941 e da allora è stato <b>misurato migliaia di volte</b>: nell'atmosfera, negli oceani, nelle gallerie del vento, perfino nelle stelle. Non è una nostra idea né una teoria da verificare: è una delle leggi meglio confermate della fisica dei fluidi. Qui la vedi disegnata — se hai dati veri di un anemometro, puoi rifare la stessa misura e ottenere lo stesso numero.",
+    passo_4: "4 · Approfondimento · il costo del calcolo",
+    h2_gioco: "Controllare è facile. Trovare, no.",
+    p_gioco_intro: "Leo ha sedici anni e deve organizzare il concerto di fine anno. Ci sono dieci band, ne può far suonare cinque, ma alcune hanno musicisti in comune: non possono stare nella stessa serata.",
+    p_gioco_due: "Prima <b>controlla</b> una scaletta che ti diamo noi. Poi <b>trovane una tu</b>. Guarda l'orologio in tutte e due i casi.",
+    modo_1_titolo: "1 · Controlla",
+    modo_1_desc: "ti diamo una scaletta: funziona sì o no?",
+    modo_2_titolo: "2 · Trovala tu",
+    modo_2_desc: "scegli cinque band che possono suonare insieme",
+    cron_tempo_pre: "tempo ",
+    cron_tent_pre: "tentativi ",
+    verdetto_ok: "<b>Funziona.</b> Nessuna delle dieci coppie è incompatibile. Ti sono bastati pochi secondi: hai fatto dieci confronti.",
+    verdetto_no_pre: "<b>Non funziona:</b> ",
+    verdetto_no_suf: " hanno musicisti in comune. Anche stavolta: dieci confronti e avevi la risposta.",
+    verdetto_trovata: "<b>Trovata.</b> È una delle sole <b>4 scalette</b> che funzionano su 252 possibili. Quanto ci hai messo, rispetto a quando dovevi solo controllare?",
+    verdetto_non_ancora_pre: "<b>Non ancora:</b> ",
+    verdetto_non_ancora_suf: ". Togline una e prova con un'altra.",
+    quante_controlla: "ti bastano 10 confronti",
+    quante_trova: "le scalette possibili sono 252, ne funzionano 4",
+    conf_e_1: "per controllare",
+    conf_desc_1: "coppie da guardare",
+    conf_e_2: "per trovare",
+    conf_desc_2: "scalette possibili, e solo 4 funzionano",
+    nota_leo: "E con le trenta band vere di Leo? Controllare una scaletta resta facile: 45 coppie. Ma le scalette possibili diventano <b>30.045.015</b>. Controllare cresce piano, trovare esplode: è tutta qui la differenza che hai appena sentito sulle dita.",
+    passo_5: "5 · Controlla tu stesso",
+    h2_formule: "Le formule sono tre, e sono corte",
+    p_formule: "Non devi crederci sulla parola. Prendi una calcolatrice: con la viscosità dell'aria (ν = 0,000015 m²/s) e l'energia che immetti (ε, in watt per chilogrammo) ottieni gli stessi numeri che vedi qui sopra.",
+    tit_formule: "le tre microscale",
+    formula_1: "lunghezza  η  =  ( ν³ / ε ) elevato a ¼",
+    formula_2: "velocità   u  =  ( ν · ε ) elevato a ¼",
+    formula_3: "tempo      τ  =  ( ν / ε ) elevato a ½",
+    nota_formule: "Nota che l'ultima è una <b>radice quadrata</b>, non quarta: le tre grandezze non seguono tutte la stessa regola. È il genere di dettaglio che conviene controllare sempre, invece di fidarsi di una formula che «funziona per tutto».",
+    nota_confine: "Il confine non è una linea, è una zona. La dissipazione non si accende di colpo a η: il massimo si trova intorno a <b>24 volte η</b>. In natura le cose finiscono quasi sempre in modo sfumato — e dirlo è più corretto che disegnare un bordo netto.",
+    footer_1: "Laboratorio di fisica · Esperimento 1 di 10",
+    footer_2: "Nessuna libreria, nessuna chiamata di rete: tutto quello che vedi è calcolato qui.",
+    casi: [
+      { nome: "Giornata di vento", desc: "ε = 10⁻² W/kg" },
+      { nome: "Getto del phon", desc: "ε = 10⁰ W/kg" },
+      { nome: "Frullatore", desc: "ε = 10¹ W/kg" },
+      { nome: "Mixer industriale", desc: "ε = 10³ W/kg" }
+    ]
+  }
+};
+TESTI.en = JSON.parse(JSON.stringify(TESTI.it));
+/* English: reviewed translation merged from the lab translation pass. Keys not listed here fall back to the Italian text. */
+Object.assign(TESTI.en, {"occhiello": "Physics laboratory · Experiment 1", "hero_titolo": "How small does a vortex get?", "hero_kicker": "You stir milk into coffee and see patterns that curl up smaller and smaller. How far does it go? There is a point where nature stops — and it is not where you would expect.", "passo_1": "1 · The fact", "h2_fatto": "Large vortices break into small vortices", "p_fatto_1": "When air or water moves in a disorderly way, energy passes from large vortices to smaller ones, then to even smaller ones. It is a cascade. But at some point the vortices become so tiny that the internal friction of the fluid — the <b>viscosity<\/b>, that is, how “sticky” it is — wipes them out and turns them into heat.", "p_fatto_2": "In 1941 the mathematician <b>Andrej Kolmogorov<\/b> calculated exactly where this happens. That point has a name: the <b>Kolmogorov microscale<\/b>. And it can be calculated for the air in this room as well as for a thunderstorm.", "passo_2": "2 · Try it", "h2_prova": "Choose how hard you stir", "label_meno": "gentler", "label_piu": "more violent", "passo_3": "3 · Deeper look · below experiment 1", "h2_cascata": "The cascade: where the energy ends up", "p_cascata_intro": "follows experiment 1 — you measured where the cascade ends, here you see how it gets there", "p_cascata_1": "The large vortex does not disappear: it breaks into smaller vortices, which break again. The energy goes down step by step, like water in a waterfall, until the last step — the one you measured in experiment 1 — turns it into heat.", "p_cascata_2": "Watch the cascade start. Then, below, comes the serious question: <b>how much energy is left at each step?<\/b> The answer is one of the most solid laws of fluid physics, and you can measure it yourself.", "bt_liv1": "a large vortex", "bt_liv2": "breaks up", "bt_liv3": "and again", "bt_liv4": "down to heat", "passo_4": "4 · Deeper look · the cost of computing", "h2_gioco": "Checking is easy. Finding is not.", "p_gioco_intro": "Leo is sixteen and has to organise the end-of-year concert. There are ten bands, and he can let five play, but some of them have musicians in common: they cannot be on the same evening.", "p_gioco_due": "First, <b>check<\/b> a running order we give you. Then, <b>find one yourself<\/b>. Look at the clock in both cases.", "passo_5": "5 · Check it yourself", "h2_formule": "There are three formulas, and they are short", "p_formule": "You do not have to take our word for it. Take a calculator: with the viscosity of air (ν = 0.000015 m²/s) and the energy you put in (ε, in watts per kilogram) you get the same numbers you see above.", "titolo_pagina": "How small does a vortex get?", "et_vortice": "the smallest eddy", "et_velocita": "how fast it turns", "un_vel": "cm per second", "et_tempo": "how long it lives", "un_tempo": "seconds", "tit_righello": "how small, by comparison", "nome_capello": "a hair", "nome_vortice": "your eddy", "sorpresa_titolo": "The surprise:", "eti_pendenza": "slope you measured", "esito_pend_0": "Drag the two points on the graph to measure the slope.", "esito_pend_2": "Move the points: the slope does not change.", "modo_1_titolo": "1 · Check", "modo_1_desc": "we give you a line-up: does it work or not?", "modo_2_titolo": "2 · Find it yourself", "modo_2_desc": "choose five bands that can play together", "cron_tempo_pre": "time ", "cron_tent_pre": "attempts ", "verdetto_ok": "<b>It works.<\/b> None of the ten pairs is incompatible. A few seconds were enough: you made ten comparisons.", "verdetto_no_pre": "<b>It does not work:<\/b> ", "verdetto_no_suf": " share musicians. Again: ten comparisons and you had the answer.", "verdetto_non_ancora_pre": "<b>Not yet:<\/b> ", "verdetto_non_ancora_suf": ". Remove one and try another.", "quante_controlla": "ten comparisons are enough", "quante_trova": "there are 252 possible line-ups, 4 of them work", "conf_e_1": "to check", "conf_desc_1": "pairs to look at", "conf_e_2": "to find", "conf_desc_2": "possible line-ups, and only 4 work", "tit_formule": "the three microscales", "formula_1": "length  η  =  ( ν³ / ε ) to the power ¼", "formula_2": "speed   u  =  ( ν · ε ) to the power ¼", "formula_3": "time    τ  =  ( ν / ε ) to the power ½", "footer_1": "Physics laboratory · Experiment 1 of 10", "footer_2": "No library, no network call: everything you see is computed here.", "casi": [{"nome": "A windy day", "desc": "ε = 10⁻² W/kg"}, {"nome": "Hairdryer jet", "desc": "ε = 10⁰ W/kg"}, {"nome": "Blender", "desc": "ε = 10¹ W/kg"}, {"nome": "Industrial mixer", "desc": "ε = 10³ W/kg"}]});
+TESTI.fr = JSON.parse(JSON.stringify(TESTI.it));
+TESTI.es = JSON.parse(JSON.stringify(TESTI.it));
+TESTI.de = JSON.parse(JSON.stringify(TESTI.it));
+
+window.__LINGUE = ['it','en','fr','es','de'];
+var LANG = 'en';
+
+for(var i in TESTI.fr) if(i !== 'casi') TESTI.fr[i] += ' /* PENDING: traduzione richiesta */';
+for(var i in TESTI.es) if(i !== 'casi') TESTI.es[i] += ' /* PENDING: traduzione richiesta */';
+for(var i in TESTI.de) if(i !== 'casi') TESTI.de[i] += ' /* PENDING: traduzione richiesta */';
+
+function applyI18n(){
+  document.documentElement.lang = LANG;
+  document.title = TESTI[LANG].titolo_pagina;
+  var els = document.querySelectorAll('[data-i18n]');
+  els.forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    var val = TESTI[LANG][key];
+    if(val) el.innerHTML = val.replace(/ \/\* PENDING.*\*\//,'');
+  });
+}
+
+function setLang(l){
+  if(window.__LINGUE.indexOf(l) === -1) return;
+  LANG = l;
+  applyI18n();
+  aggiorna();
+  if(typeof modo !== 'undefined' && modo === 'v'){
+    sel = proponi();
+    disegna();
+    valuta();
+  }
+}
+window.setLang = setLang;
+
+var NU = 1.5e-5;
+var CAPELLO = 70e-6;
+var $ = function(id){ return document.getElementById(id); };
+
+function fmtLung(m){
+  if(m >= 1e-3) return {v:(m*1e3).toFixed(2), u:'millimetri'};
+  return {v:Math.round(m*1e6), u:'millesimi di millimetro'};
+}
+function fmtTempo(s){
+  if(s >= 1e-2) return s.toFixed(3);
+  if(s >= 1e-4) return s.toFixed(4);
+  return s.toExponential(1);
+}
+
+function calcola(eps){
+  return {
+    eta: Math.pow(NU*NU*NU/eps, 0.25),
+    u:   Math.pow(NU*eps, 0.25),
+    tau: Math.sqrt(NU/eps)
+  };
+}
+
+function aggiorna(){
+  var t = $('slider') ? Math.pow(10, +$('slider').value) : 1;
+  mostra(t);
+}
+
+function mostra(eps){
+  var r = calcola(eps);
+  var L = fmtLung(r.eta);
+  $('v-eta').textContent = L.v;
+  $('u-eta').textContent = L.u;
+  $('v-u').textContent   = (r.u*100).toFixed(1);
+  $('v-t').textContent   = fmtTempo(r.tau);
+
+  var volte = r.eta / CAPELLO;
+  $('c-eta').textContent = volte >= 1
+    ? 'circa ' + volte.toFixed(1) + ' volte un capello'
+    : 'circa ' + (1/volte).toFixed(1) + ' volte più sottile di un capello';
+  $('c-u').textContent = 'più o meno come cammina una formica';
+  $('c-t').textContent = r.tau < 0.01 ? 'meno di un battito di ciglia' : 'un istante';
+
+  var perc = Math.max(2, Math.min(100, volte*70));
+  $('barra-eta').style.width = perc + '%';
+  $('mis-eta').textContent = L.v + (L.u === 'millimetri' ? ' mm' : ' µm');
+  if(perc > 72){
+    $('mis-eta').style.left = 'calc(158px + ' + (perc - 2) + '% - 62px)';
+    $('mis-eta').style.color = '#5A4A18';
+  } else {
+    $('mis-eta').style.left = 'calc(158px + ' + perc + '% + 8px)';
+    $('mis-eta').style.color = '';
+  }
+
+  document.querySelectorAll('.scheda').forEach(function(c){
+    c.setAttribute('aria-pressed', Math.abs(Math.log10(+c.dataset.eps) - Math.log10(eps)) < 0.03 ? 'true' : 'false');
+  });
+}
+
+function costruisciSchede(){
+  var cont = $('sc-casi');
+  cont.innerHTML = '';
+  var casi = TESTI[LANG].casi;
+  casi.forEach(function(c, i){
+    var eps = [1e-2, 1e0, 1e1, 1e3][i];
+    var b = document.createElement('button');
+    b.className = 'scheda';
+    b.type = 'button';
+    b.setAttribute('aria-pressed', i === 1 ? 'true' : 'false');
+    b.dataset.eps = eps;
+    var n = document.createElement('span'); n.className = 'n'; n.textContent = c.nome;
+    var d = document.createElement('span'); d.className = 'd'; d.textContent = c.desc;
+    b.appendChild(n); b.appendChild(d);
+    b.addEventListener('click', function(){
+      $('slider').value = Math.log10(eps);
+      mostra(eps);
+    });
+    cont.appendChild(b);
+  });
+}
+
+$('slider').addEventListener('input', function(){ mostra(Math.pow(10, +this.value)); });
+applyI18n();
+costruisciSchede();
+mostra(1e0);
+
+})();
+
+try{ if(typeof setLang==='function') setLang('en'); }catch(e){}
+</script>
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var tc = $('tela-cascata'), cc = tc.getContext('2d'), livello = 1, fase = 0;
+  function dimensiona(){
+    var r = tc.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+    tc.width = r.width*d; tc.height = 230*d; cc.setTransform(d,0,0,d,0,0);
+    return {w:r.width, h:230};
+  }
+  var D = dimensiona();
+  window.addEventListener('resize', function(){ D = dimensiona(); });
+
+  function vortice(x, y, r, giro, alfa){
+    cc.save(); cc.translate(x, y); cc.rotate(giro);
+    cc.strokeStyle = 'rgba(255,216,110,' + alfa + ')';
+    cc.lineWidth = Math.max(1, r*0.09);
+    cc.beginPath();
+    for(var a=0; a<6.3; a+=0.12){
+      var rr = r * (1 - a/7);
+      var px = Math.cos(a)*rr, py = Math.sin(a)*rr*0.62;
+      a === 0 ? cc.moveTo(px,py) : cc.lineTo(px,py);
+    }
+    cc.stroke(); cc.restore();
+  }
+
+  function disegnaCascata(){
+    cc.clearRect(0,0,D.w,D.h);
+    fase += 0.012;
+    var y = D.h/2;
+    for(var L=1; L<=livello; L++){
+      var n = Math.pow(2, L-1);
+      var r = 62 / Math.pow(1.9, L-1);
+      var alfa = 0.85 - (L-1)*0.13;
+      for(var i=0; i<n; i++){
+        var x = D.w * (i + 0.5) / n;
+        var dy = Math.sin(fase*2 + i*1.3 + L) * (7 - L);
+        vortice(x, y + dy, r, fase * L * 1.6 + i, Math.max(0.18, alfa));
+      }
+    }
+    if(livello >= 4){
+      cc.fillStyle = 'rgba(229,165,10,.16)';
+      for(var j=0; j<70; j++){
+        var px = (j*137.5 + fase*40) % D.w;
+        var py = y + Math.sin(j*2.1 + fase*3)*46;
+        cc.beginPath(); cc.arc(px, py, 1.6, 0, 6.28); cc.fill();
+      }
+      cc.fillStyle = 'rgba(255,216,110,.75)';
+      cc.font = "12px 'DM Mono', monospace";
+      cc.fillText('→ calore', D.w - 78, y + 78);
+    }
+    requestAnimationFrame(disegnaCascata);
+  }
+  disegnaCascata();
+
+  document.querySelectorAll('.bt[data-liv]').forEach(function(b){
+    b.addEventListener('click', function(){
+      livello = +b.dataset.liv;
+      document.querySelectorAll('.bt[data-liv]').forEach(function(x){
+        x.classList.toggle('on', x===b);
+      });
+    });
+  });
+
+  var ts = $('tela-spettro'), cs = ts.getContext('2d');
+  var P = [{x:0.22}, {x:0.72}];
+  var trascino = -1;
+
+  function dimS(){
+    var r = ts.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio||1);
+    ts.width = r.width*d; ts.height = 250*d; cs.setTransform(d,0,0,d,0,0);
+    return {w:r.width, h:250};
+  }
+  var S = dimS();
+  window.addEventListener('resize', function(){ S = dimS(); disegnaSpettro(); });
+
+  var M = {l:52, r:16, t:16, b:34};
+  function xk(f){ return M.l + f*(S.w - M.l - M.r); }
+  function logk(f){ return 0 + f*3; }
+  function logE(lk){ return Math.log10(1.5) - (5/3)*lk; }
+  function yE(le){
+    var alto = Math.log10(1.5), basso = Math.log10(1.5) - 5;
+    return M.t + (alto - le)/(alto - basso) * (S.h - M.t - M.b);
+  }
+
+  function disegnaSpettro(){
+    cs.clearRect(0,0,S.w,S.h);
+    cs.strokeStyle = '#E7E1D3'; cs.lineWidth = 1;
+    cs.font = "10px 'DM Mono', monospace"; cs.fillStyle = '#A29A89';
+    for(var d=0; d<=3; d++){
+      var x = xk(d/3);
+      cs.beginPath(); cs.moveTo(x, M.t); cs.lineTo(x, S.h-M.b); cs.stroke();
+      cs.fillText('10' + (d ? '^'+d : ''), x-8, S.h-M.b+15);
+    }
+    cs.fillText('vortici grandi', M.l, S.h-4);
+    cs.fillText('vortici piccoli →', S.w-M.r-96, S.h-4);
+    cs.save(); cs.translate(13, S.h/2); cs.rotate(-Math.PI/2);
+    cs.fillText('energia', -22, 0); cs.restore();
+
+    cs.strokeStyle = '#E5A50A'; cs.lineWidth = 2.5; cs.beginPath();
+    for(var f=0; f<=1; f+=0.01){
+      var X = xk(f), Y = yE(logE(logk(f)));
+      f === 0 ? cs.moveTo(X,Y) : cs.lineTo(X,Y);
+    }
+    cs.stroke();
+
+    P.forEach(function(p){
+      var X = xk(p.x), Y = yE(logE(logk(p.x)));
+      cs.beginPath(); cs.arc(X, Y, 7, 0, 6.28);
+      cs.fillStyle = '#fff'; cs.fill();
+      cs.lineWidth = 2.5; cs.strokeStyle = '#7C5CFF'; cs.stroke();
+    });
+    var X1 = xk(P[0].x), Y1 = yE(logE(logk(P[0].x)));
+    var X2 = xk(P[1].x), Y2 = yE(logE(logk(P[1].x)));
+    cs.setLineDash([4,4]); cs.strokeStyle = 'rgba(124,92,255,.55)'; cs.lineWidth = 1.5;
+    cs.beginPath(); cs.moveTo(X1,Y1); cs.lineTo(X2,Y1); cs.lineTo(X2,Y2); cs.stroke();
+    cs.setLineDash([]);
+
+    var dlk = logk(P[1].x) - logk(P[0].x);
+    var dle = logE(logk(P[1].x)) - logE(logk(P[0].x));
+    var m = dlk !== 0 ? dle/dlk : 0;
+    $('pendenza').textContent = m.toFixed(3);
+    var vicino = Math.abs(m + 5/3) < 0.02;
+    var L = window.TESTI[window.LANG];
+    var testo = vicino ? L.esito_pend_1 : L.esito_pend_2;
+    $('esito-pend').innerHTML = testo.replace(/ \/\* PENDING.*\*\//,'');
+  }
+
+  function pos(e){
+    var r = ts.getBoundingClientRect();
+    var cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    return Math.max(0, Math.min(1, (cx - M.l)/(S.w - M.l - M.r)));
+  }
+  function giu(e){
+    var f = pos(e);
+    trascino = Math.abs(P[0].x-f) < Math.abs(P[1].x-f) ? 0 : 1;
+    muovi(e);
+  }
+  function muovi(e){
+    if(trascino < 0) return;
+    P[trascino].x = Math.max(0.02, Math.min(0.98, pos(e)));
+    disegnaSpettro(); e.preventDefault();
+  }
+  function su(){ trascino = -1; }
+  ts.addEventListener('mousedown', giu);   window.addEventListener('mousemove', muovi);
+  window.addEventListener('mouseup', su);
+  ts.addEventListener('touchstart', giu, {passive:false});
+  ts.addEventListener('touchmove', muovi, {passive:false});
+  window.addEventListener('touchend', su);
+
+  disegnaSpettro();
+})();
+</script>
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var BAND = ["I Lupi","Neon","Sale","Kora","Bassa Marea","Vetro","Nord","Ruggine","Aria","Fango"];
+  var CONF = [[0,1],[0,3],[0,6],[0,8],[0,9],[1,3],[1,5],[1,8],[1,9],[2,4],[2,5],[3,8],[6,9]];
+  var K = 5;
+
+  var modo = 'v', sel = [], t0 = 0, tent = 0, timer = null, propostaOk = false;
+
+  function litiga(a,b){
+    return CONF.some(function(c){ return (c[0]===a&&c[1]===b)||(c[0]===b&&c[1]===a); });
+  }
+  function conflitti(gruppo){
+    var out = [];
+    for(var i=0;i<gruppo.length;i++) for(var j=i+1;j<gruppo.length;j++)
+      if(litiga(gruppo[i],gruppo[j])) out.push([gruppo[i],gruppo[j]]);
+    return out;
+  }
+
+  function avviaCrono(){
+    if(timer) return;
+    t0 = Date.now();
+    timer = setInterval(function(){
+      $('tempo').textContent = ((Date.now()-t0)/1000).toFixed(1);
+    }, 100);
+  }
+  function fermaCrono(){ clearInterval(timer); timer = null; }
+
+  function proponi(){
+    var g, tentativi = 0;
+    do {
+      g = []; var pool = [0,1,2,3,4,5,6,7,8,9];
+      while(g.length < K) g.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
+      tentativi++;
+    } while(tentativi < 200 && (conflitti(g).length > 0) !== (Math.random() < 0.5));
+    propostaOk = conflitti(g).length === 0;
+    return g;
+  }
+
+  function disegna(){
+    $('band').innerHTML = BAND.map(function(nome, i){
+      var cls = 'bnd' + (sel.indexOf(i) >= 0 ? ' sel' : '') + (modo === 'v' ? ' fissa' : '');
+      return '<div class="'+cls+'" data-i="'+i+'">'+nome+'</div>';
+    }).join('');
+    if(modo === 't'){
+      document.querySelectorAll('.bnd').forEach(function(b){
+        b.addEventListener('click', function(){
+          avviaCrono();
+          var i = +b.dataset.i, k = sel.indexOf(i);
+          if(k >= 0) sel.splice(k,1);
+          else { if(sel.length >= K) return; sel.push(i); }
+          if(sel.length === K){ tent++; $('tent').textContent = tent; }
+          disegna(); valuta();
+        });
+      });
+    }
+  }
+
+  function valuta(){
+    var L = window.TESTI[window.LANG];
+    var v = $('verdetto');
+    if(modo === 'v'){
+      v.className = 'verdetto ' + (propostaOk ? 'si' : 'no');
+      var c = conflitti(sel);
+      var testo = propostaOk
+        ? L.verdetto_ok
+        : L.verdetto_no_pre + c.map(function(x){ return BAND[x[0]]+' e '+BAND[x[1]]; }).join(', ') + L.verdetto_no_suf;
+      v.innerHTML = testo.replace(/ \/\* PENDING.*\*\//g,'');
+      fermaCrono();
+      return;
+    }
+    if(sel.length < K){ v.className = 'verdetto'; return; }
+    var c = conflitti(sel);
+    if(c.length === 0){
+      v.className = 'verdetto si';
+      v.innerHTML = L.verdetto_trovata.replace(/ \/\* PENDING.*\*\//,'');
+      fermaCrono();
+    } else {
+      v.className = 'verdetto no';
+      var testo = L.verdetto_non_ancora_pre + c.map(function(x){ return BAND[x[0]]+' e '+BAND[x[1]]; }).join(', ') + L.verdetto_non_ancora_suf;
+      v.innerHTML = testo.replace(/ \/\* PENDING.*\*\//g,'');
+    }
+  }
+
+  document.querySelectorAll('.modo').forEach(function(m){
+    m.addEventListener('click', function(){
+      document.querySelectorAll('.modo').forEach(function(x){ x.classList.toggle('on', x===m); });
+      modo = m.dataset.m;
+      sel = []; tent = 0; fermaCrono();
+      $('tempo').textContent = '0,0'; $('tent').textContent = '0';
+      $('verdetto').className = 'verdetto';
+      var L = window.TESTI[window.LANG];
+      if(modo === 'v'){
+        sel = proponi();
+        var testo = L.quante_controlla.replace(/ \/\* PENDING.*\*\//,'');
+        $('quante').textContent = testo;
+        avviaCrono();
+      } else {
+        var testo = L.quante_trova.replace(/ \/\* PENDING.*\*\//,'');
+        $('quante').textContent = testo;
+      }
+      disegna();
+      if(modo === 'v') valuta();
+    });
+  });
+
+  sel = proponi();
+  var L = window.TESTI[window.LANG];
+  var testo = L.quante_controlla.replace(/ \/\* PENDING.*\*\//,'');
+  $('quante').textContent = testo;
+  disegna(); avviaCrono(); valuta();
+})();
+</script>
+<script>
+(function collaudo(){
+  var NU = 1.5e-5;
+  var esiti = [];
+  function ok(nome, avuto, atteso, toll){
+    var passa = Math.abs(avuto-atteso)/Math.abs(atteso) < (toll||0.01);
+    esiti.push((passa?'OK  ':'NO  ') + nome + ' = ' + avuto.toPrecision(4) +
+               (passa ? '' : '  (atteso ' + atteso + ')'));
+    return passa;
+  }
+
+  function calcola(eps){
+    return {
+      eta: Math.pow(NU*NU*NU/eps, 0.25),
+      u:   Math.pow(NU*eps, 0.25),
+      tau: Math.sqrt(NU/eps)
+    };
+  }
+
+  var r1 = calcola(1e-2);
+  ok('vento: eta (mm)', r1.eta*1e3, 0.76, 0.02);
+  ok('vento: u (cm/s)', r1.u*100, 2.0, 0.05);
+  ok('vento: tau (s)', r1.tau, 0.0387, 0.02);
+
+  var r2 = calcola(1e0);
+  ok('phon: eta (mm)', r2.eta*1e3, 0.24, 0.02);
+  ok('phon: u (cm/s)', r2.u*100, 6.2, 0.05);
+
+  var r3 = calcola(1e1);
+  ok('frullatore: eta (µm)', r3.eta*1e6, 135.5, 0.02);
+  ok('frullatore: u (cm/s)', r3.u*100, 11.1, 0.05);
+
+  var r4 = calcola(1e3);
+  ok('mixer: eta (µm)', r4.eta*1e6, 42.9, 0.02);
+  ok('mixer: u (cm/s)', r4.u*100, 35.0, 0.05);
+
+  function logk(f){ return 0 + f*3; }
+  function logE(lk){ return Math.log10(1.5) - (5/3)*lk; }
+  var dlk = logk(0.72) - logk(0.22);
+  var dle = logE(logk(0.72)) - logE(logk(0.22));
+  var m = dlk !== 0 ? dle/dlk : 0;
+  ok('cascata: pendenza', m, -5/3, 0.002);
+
+  var BAND = ["I Lupi","Neon","Sale","Kora","Bassa Marea","Vetro","Nord","Ruggine","Aria","Fango"];
+  var CONF = [[0,1],[0,3],[0,6],[0,8],[0,9],[1,3],[1,5],[1,8],[1,9],[2,4],[2,5],[3,8],[6,9]];
+  ok('leo: band totali', BAND.length, 10);
+  ok('leo: coppie incompatibili', CONF.length, 13);
+
+  function litiga(a,b){
+    return CONF.some(function(c){ return (c[0]===a&&c[1]===b)||(c[0]===b&&c[1]===a); });
+  }
+  function conflitti(gruppo){
+    var out = [];
+    for(var i=0;i<gruppo.length;i++) for(var j=i+1;j<gruppo.length;j++)
+      if(litiga(gruppo[i],gruppo[j])) out.push([gruppo[i],gruppo[j]]);
+    return out;
+  }
+
+  var valide = 0;
+  function enumerate(pool, len, curr){
+    if(curr.length === len){
+      if(conflitti(curr).length === 0) valide++;
+      return;
+    }
+    for(var i=0;i<pool.length;i++){
+      curr.push(pool[i]);
+      var newPool = pool.slice(i+1);
+      enumerate(newPool, len, curr);
+      curr.pop();
+    }
+  }
+  function C(n,k){
+    if(k>n||k<0)return 0;
+    if(k===0||k===n)return 1;
+    var r=1;
+    for(var i=0;i<k;i++) r=r*(n-i)/(i+1);
+    return r;
+  }
+  var totComb = C(10, 5);
+  ok('leo: combinazioni totali', totComb, 252);
+
+  enumerate([0,1,2,3,4,5,6,7,8,9], 5, []);
+  ok('leo: soluzioni valide', valide, 4);
+
+  var falliti = esiti.filter(function(e){ return e.indexOf('NO') === 0; }).length;
+  console.log('%cAutocollaudo esperimento 1 — ' + (falliti ? falliti + ' CONTROLLI FALLITI' : 'tutti i controlli passati'),
+              'font-weight:bold;color:' + (falliti ? '#c00' : '#0a0'));
+  esiti.forEach(function(e){ console.log('  ' + e); });
+})();
+</script>
+</body>
+</html>

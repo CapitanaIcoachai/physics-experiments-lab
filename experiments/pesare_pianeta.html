@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Weighing a planet with a stopwatch</title>
+<style>
+
+:root{
+  --scuro-1:#16224A; --scuro-2:#0D1120; --scuro-3:#04060E;
+  --carta:#FAF7F1; --inchiostro:#33302B; --tenue:#7E7768;
+  --oro:#E5A50A; --oro-chiaro:#FFD86E; --viola:#7C5CFF; --acqua:#2DD4BF;
+  --bordo:#E7E1D3; --panna:#FCFAF6;
+  --tit:'Bebas Neue','Avenir Next Condensed','Oswald',sans-serif;
+  --testo:'DM Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'DM Mono','SF Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--carta); color:var(--inchiostro);
+  font-family:var(--testo); font-size:17px; line-height:1.62;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 18px 90px}
+
+/* ---------- fascia alta ---------- */
+header.hero{
+  position:relative; overflow:hidden;
+  background:
+    radial-gradient(900px 520px at 12% -10%, rgba(124,92,255,.22), transparent 62%),
+    radial-gradient(800px 480px at 92% 8%, rgba(63,106,245,.16), transparent 60%),
+    radial-gradient(120% 130% at 50% 0%, #16224A 0%, #0D1120 55%, #04060E 100%);
+  color:#F4F1EA; padding:46px 18px 40px; margin-bottom:26px;
+}
+header.hero .in{max-width:760px;margin:0 auto}
+.kicker{
+  font-family:var(--mono); font-size:12px; letter-spacing:.20em;
+  text-transform:uppercase; color:var(--oro-chiaro); margin:0 0 12px;
+}
+h1{
+  font-family:var(--tit); font-weight:500; letter-spacing:.012em;
+  font-size:clamp(38px,10.5vw,72px); line-height:.94; margin:0 0 14px; color:#fff;
+}
+.hero p{margin:0 0 8px; color:#C9C6BE; font-size:16px; max-width:56ch}
+.hero .firme{font-family:var(--mono); font-size:12.5px; color:#8E93A8; letter-spacing:.03em; margin-top:16px}
+.hero .firme b{color:#C6CBDE; font-weight:500}
+
+/* ---------- tipografia corpo ---------- */
+h2{
+  font-family:var(--tit); font-weight:500; letter-spacing:.02em;
+  font-size:clamp(26px,6.6vw,36px); line-height:1.02; margin:44px 0 6px;
+}
+h3{
+  font-family:var(--tit); font-weight:500; letter-spacing:.03em;
+  font-size:21px; line-height:1.1; margin:26px 0 6px;
+}
+.occhiello{
+  font-family:var(--mono); font-size:11.5px; letter-spacing:.19em;
+  text-transform:uppercase; color:var(--tenue); margin:0 0 14px;
+}
+p{margin:0 0 14px}
+.tenue{color:var(--tenue)}
+b,strong{font-weight:600}
+sup{font-size:.66em; line-height:0}
+
+/* ---------- riquadri ---------- */
+.box{
+  background:#fff; border:1px solid var(--bordo); border-radius:20px;
+  padding:20px 18px; margin:18px 0;
+}
+.box.panna{background:var(--panna)}
+.box.oro{border-color:rgba(229,165,10,.42); background:#FFFDF6}
+.box.viola{border-color:rgba(124,92,255,.32); background:#FBFAFF}
+
+/* ---------- schede di scelta ---------- */
+.schede{display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin:6px 0 18px}
+.scheda{
+  appearance:none; -webkit-appearance:none; cursor:pointer; text-align:left;
+  background:#fff; border:1px solid var(--bordo); border-radius:16px;
+  padding:13px 13px 11px; min-height:80px; font-family:var(--testo); color:var(--inchiostro);
+  transition:border-color .16s, box-shadow .16s, background .16s;
+}
+.scheda .n{font-family:var(--tit); font-weight:500; font-size:19px; line-height:1.06; letter-spacing:.02em; display:block}
+.scheda .s{font-family:var(--mono); font-size:11px; letter-spacing:.09em; color:var(--tenue); text-transform:uppercase; display:block; margin-top:5px}
+.scheda[aria-pressed="true"]{
+  border-color:var(--oro); background:#FFFBEF;
+  box-shadow:0 0 0 2px rgba(229,165,10,.20);
+}
+.scheda[aria-pressed="true"] .s{color:#9A7A16}
+
+/* ---------- orbita ---------- */
+.orbita-wrap{
+  border:1px solid var(--bordo); border-radius:22px; overflow:hidden;
+  background:radial-gradient(120% 130% at 50% 0%, #16224A 0%, #0D1120 58%, #04060E 100%);
+  position:relative;
+}
+.orbita-wrap svg{display:block; width:100%; height:auto}
+.compress{
+  font-family:var(--mono); font-size:13px; letter-spacing:.03em; color:#BFC6DC;
+  border-bottom:1px solid rgba(124,92,255,.30);
+  padding:11px 14px; line-height:1.45; background:rgba(124,92,255,.10);
+}
+.compress b{color:var(--oro-chiaro); font-weight:500}
+.nota-scala{
+  font-family:var(--mono); font-size:15px; line-height:1.55; color:var(--tenue);
+  margin:10px 2px 0;
+}
+
+/* ---------- cronometro ---------- */
+.crono{
+  display:flex; flex-wrap:wrap; align-items:stretch; gap:10px; margin:16px 0 8px;
+}
+button.grande{
+  appearance:none; -webkit-appearance:none; cursor:pointer;
+  font-family:var(--tit); font-weight:500; font-size:26px; letter-spacing:.06em;
+  min-height:60px; padding:12px 26px; border-radius:16px; border:1px solid transparent;
+  background:#0D1120; color:#fff; flex:1 1 190px;
+}
+button.grande.attivo{background:var(--oro); color:#231C05}
+button.grande:disabled{opacity:.35; cursor:not-allowed}
+button.sec{
+  appearance:none; -webkit-appearance:none; cursor:pointer;
+  font-family:var(--mono); font-size:13px; letter-spacing:.07em; text-transform:uppercase;
+  min-height:48px; padding:10px 16px; border-radius:14px;
+  border:1px solid var(--bordo); background:#fff; color:var(--inchiostro);
+}
+button.sec:hover{border-color:var(--oro)}
+button.sec[aria-pressed="true"]{background:#FFFBEF; border-color:var(--oro); color:#8A6A0B}
+.riga-sec{display:flex; flex-wrap:wrap; gap:9px; margin-bottom:6px}
+.display-crono{
+  font-family:var(--tit); font-weight:500; font-size:52px; line-height:1;
+  letter-spacing:.02em; margin:6px 0 2px;
+}
+.display-crono .u{font-family:var(--mono); font-size:16px; letter-spacing:.08em; color:var(--tenue)}
+.sotto-crono{font-family:var(--mono); font-size:15px; color:var(--tenue); letter-spacing:.02em; margin-bottom:10px; line-height:1.5}
+.avviso{
+  border-left:3px solid var(--viola); background:#FBFAFF; border-radius:0 12px 12px 0;
+  padding:11px 13px; margin:12px 0 4px; font-size:15.5px;
+}
+.avviso.nascosto{display:none}
+
+/* ---------- formula ---------- */
+.formulaBox{
+  background:#0D1120; color:#E8E6E1; border-radius:20px; padding:18px 16px; margin:16px 0;
+  font-family:var(--mono); font-size:15px; line-height:1.9; overflow-wrap:anywhere;
+}
+.formulaBox .capo{font-family:var(--mono); font-size:11px; letter-spacing:.19em; text-transform:uppercase; color:#8E93A8; margin-bottom:10px}
+.step{opacity:.22; transition:opacity .35s}
+.step.on{opacity:1}
+.step .lab{color:#8E93A8}
+.step .val{color:var(--oro-chiaro)}
+.step .val.viola{color:#B9A6FF}
+.step .val.acqua{color:var(--acqua)}
+
+/* ---------- risultato ---------- */
+.risultato{text-align:left}
+.massa{
+  font-family:var(--tit); font-weight:500; letter-spacing:.01em;
+  font-size:clamp(40px,12vw,68px); line-height:1; margin:4px 0 4px;
+}
+.massa .un{font-family:var(--mono); font-size:.30em; letter-spacing:.10em; color:var(--tenue)}
+.etichetta{font-family:var(--mono); font-size:12.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--tenue)}
+.terrestri{font-family:var(--mono); font-size:15px; letter-spacing:.04em; margin-top:6px}
+.terrestri b{color:var(--inchiostro)}
+
+.barre{margin:16px 0 6px}
+.barra-riga{margin-bottom:12px}
+.barra-lab{display:flex; justify-content:space-between; gap:10px; font-family:var(--mono); font-size:13px; letter-spacing:.05em; color:var(--tenue); margin-bottom:5px}
+.barra-lab b{color:var(--inchiostro); font-weight:500}
+.barra{height:15px; border-radius:9px; background:#EFEAE0; overflow:hidden}
+.barra i{display:block; height:100%; border-radius:9px; width:0; transition:width .6s ease-out}
+.barra i.tuo{background:linear-gradient(90deg,var(--oro),var(--oro-chiaro))}
+.barra i.tab{background:linear-gradient(90deg,#5B6478,#98A0B4)}
+.scarto{
+  font-family:var(--tit); font-weight:500; font-size:clamp(30px,8vw,44px); line-height:1;
+  letter-spacing:.02em; margin:12px 0 2px;
+}
+.nascosto{display:none}
+
+/* ---------- cursori ---------- */
+.cursore{margin:16px 0}
+.cursore label{display:block; font-family:var(--mono); font-size:12px; letter-spacing:.11em; text-transform:uppercase; color:var(--tenue); margin-bottom:7px}
+input[type=range]{width:100%; height:44px; accent-color:var(--oro); background:transparent}
+.inout{
+  display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:8px;
+  border:1px solid var(--bordo); border-radius:14px; background:var(--panna); padding:11px 12px; margin-top:6px;
+}
+.inout .cella{text-align:center}
+.inout .k{font-family:var(--mono); font-size:10.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--tenue); display:block}
+.inout .v{font-family:var(--tit); font-weight:500; font-size:27px; line-height:1.1; letter-spacing:.02em}
+.inout .frec{font-family:var(--mono); font-size:12px; color:var(--tenue); letter-spacing:.02em; text-align:center; line-height:1.2}
+
+/* ---------- pre e dettagli ---------- */
+pre{
+  font-family:var(--mono); font-size:13.5px; line-height:1.72; margin:0;
+  white-space:pre-wrap; overflow-wrap:anywhere; color:var(--inchiostro);
+}
+details{border:1px solid var(--bordo); border-radius:16px; background:#fff; padding:2px 16px; margin:12px 0}
+summary{
+  cursor:pointer; font-family:var(--mono); font-size:13px; letter-spacing:.09em;
+  text-transform:uppercase; color:var(--inchiostro); padding:14px 0; list-style:none; min-height:44px;
+  display:flex; align-items:center; gap:9px;
+}
+summary::-webkit-details-marker{display:none}
+summary::before{content:"+"; color:var(--oro); font-size:17px; line-height:1}
+details[open] summary::before{content:"–"}
+details > *:not(summary){padding-bottom:10px}
+
+.onesta{border-top:2px solid var(--inchiostro); padding-top:6px; margin-top:46px}
+.punto{border-bottom:1px solid var(--bordo); padding:18px 0}
+.punto:last-child{border-bottom:none}
+.punto .num{font-family:var(--mono); font-size:11.5px; letter-spacing:.17em; text-transform:uppercase; color:var(--oro); display:block; margin-bottom:5px}
+.punto h4{font-family:var(--tit); font-weight:500; letter-spacing:.02em; font-size:22px; line-height:1.08; margin:0 0 8px}
+
+table.dati{width:100%; border-collapse:collapse; font-size:14px}
+table.dati td{border-bottom:1px solid var(--bordo); padding:9px 4px; vertical-align:top}
+table.dati td:first-child{font-family:var(--mono); font-size:13.5px; color:var(--tenue); letter-spacing:.03em; width:38%}
+table.dati td:last-child{font-family:var(--mono); font-size:13.5px}
+
+footer{margin-top:50px; padding-top:18px; border-top:1px solid var(--bordo); font-family:var(--mono); font-size:13.5px; color:var(--tenue); line-height:1.7}
+
+@media (max-width:640px){
+  .schede{grid-template-columns:1fr}
+  .display-crono{font-size:44px}
+  .formulaBox{font-size:13.5px; line-height:1.95}
+  button.grande{flex:1 1 100%}
+  .inout{grid-template-columns:1fr; gap:4px}
+  .inout .frec{padding:2px 0}
+}
+@media (prefers-reduced-motion:reduce){
+  .step,.barra i{transition:none}
+}
+
+</style>
+</head>
+<body>
+<a href="../index.html" style="display:inline-block;margin:14px;font:12px monospace;color:inherit">&larr; All experiments</a>
+
+
+<header class="hero">
+  <div class="in">
+<div class="lab-hero-ico" style="width:52px;height:52px;color:#8A6A07;margin:0 0 10px"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="12" r="4"/><ellipse cx="11" cy="12" rx="9" ry="4.2"/><path d="M20 12h.01"/></svg></div>
+    <p class="kicker" data-i18n="kicker"></p>
+    <h1><span data-i18n="h1_riga1"></span><br><span data-i18n="h1_riga2"></span></h1>
+    <p data-i18n="desc_hero_p1"></p>
+    <p class="firme" data-i18n="desc_hero_firme"></p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <p class="occhiello" data-i18n="occhiello_1"></p>
+  <div class="schede" id="schede" role="group" aria-label="" data-aria-i18n="schede_ariaLabel"></div>
+  <p class="tenue" id="descCaso" style="font-size:15.5px"></p>
+
+  <p class="occhiello" data-i18n="occhiello_2"></p>
+  <div class="orbita-wrap">
+    <div class="compress" id="compress"></div>
+    <svg id="svgOrbita" viewBox="0 0 400 400" role="img" aria-label="" data-aria-i18n="svg_ariaLabel">
+      <defs>
+        <radialGradient id="gCentro" cx="38%" cy="32%">
+          <stop offset="0%" stop-color="#8FA6FF"/>
+          <stop offset="55%" stop-color="#3F6AF5"/>
+          <stop offset="100%" stop-color="#16224A"/>
+        </radialGradient>
+        <radialGradient id="gCentroCaldo" cx="38%" cy="32%">
+          <stop offset="0%" stop-color="#FFF0B8"/>
+          <stop offset="52%" stop-color="#E5A50A"/>
+          <stop offset="100%" stop-color="#6B3F02"/>
+        </radialGradient>
+      </defs>
+      <ellipse id="ellisse" cx="200" cy="200" rx="150" ry="150"
+               fill="none" stroke="#7C5CFF" stroke-opacity=".55" stroke-width="1.4"
+               stroke-dasharray="3 5"/>
+      <circle id="centro" cx="200" cy="200" r="26" fill="url(#gCentro)"/>
+      <text id="nomeCentro" x="200" y="248" text-anchor="middle"
+            fill="#9AA2BC" font-family="'DM Mono',monospace" font-size="12" letter-spacing="2">TERRA</text>
+      <line id="tacca" x1="0" y1="0" x2="0" y2="0" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+      <circle id="sat" cx="350" cy="200" r="7" fill="#FFD86E"/>
+      <text id="nomeSat" x="200" y="378" text-anchor="middle"
+            fill="#8E93A8" font-family="'DM Mono',monospace" font-size="11" letter-spacing="2"></text>
+    </svg>
+  </div>
+  <p class="nota-scala"><span data-i18n="notaScala"></span> <span id="notaEcc"></span></p>
+
+  <div class="crono">
+    <button class="grande" id="btnCrono">Avvia</button>
+  </div>
+  <div class="riga-sec">
+    <button class="sec" id="btnDieci" aria-pressed="false"></button>
+    <button class="sec" id="btnAstro"></button>
+    <button class="sec" id="btnAzzera"></button>
+  </div>
+  <p class="tenue" style="font-family:var(--mono);font-size:15px;letter-spacing:.02em" data-i18n="istruzione_crono"></p>
+
+  <div class="display-crono"><span id="cronoVal">0,00</span> <span class="u" data-i18n="display_unit"></span></div>
+  <div class="sotto-crono" id="cronoReale"></div>
+  <div class="avviso nascosto" id="avvisoGiri"></div>
+
+  <p class="occhiello" data-i18n="occhiello_3"></p>
+  <div class="crono">
+    <button class="grande" id="btnPesa" disabled></button>
+  </div>
+
+  <div class="formulaBox" id="formula">
+    <div class="capo">M = 4π²r³ / (G · T²)</div>
+    <div class="step" id="s0"><span class="lab">r =</span> <span class="val" id="v0">—</span></div>
+    <div class="step" id="s1"><span class="lab">r³ =</span> <span class="val" id="v1">—</span></div>
+    <div class="step" id="s2"><span class="lab">4π² · r³ =</span> <span class="val viola" id="v2">—</span></div>
+    <div class="step" id="s3"><span class="lab">T =</span> <span class="val" id="v3b">—</span><br>
+                              <span class="lab">T² =</span> <span class="val" id="v3">—</span><br>
+                              <span class="lab">G · T² =</span> <span class="val" id="v3c">—</span></div>
+    <div class="step" id="s4"><span class="lab">M = numeratore / denominatore =</span>
+                              <span class="val acqua" id="v4">—</span></div>
+  </div>
+
+  <div class="box risultato" id="boxRisultato">
+    <span class="etichetta" data-i18n="boxRisultato_etichetta"></span>
+    <div class="massa"><span id="massaVal">—</span> <span class="un">kg</span></div>
+    <div class="terrestri" id="massaTerrestri"></div>
+    <div id="ariaOut" aria-live="polite" class="nascosto"></div>
+    <div class="crono" style="margin-top:14px">
+      <button class="grande" id="btnConfronta" disabled></button>
+    </div>
+    <div id="boxConfronto" class="nascosto">
+      <div class="barre">
+        <div class="barra-riga">
+          <div class="barra-lab"><span data-i18n="lab_tuo"></span><b id="labTuo"></b></div>
+          <div class="barra"><i class="tuo" id="barTuo"></i></div>
+        </div>
+        <div class="barra-riga">
+          <div class="barra-lab"><span data-i18n="lab_tabulato"></span><b id="labTab"></b></div>
+          <div class="barra"><i class="tab" id="barTab"></i></div>
+        </div>
+      </div>
+      <span class="etichetta" data-i18n="scarto_label"></span>
+      <div class="scarto" id="scartoVal">—</div>
+      <p class="tenue" style="font-size:15px" id="scartoNota"></p>
+    </div>
+  </div>
+
+  <div class="box oro nascosto" id="notaStazione">
+    <span class="etichetta" style="color:#9A7A16" data-i18n="nota_stazione_etichetta"></span>
+    <p style="margin-top:8px" data-i18n="nota_stazione"></p>
+    <p class="tenue" style="margin-bottom:0" data-i18n="nota_stazione_atmosfera"></p>
+  </div>
+
+  <div class="box viola nascosto" id="notaLuna">
+    <span class="etichetta" style="color:#5B45C4" data-i18n="nota_luna_etichetta"></span>
+    <p style="margin-top:8px" data-i18n="nota_luna"></p>
+    <p style="margin-bottom:0" data-i18n="nota_luna_seguito"></p>
+  </div>
+
+  <p class="occhiello" data-i18n="occhiello_4"></p>
+  <p data-i18n="desc_errori"></p>
+
+  <div class="box panna">
+    <div class="cursore">
+      <label for="curT"><span data-i18n="label_curT"></span><span id="curTLab"></span></label>
+      <input type="range" id="curT" min="-10" max="10" step="1" value="0">
+      <div class="inout">
+        <div class="cella"><span class="k" data-i18n="inout_k_errT"></span><span class="v" id="inT">0,00%</span></div>
+        <div class="frec" data-i18n="inout_frec_t"></div>
+        <div class="cella"><span class="k" data-i18n="inout_v_errT"></span><span class="v" id="outT">0,00%</span></div>
+      </div>
+    </div>
+    <div class="cursore">
+      <label for="curR"><span data-i18n="label_curR"></span><span id="curRLab"></span></label>
+      <input type="range" id="curR" min="-20" max="20" step="1" value="0">
+      <div class="inout">
+        <div class="cella"><span class="k" data-i18n="inout_k_errR"></span><span class="v" id="inR">0,00%</span></div>
+        <div class="frec" data-i18n="inout_frec_r"></div>
+        <div class="cella"><span class="k" data-i18n="inout_v_errR"></span><span class="v" id="outR">0,00%</span></div>
+      </div>
+    </div>
+    <p class="tenue" style="font-size:14.5px;margin-bottom:0">
+       <span data-i18n="massaErr_label"></span><b id="massaErr" style="color:var(--inchiostro)">—</b></p>
+  </div>
+
+  <p data-i18n="txt_reazione"></p>
+
+  <h2 data-i18n="h2_formule"></h2>
+  <p class="occhiello" data-i18n="occhiello_formule"></p>
+
+  <div class="box panna">
+<pre data-i18n="pre_formule"></pre>
+  </div>
+
+  <details>
+    <summary data-i18n="summary_derivazione"></summary>
+<pre data-i18n="pre_derivazione"></pre>
+    <p style="font-size:15.5px" data-i18n="derivazione_passo5"></p>
+    <p style="font-size:15.5px" data-i18n="derivazione_conseguenza"></p>
+  </details>
+
+  <details>
+    <summary data-i18n="summary_propagazione"></summary>
+<pre data-i18n="pre_propagazione"></pre>
+    <p style="font-size:15.5px" data-i18n="propagazione_nota"></p>
+  </details>
+
+  <details>
+    <summary data-i18n="summary_esatta"></summary>
+<pre data-i18n="pre_esatta"></pre>
+    <p style="font-size:15.5px" data-i18n="esatta_nota"></p>
+  </details>
+
+  <h2 data-i18n="h2_paragone"></h2>
+  <p data-i18n="txt_paragone_stazione"></p>
+  <p data-i18n="txt_paragone_luna"></p>
+
+  <div class="onesta">
+    <p class="occhiello" style="margin-top:14px" data-i18n="occhiello_onesta"></p>
+    <h2 style="margin-top:0" data-i18n="h2_onesta"></h2>
+
+    <div class="punto">
+      <span class="num" data-i18n="punto1_num"></span>
+      <h4 data-i18n="punto1_titolo"></h4>
+      <p data-i18n="punto1_testo"></p>
+    </div>
+
+    <div class="punto">
+      <span class="num" data-i18n="punto2_num"></span>
+      <h4 data-i18n="punto2_titolo"></h4>
+      <p data-i18n="punto2_testo"></p>
+    </div>
+
+    <div class="punto">
+      <span class="num" data-i18n="punto3_num"></span>
+      <h4 data-i18n="punto3_titolo"></h4>
+      <p data-i18n="punto3_testo"></p>
+    </div>
+
+    <div class="punto">
+      <span class="num" data-i18n="punto4_num"></span>
+      <h4 data-i18n="punto4_titolo"></h4>
+      <p data-i18n="punto4_testo"></p>
+    </div>
+
+    <div class="punto">
+      <span class="num" data-i18n="punto5_num"></span>
+      <h4 data-i18n="punto5_titolo"></h4>
+      <p data-i18n="punto5_testo"></p>
+    </div>
+
+    <div class="punto">
+      <span class="num" data-i18n="punto6_num"></span>
+      <h4 data-i18n="punto6_titolo"></h4>
+      <p data-i18n="punto6_testo"></p>
+    </div>
+  </div>
+
+  <h2 data-i18n="h2_dati"></h2>
+  <p class="occhiello" data-i18n="occhiello_dati"></p>
+  <div class="box">
+    <table class="dati"><tbody id="tabDati"></tbody></table>
+  </div>
+
+  
+
+
+<footer style="padding:24px;text-align:center;font:12px monospace;opacity:.7">physics-experiments-lab &middot; MIT License &middot; Copyright (c) 2026 Capitan AI</footer>
+<script>
+"use strict";
+
+/* ================= COSTANTI E DATI ================= */
+
+var G = 6.67430e-11;                 // CODATA 2022, m^3 kg^-1 s^-2
+var MASSA_TERRA_UNITA = 5.972e24;    // 1 massa terrestre, kg
+var RAGGIO_TERRA_KM = 6371;          // raggio medio terrestre, km
+var GIORNO = 86400;
+
+/* ================= INFRASTRUTTURA LINGUE ================= */
+window.__LINGUE = ['it','en','fr','es','de'];
+var LANG = 'en';
+
+/* TESTI.en/fr/es/de sono copie dell'italiano in attesa della traduzione  */
+var TESTI = {
+  it: {
+    kicker: "Laboratorio di fisica · Esperimento 4",
+    h1_riga1: "Pesare un pianeta",
+    h1_riga2: "con un cronometro",
+    desc_hero_p1: "Non esiste una bilancia grande abbastanza per la Terra. Ma se qualcosa le gira attorno, e tu sai quanto tempo ci mette a fare un giro e quanto è largo il giro, la sua massa è già decisa. Il resto è una divisione.",
+    desc_hero_firme: "Terza legge di Keplero nella forma dinamica di Newton · <b>Johannes Kepler, 1619</b> (Harmonices Mundi) per T²/r³ costante · <b>Isaac Newton, 1687</b> (Principia) per la forma che contiene la massa",
+    occhiello_1: "1 · Scegli che cosa gira",
+    schede_ariaLabel: "Scelta dell'orbita da cronometrare",
+    occhiello_2: "2 · Guarda l'orbita e cronometra un giro",
+    svg_ariaLabel: "Disegno dell'orbita animata",
+    notaScala: "Le dimensioni del disegno non sono in scala: se lo fossero, la Stazione sarebbe un puntino invisibile a un dito dal bordo della Terra.",
+    istruzione_crono: "Premi quando il puntino attraversa la tacca bianca, e ripremi quando la riattraversa. Da tastiera va bene anche la barra spaziatrice.",
+    display_unit: "s sullo schermo",
+    cronoReale_init: "nessun giro cronometrato",
+    btn_dieci: "Cronometra 10 giri",
+    btn_dieci_ritorno: "Torno a 1 giro",
+    btn_astro: "Usa il tempo misurato dagli astronomi",
+    btn_azzera: "Azzera",
+    msg_riduceMotion: "L'animazione è disattivata perché il tuo dispositivo chiede movimento ridotto. Usa il pulsante <b>usa il tempo misurato dagli astronomi</b>: inserisce T e lascia intatto tutto il resto.",
+    msg_visibilityChange: "Hai lasciato la pagina mentre il cronometro andava. L'orbita si è fermata e l'orologio no: quel tempo non vuol dire niente, quindi l'ho annullato. Ricomincia da AVVIA.",
+    msg_giri_intro: "Hai cronometrato circa <b>",
+    msg_giri_instead: " giri</b> invece di 10",
+    msg_giri_one: " giri</b>",
+    msg_giri_warning: ". Non ti correggo in silenzio: il numero che useresti sarebbe sbagliato di quel tanto. Prova a fermarlo quando il puntino ripassa esattamente sulla tacca.",
+    cronoReale_invalid: "giro non valido",
+    note_dieci: "media su 10 giri: l'errore del tuo pollice è diviso per dieci",
+    note_uno: "un giro, cronometrato da te",
+    occhiello_3: "3 · Riempi la bilancia con il tuo numero",
+    btn_pesa: "Pesa",
+    boxRisultato_etichetta: "La massa che hai appena pesato",
+    risultato_terrestri: "cioè <b>",
+    risultato_terrestri_2: "</b> masse terrestri &nbsp;·&nbsp; 1 massa terrestre = 5,972×10<sup>24</sup> kg",
+    btn_confronta: "Confronta",
+    lab_tuo: "il tuo risultato",
+    lab_tabulato: "valore tabulato",
+    scarto_label: "Scarto",
+    nota_stazione_etichetta: "Verifica di coerenza, non misura indipendente",
+    nota_stazione: "Il periodo di partenza della Stazione non è un dato astronomico indipendente: è calcolato <b>dalla massa che stai ricavando</b>. Da GM = 3,986004418×10<sup>14</sup> m³s⁻² e r = 6791 km viene T = 2π√(r³/GM) = 5569,4 s, cioè i 92 minuti e 49 secondi che ti ho dato. Lo scarto che ottieni non è l'accuratezza del metodo: è l'arrotondamento. Questo caso serve a imparare il gesto. Le misure vere sono le altre tre.",
+    nota_stazione_atmosfera: "La quota della Stazione oscilla fra 410 e 420 km, perché l'atmosfera residua la frena e ogni tanto la si rialza.",
+    nota_luna_etichetta: "Quell'1% non è un errore: è la Luna",
+    nota_luna: "Nella formula la massa del satellite non compare. Ma la formula esatta è <b>M + m</b>, non M: quello che pesi è sempre la somma dei due. Per la Luna m/M = 1/81,3 = <b>1,23%</b>, e tu hai ottenuto <b>+0,96%</b> di troppo.",
+    nota_luna_seguito: "Il satellite che credevi assente dalla formula ha lasciato la sua firma. È l'unica cifra di questo esperimento che non è uno sbaglio. Il residuo, <b>0,27%</b>, ha un'altra causa: è spiegato al punto 3 della sezione onesta, ed è la parte più istruttiva di tutte.",
+    occhiello_4: "4 · Sbaglia apposta e guarda che succede",
+    desc_errori: "Un errore non pesa come lo hai fatto: pesa come la formula lo moltiplica. Nel numeratore r è al cubo, nel denominatore T è al quadrato. Sposta i due cursori e leggi le due percentuali affiancate.",
+    label_curT: "Sbaglia il tempo · ",
+    label_curR: "Sbaglia il raggio · ",
+    inout_k_errT: "errore in ingresso su T",
+    inout_v_errT: "errore in uscita su M",
+    inout_frec_t: "× 2<br>→",
+    inout_k_errR: "errore in ingresso su r",
+    inout_v_errR: "errore in uscita su M",
+    inout_frec_r: "× 3<br>→",
+    massaErr_label: "Massa con entrambi gli errori applicati: ",
+    txt_reazione: "Il tempo di reazione visiva di una persona è circa un quarto di secondo. Su 5569 secondi è una parte su ventiduemila, cioè lo <b>0,009%</b> sulla massa. Il tuo pollice non è il problema. Il problema è sapere quanto è largo il giro.",
+    h2_formule: "Le formule, in chiaro",
+    occhiello_formule: "Così puoi rifare i conti a mano",
+    pre_formule: "Quello che vide Keplero nel 1619, guardando i pianeti:\n   T² / r³ = sempre lo stesso numero, per tutti i satelliti\n             dello stesso corpo.\n\nKeplero aveva ragione, ma non sapeva dire che cosa fosse\nquel numero: era una regolarità senza una causa.\n\nQuello che Newton capì nel 1687: quel numero è fatto di gravità.\n   T² / r³ = 4π² / (G × M)\n\nGirata al contrario, è la bilancia:\n   M = 4π² × r³ / (G × T²)\n\nG = 6,674 30×10⁻¹¹ m³ kg⁻¹ s⁻²   (costante di gravitazione universale)\n4π² = 39,478",
+    summary_derivazione: "Da dove esce, passo per passo",
+    pre_derivazione: "(1) il satellite percorre 2πr nel tempo T, quindi   v = 2πr / T\n(2) perché giri invece di andare dritto serve una forza\n    verso il centro:                                 F = m v² / r\n(3) quella forza è la gravità:                       F = G M m / r²\n(4) uguagliamo:                        G M m / r²  =  m v² / r\n(5) la m del satellite compare a destra e a sinistra\n    e si semplifica: SPARISCE\n(6) resta            G M / r  =  v²  =  4π² r² / T²\n(7) quindi           M = 4π² r³ / (G T²)",
+    derivazione_passo5: "Il passaggio (5) è il cuore dell'esperimento. La stessa m compare due volte: una volta come <b>peso</b> (quanto la gravità la tira) e una volta come <b>inerzia</b> (quanta fatica fa a cambiare direzione). Le due si annullano. Non è stata trascurata perché piccola: se ne è andata da sola.",
+    derivazione_conseguenza: "Conseguenza concreta: alla stessa quota, un bullone da 20 grammi e la Stazione Spaziale da 450 tonnellate impiegano lo stesso identico tempo a fare il giro.",
+    summary_propagazione: "Come si propagano i tuoi errori di misura",
+    pre_propagazione: "errore su M (%)  =  3 × errore su r (%)  +  2 × errore su T (%)\n\nperché r è al cubo e T è al quadrato.",
+    propagazione_nota: "È la regola che vedi muoversi nei due cursori qui sopra. Vale finché gli errori sono piccoli rispetto alla grandezza misurata: è la pendenza della formula, non la formula.",
+    summary_esatta: "La forma esatta, quella vera a due corpi",
+    pre_esatta: "M + m = 4π² × a³ / (G × T²)",
+    esatta_nota: "Quello che pesi non è il corpo centrale da solo: è la somma dei due. Con la Stazione la differenza è m/M = 450.000 kg / 5,97×10<sup>24</sup> kg = 7,5×10<sup>-20</sup>, cioè otto parti su cento miliardi di miliardi: invisibile. Con la Luna vale l'1,23%, e si vede benissimo.",
+    h2_paragone: "Il paragone",
+    txt_paragone_stazione: "Il giro completo della Stazione Spaziale dura <b>92 minuti e 49 secondi</b>: quanto una partita di calcio con i recuperi. Nel tempo in cui guardi una partita, qualcuno lassù ha fatto il giro del mondo intero una volta. E il cronometro che ti serve per pesare il pianeta è esattamente quello che useresti per la partita: il tuo pollice sbaglia di circa un quarto di secondo, che su 5569 secondi è meno di una parte su ventimila.",
+    txt_paragone_luna: "Poi c'è la Luna, che ci mette 27 giorni e 7 ore. Quel giro non lo cronometri col pollice: lo cronometri guardando il cielo per un mese. Che è più o meno il tempo che l'umanità ha avuto a disposizione per accorgersene, molto prima di avere gli orologi.",
+    occhiello_onesta: "Parte dell'esperimento, non un'appendice",
+    h2_onesta: "Che cosa questo modello non dice",
+    punto1_num: "Punto 1",
+    punto1_titolo: "r non è \"la distanza di oggi\"",
+    punto1_testo: "La formula assume un'orbita chiusa e stabile attorno a un corpo solo. Se l'orbita è un'ellisse, r è il semiasse maggiore. La Luna sta fra 356.500 e 406.700 km dalla Terra, e <b>nessuno di questi due numeri dà la risposta giusta</b>: solo il semiasse la dà.",
+    punto2_num: "Punto 2",
+    punto2_titolo: "Misuri sempre M + m, mai M da solo",
+    punto2_testo: "Con la Stazione non lo vedi. Con la Luna vale l'1,2%. Con Plutone e Caronte, dove il satellite pesa circa il 12% del corpo centrale, diventa enorme: e infatti i due ruotano attorno a un punto che sta fuori da entrambi.",
+    punto3_num: "Punto 3 · il più istruttivo",
+    punto3_titolo: "Anche togliendo la massa della Luna, i conti non tornano",
+    punto3_testo: "Terra + Luna vale 6,0456×10<sup>24</sup> kg, e con la Luna abbiamo ottenuto 6,0292×10<sup>24</sup>: manca lo <b>0,27%</b>. Non è un arrotondamento.\n\nLa Luna non è un problema a due corpi: il Sole tira anche lei, e la fa girare circa lo <b>0,14% più lentamente</b> di quanto un'ellisse fissa attorno alla Terra prevederebbe. Con a = 384.400 km il periodo a due corpi sarebbe circa 2.357.400 s; quello vero è 2.360.591 s. Ed è esattamente per questo che la formula restituisce una massa più piccola del vero: M va come 1/T², e un T più lungo dà un M più piccolo.\n\nPer far tornare Keplero in modo esatto servirebbe un semiasse di 384.748 km invece dei 384.400 della tabella: <b>348 km di differenza</b>. E qui va detta anche un'altra cosa: \"384.400 km\" è una distanza media tabulata, che non coincide esattamente con il semiasse che rende esatta la legge. Sono due numeri vicini e diversi, ed è esattamente il genere di dettaglio che conviene controllare invece di fidarsi di un'etichetta.\n\nQuanto al problema dei tre corpi: non esistono integrali primi che permettano di risolverlo in forma chiusa utilizzabile — lo mostrarono Bruns nel 1887 e Poincaré nel 1890. Una soluzione in serie convergente esiste (Sundman, 1912), ma è troppo lenta per servire a qualcosa. Da allora le orbite della Luna si calcolano numericamente.",
+    punto4_num: "Punto 4 · G",
+    punto4_titolo: "La costante peggio conosciuta della fisica",
+    punto4_testo: "Nelle orbite G e M non compaiono mai separate, ma solo nel prodotto G·M. Dei satelliti attorno alla Terra sappiamo GM = 3,986004418×10<sup>14</sup> m³s⁻²: dieci cifre. Ma per separare le due cose serve un esperimento da tavolo con due masse in una stanza, e lì la faccenda si complica.\n\nIl valore raccomandato CODATA 2022 è G = 6,674 30(15)×10<sup>-11</sup>, cioè 22 parti per milione di incertezza: mille volte peggio della maggior parte delle altre costanti. Peggio ancora: nel 2018 uno stesso laboratorio a Wuhan ha misurato G con due metodi indipendenti ottenendo 6,674184 e 6,674484×10<sup>-11</sup>, che differiscono di 45 parti per milione, quasi tre volte la loro incertezza combinata. <b>Nessuno sa ancora perché le misure di G non si mettano d'accordo.</b>\n\nRisultato pratico: la massa della Terra che hai appena calcolato è incerta di circa 1,3×10<sup>20</sup> kg per colpa di G soltanto — due millesimi della massa della Luna — qualunque cronometro tu usi.",
+    punto5_num: "Punto 5",
+    punto5_titolo: "Newton è un'approssimazione",
+    punto5_testo: "Per Mercurio l'orbita ruota di 43 secondi d'arco in più al secolo rispetto a quanto Newton prevede: una quantità minuscola che Newton non sa spiegare e la relatività generale sì. Alle precisioni di questo esperimento la differenza è irrilevante; vicino a una stella di neutroni o a un buco nero la formula che hai usato non vale più.",
+    punto6_num: "Punto 6",
+    punto6_titolo: "E cosa resta aperto",
+    punto6_testo: "Questo è il modo principale con cui si pesano stelle lontane, buchi neri e pianeti extrasolari: nessuna bilancia potrà mai farlo, e quasi sempre la massa si ricava guardando come qualcosa gira. Non è però l'unico: si pesa anche dalla deviazione della luce che passa vicino a una massa, dalle vibrazioni interne di una stella, e per due buchi neri che si fondono dalla forma dell'onda gravitazionale che emettono mentre si avvicinano. È una buona notizia, non una complicazione: quando strade indipendenti danno lo stesso numero, è quello il motivo per cui al numero si crede.\n\nIl problema vero arriva sulle galassie: questo metodo restituisce molta più massa di quanta materia se ne veda con qualunque telescopio. L'ipotesi standard è che ci sia materia che non emette luce, e non regge su una prova sola: tiene insieme le curve di rotazione delle galassie, il modo in cui gli ammassi deviano la luce che ci passa vicino e la struttura a grande scala dell'universo, che sono misure indipendenti fra loro. Esiste anche una linea minoritaria che prova a modificare la legge di gravità sulle distanze enormi: funziona bene sulle singole galassie e fatica sugli ammassi e sull'universo primordiale. <b>Aperto non vuol dire alla pari.</b> Quello che manca non è la scelta fra due ipotesi equivalenti: è l'identificazione della particella che l'ipotesi standard prevede e che nessun esperimento ha ancora rivelato.",
+    h2_dati: "I dati usati, e da dove vengono",
+    occhiello_dati: "Nessun altro numero entra nei conti",
+    footer: "Tutti i valori di questa pagina sono calcolati dal vivo con M = 4π²r³/(G·T²) a partire dai dati elencati qui sopra. Nessuna costante di comodo, nessun fattore di correzione: solo G, π, i raggi e i periodi tabulati.",
+    mostraTmisurato_data: "tempo tabulato dagli astronomi, non cronometrato da te"
+  }
+};
+TESTI.en = JSON.parse(JSON.stringify(TESTI.it));
+/* English: reviewed translation merged from the lab translation pass. Keys not listed here fall back to the Italian text. */
+Object.assign(TESTI.en, {"kicker": "Physics laboratory · Experiment 4", "desc_hero_p1": "There is no scale big enough for the Earth. But if something orbits around it, and you know how long one lap takes and how wide the lap is, its mass is already decided. The rest is a division.", "desc_hero_firme": "Kepler’s third law in Newton’s dynamic form · <b>Johannes Kepler, 1619<\/b> (Harmonices Mundi) for a constant T²/r³ · <b>Isaac Newton, 1687<\/b> (Principia) for the form that contains the mass", "occhiello_1": "1 · Choose what orbits", "occhiello_2": "2 · Watch the orbit and time one lap", "istruzione_crono": "Press when the dot crosses the white mark, and press again when it crosses it again. From the keyboard the space bar also works.", "btn_dieci": "Time 10 laps", "btn_astro": "Use the time measured by astronomers", "btn_azzera": "Reset", "occhiello_3": "3 · Fill the scale with your number", "btn_pesa": "Weigh", "btn_confronta": "Compare", "nota_stazione": "The Station’s starting period is not an independent astronomical datum: it is calculated <b>from the mass you are deriving<\/b>. From GM = 3.986004418×10<sup>14<\/sup> m³s⁻² and r = 6791 km we get T = 2π√(r³/GM) = 5569.4 s, that is the 92 minutes and 49 seconds I gave you. The gap you get is not the accuracy of the method: it is rounding. This case is there to learn the gesture. The real measurements are the other three.", "nota_stazione_atmosfera": "The Station’s altitude oscillates between 410 and 420 km, because residual atmosphere slows it down and every now and then it is raised again.", "nota_luna": "In the formula the mass of the satellite does not appear. But the exact formula is <b>M + m<\/b>, not M: what you weigh is always the sum of the two. For the Moon m/M = 1/81.3 = <b>1.23%<\/b>, and you got <b>+0.96%<\/b> too much.", "nota_luna_seguito": "The satellite that you thought was absent from the formula has left its trace. It is the only figure in this experiment that is not a mistake. The residual, <b>0.27%<\/b>, has another cause: it is explained in point 3 of the honest section, and it is the most instructive part of all.", "occhiello_4": "4 · Make a mistake on purpose and see what happens", "desc_errori": "An error does not weigh as much as you made it: it weighs as much as the formula multiplies it. In the numerator r is cubed, in the denominator T is squared. Move the two sliders and read the two percentages side by side.", "txt_reazione": "A person’s visual reaction time is about a quarter of a second. Over 5569 seconds that is one part in twenty-two thousand, that is <b>0.009%<\/b> on the mass. Your thumb is not the problem. The problem is knowing how wide the lap is.", "h2_formule": "The formulas, in plain words", "occhiello_formule": "So you can redo the calculations by hand", "summary_derivazione": "Where it comes from, step by step", "derivazione_passo5": "Step (5) is the heart of the experiment. The same m appears twice: once as <b>weight<\/b> (how hard gravity pulls it) and once as <b>inertia<\/b> (how much effort it takes to change direction). The two cancel out. It was not neglected because it is small: it went away by itself.", "derivazione_conseguenza": "Concrete consequence: at the same altitude, a 20-gram bolt and the 450-tonne Space Station take exactly the same time to go round.", "summary_propagazione": "How your measurement errors propagate", "propagazione_nota": "This is the rule you see moving in the two sliders above. It holds as long as the errors are small compared with the measured quantity: it is the slope of the formula, not the formula.", "summary_esatta": "The exact form, the true two-body one", "esatta_nota": "What you weigh is not the central body alone: it is the sum of the two. With the Station the difference is m/M = 450,000 kg / 5.97×10<sup>24<\/sup> kg = 7.5×10<sup>-20<\/sup>, that is eight parts in a hundred billion billion: invisible. With the Moon it is 1.23%, and that shows clearly.", "h1_riga1": "Weighing a planet", "h1_riga2": "with a stopwatch", "schede_ariaLabel": "Choice of the orbit to time", "svg_ariaLabel": "Drawing of the animated orbit", "display_unit": "s on the screen", "cronoReale_init": "no lap timed", "btn_dieci_ritorno": "Back to 1 lap", "msg_giri_intro": "You timed about <b>", "msg_giri_instead": " laps<\/b> instead of 10", "msg_giri_one": " laps<\/b>", "cronoReale_invalid": "invalid lap", "note_dieci": "average over 10 laps: the error of your thumb is divided by ten", "note_uno": "one lap, timed by you", "boxRisultato_etichetta": "The mass you have just weighed", "risultato_terrestri": "that is <b>", "risultato_terrestri_2": "<\/b> Earth masses &nbsp;·&nbsp; 1 Earth mass = 5.972×10<sup>24<\/sup> kg", "lab_tuo": "your result", "lab_tabulato": "tabulated value", "scarto_label": "Offset", "nota_stazione_etichetta": "Consistency check, not an independent measurement", "nota_luna_etichetta": "That 1% is not an error: it is the Moon", "label_curT": "Get the time wrong · ", "label_curR": "Get the radius wrong · ", "inout_k_errT": "input error on T", "inout_v_errT": "output error on M", "inout_k_errR": "input error on r", "inout_v_errR": "output error on M", "massaErr_label": "Mass with both errors applied: ", "pre_propagazione": "error on M (%)  =  3 × error on r (%)  +  2 × error on T (%)\n\nbecause r is cubed and T is squared.", "h2_paragone": "The comparison", "occhiello_onesta": "Part of the experiment, not an appendix", "h2_onesta": "What this model does not say", "punto1_num": "Point 1", "punto1_titolo": "r is not \"today's distance\"", "punto2_num": "Point 2", "punto2_titolo": "You always measure M + m, never M alone", "punto3_num": "Point 3 · the most instructive", "punto3_titolo": "Even after removing the Moon's mass, the numbers do not add up", "punto4_num": "Point 4 · G", "punto4_titolo": "The worst-known constant in physics", "punto5_num": "Point 5", "punto5_titolo": "Newton is an approximation", "punto6_num": "Point 6", "punto6_titolo": "And what remains open", "h2_dati": "The data used, and where it comes from", "occhiello_dati": "No other number enters the calculations", "mostraTmisurato_data": "time tabulated by astronomers, not timed by you"});
+TESTI.fr = JSON.parse(JSON.stringify(TESTI.it));
+TESTI.es = JSON.parse(JSON.stringify(TESTI.it));
+TESTI.de = JSON.parse(JSON.stringify(TESTI.it));
+
+var FONTI = [
+  ["G", "6,674 30×10<sup>-11</sup> m³kg⁻¹s⁻² — CODATA 2022, incertezza 22 ppm"],
+  ["Raggio medio terrestre", "6371 km"],
+  ["1 massa terrestre", "5,972×10<sup>24</sup> kg"],
+  ["Stazione Spaziale", "quota 420 km → r = 6791 km · T = 92 min 49 s = 5569 s"],
+  ["Luna", "semiasse maggiore 384.400 km · periodo siderale 27,32166 giorni (dato osservativo)"],
+  ["Io", "semiasse maggiore 421.800 km · periodo 1,769138 giorni"],
+  ["Terra attorno al Sole", "semiasse 1,495979×10<sup>11</sup> m · anno siderale 365,2564 giorni"],
+  ["Massa Terra tabulata", "5,9722×10<sup>24</sup> kg, cioè GM/G con GM = 3,986004418×10<sup>14</sup> m³s⁻²"],
+  ["Massa Giove tabulata", "1,8981×10<sup>27</sup> kg, cioè GM/G con GM = 1,266865×10<sup>17</sup> m³s⁻²"],
+  ["Massa Sole tabulata", "1,98841×10<sup>30</sup> kg, cioè GM/G con GM = 1,3271244×10<sup>20</sup> m³s⁻²"],
+  ["Massa Luna", "7,342×10<sup>22</sup> kg, usata solo per il confronto M + m"]
+];
+
+var CASI = {
+  stazione: {
+    titolo: "The Space Station",
+    sotto: "weighs the Earth",
+    centro: "Terra", centroCaldo: false,
+    satNome: "STAZIONE SPAZIALE INTERNAZIONALE",
+    rKm: RAGGIO_TERRA_KM + 420,
+    rSpieg: "r = 6371 km di raggio terrestre medio + 420 km di quota = 6791 km. Il raggio dell'orbita si conta dal centro della Terra, non dalla superficie: è l'errore più comune.",
+    Ttab: 5569,
+    unitaT: "min",
+    ecc: 0.0003,
+    eccNota: "L'orbita della Stazione ha eccentricità 0,0003: è un cerchio, e qui è disegnata come tale.",
+    fattore: 557,
+    Mtab: 5.9722e24,
+    MtabTxt: "5,9722×10<sup>24</sup> kg",
+    corpo: "della Terra",
+    desc: "La Stazione Spaziale Internazionale gira attorno alla Terra a 420 km di quota. Ci mette poco più di un'ora e mezza, quindi il giro lo cronometri davvero."
+  },
+  luna: {
+    titolo: "The Moon",
+    sotto: "weighs the Earth",
+    centro: "Terra", centroCaldo: false,
+    satNome: "LUNA",
+    rKm: 384400,
+    rSpieg: "r = 384.400 km, il semiasse maggiore dell'orbita lunare. Non è la distanza di stasera: la Luna oscilla fra 356.500 e 406.700 km.",
+    Ttab: 27.32166 * GIORNO,
+    unitaT: "giorni",
+    ecc: 0.0549,
+    eccNota: "L'orbita della Luna ha eccentricità 0,0549: è un'ellisse leggera, con la Terra in uno dei due fuochi. Vedrai il puntino rallentare quando è lontano — è la seconda legge di Keplero.",
+    fattore: 196716,
+    Mtab: 5.9722e24,
+    MtabTxt: "5,9722×10<sup>24</sup> kg",
+    corpo: "della Terra",
+    desc: "La Luna gira attorno alla Terra in poco più di 27 giorni. È la misura che gli esseri umani potevano fare per prima, secoli prima di avere un orologio decente."
+  },
+  io: {
+    titolo: "Io",
+    sotto: "weighs Jupiter",
+    centro: "Giove", centroCaldo: true,
+    satNome: "IO",
+    rKm: 421800,
+    rSpieg: "r = 421.800 km, il semiasse maggiore dell'orbita di Io attorno a Giove.",
+    Ttab: 1.769138 * GIORNO,
+    unitaT: "giorni",
+    ecc: 0.0041,
+    eccNota: "L'orbita di Io ha eccentricità 0,0041: praticamente un cerchio, e qui è disegnata come tale.",
+    fattore: 15285,
+    Mtab: 1.8981e27,
+    MtabTxt: "1,8981×10<sup>27</sup> kg",
+    corpo: "di Giove",
+    desc: "Io è la più interna delle quattro lune che Galileo vide nel 1610. Gira attorno a Giove in meno di due giorni: dalla Terra, con un binocolo, il giro si segue in una settimana."
+  },
+  terra: {
+    titolo: "The Earth",
+    sotto: "weighs the Sun",
+    centro: "Sole", centroCaldo: true,
+    satNome: "TERRA",
+    rKm: 1.495979e11 / 1000,
+    rSpieg: "r = 1,495979×10<sup>11</sup> m, il semiasse maggiore dell'orbita terrestre. È la distanza che definisce l'unità astronomica.",
+    Ttab: 365.2564 * GIORNO,
+    unitaT: "giorni",
+    ecc: 0.0167,
+    eccNota: "L'orbita della Terra ha eccentricità 0,0167: l'ellisse è qui disegnata, ma è talmente vicina a un cerchio che a occhio non la distingui. Vale la pena dirlo: quasi tutte le figure che hai visto a scuola la esagerano moltissimo.",
+    fattore: 2629846,
+    Mtab: 1.98841e30,
+    MtabTxt: "1,98841×10<sup>30</sup> kg",
+    corpo: "del Sole",
+    desc: "Anche noi siamo un satellite. La Terra gira attorno al Sole in un anno, e quell'unico dato basta a pesare una stella."
+  }
+};
+
+/* ================= FORMATTAZIONE ================= */
+
+function locale(x, dec) {
+  return x.toLocaleString('en-US', {minimumFractionDigits: dec, maximumFractionDigits: dec});
+}
+
+function cifreSig(x, sig) {
+  if (x === 0) return {m: "0", e: 0};
+  var e = Math.floor(Math.log10(Math.abs(x)));
+  var m = x / Math.pow(10, e);
+  var s = m.toFixed(sig - 1);
+  if (Math.abs(parseFloat(s)) >= 10) { e += 1; m = x / Math.pow(10, e); s = m.toFixed(sig - 1); }
+  return {m: s, e: e};
+}
+
+function sci(x, sig) {
+  var p = cifreSig(x, sig || 5);
+  return p.m + "×10<sup>" + p.e + "</sup>";
+}
+
+/* piano fra 1 e 10000, scientifico altrove */
+function num(x, sig) {
+  sig = sig || 5;
+  var a = Math.abs(x);
+  if (a >= 1 && a < 10000) {
+    var e = Math.floor(Math.log10(a));
+    return locale(x, Math.max(0, sig - 1 - e));
+  }
+  return sci(x, sig);
+}
+
+/* percentuale: decimali scelti per non nascondere né inventare cifre */
+function perc(p) {
+  var a = Math.abs(p), d;
+  if (a >= 0.05) d = 2;
+  else if (a >= 0.005) d = 3;
+  else d = 4;
+  var seg = p > 0 ? "+" : (p < 0 ? "−" : "");
+  return seg + locale(a, d) + "%";
+}
+
+function masseTerrestri(M) {
+  var t = M / MASSA_TERRA_UNITA;
+  if (t >= 1000) return locale(Math.round(t / 1000) * 1000, 0);
+  if (t >= 10) return locale(t, 0);
+  return locale(t, 3);
+}
+
+function durata(sec, unita) {
+  if (unita === "min") {
+    var m = Math.floor(sec / 60), s = sec - m * 60;
+    return locale(m, 0) + " min " + locale(s, 0) + " s";
+  }
+  return locale(sec / GIORNO, 4) + " giorni";
+}
+
+function durataLunga(sec) {
+  var g = Math.floor(sec / GIORNO); sec -= g * GIORNO;
+  var h = Math.floor(sec / 3600); sec -= h * 3600;
+  var m = Math.floor(sec / 60);
+  var s = Math.round(sec - m * 60);
+  var out = [];
+  if (g) out.push(g + (g === 1 ? " giorno" : " giorni"));
+  if (h) out.push(h + (h === 1 ? " ora" : " ore"));
+  if (m) out.push(m + " min");
+  if (s || out.length === 0) out.push(s + " s");
+  return out.join(" ");
+}
+
+/* ================= NUCLEO DI CALCOLO ================= */
+
+function massa(rMetri, Tsec) {
+  return 4 * Math.PI * Math.PI * Math.pow(rMetri, 3) / (G * Tsec * Tsec);
+}
+
+/* ================= STATO ================= */
+
+var chiave = "stazione";
+var Tmisurato = null;      // secondi reali di un giro
+var dieciGiri = false;
+var inCorsa = false;
+var t0 = 0;
+var confrontato = false;
+
+function caso() { return CASI[chiave]; }
+function rMetri() { return caso().rKm * 1000; }
+function Tschermo() { return caso().Ttab / caso().fattore; }
+
+/* ================= SCHEDE ================= */
+
+var elSchede = document.getElementById('schede');
+Object.keys(CASI).forEach(function (k) {
+  var c = CASI[k];
+  var b = document.createElement('button');
+  b.className = 'scheda';
+  b.type = 'button';
+  b.setAttribute('aria-pressed', k === chiave ? 'true' : 'false');
+  b.dataset.k = k;
+  b.innerHTML = '<span class="n">' + c.titolo + '</span><span class="s">' + c.sotto + '</span>';
+  b.addEventListener('click', function () { scegli(k); });
+  elSchede.appendChild(b);
+});
+
+function scegli(k) {
+  chiave = k;
+  Array.prototype.forEach.call(elSchede.children, function (b) {
+    b.setAttribute('aria-pressed', b.dataset.k === k ? 'true' : 'false');
+  });
+  azzera();
+  aggiornaCaso();
+}
+
+/* ================= ORBITA SVG ================= */
+
+var A_PX = 150, CX = 200, CY = 200;
+var elEllisse = document.getElementById('ellisse');
+var elCentro = document.getElementById('centro');
+var elNomeCentro = document.getElementById('nomeCentro');
+var elTacca = document.getElementById('tacca');
+var elSat = document.getElementById('sat');
+var elNomeSat = document.getElementById('nomeSat');
+
+var ridotto = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function disegnaOrbita() {
+  var c = caso(), e = c.ecc;
+  var b = A_PX * Math.sqrt(1 - e * e);
+  var cpx = A_PX * e;
+  elEllisse.setAttribute('cx', CX - cpx);
+  elEllisse.setAttribute('cy', CY);
+  elEllisse.setAttribute('rx', A_PX);
+  elEllisse.setAttribute('ry', b);
+  elCentro.setAttribute('fill', c.centroCaldo ? 'url(#gCentroCaldo)' : 'url(#gCentro)');
+  elNomeCentro.textContent = c.centro.toUpperCase();
+  elNomeSat.textContent = c.satNome;
+  var rp = A_PX * (1 - e);
+  elTacca.setAttribute('x1', CX + rp - 15);
+  elTacca.setAttribute('y1', CY);
+  elTacca.setAttribute('x2', CX + rp + 15);
+  elTacca.setAttribute('y2', CY);
+  posiziona(0);
+}
+
+function keplero(Manom, e) {
+  var E = Manom;
+  for (var i = 0; i < 4; i++) {
+    E = E - (E - e * Math.sin(E) - Manom) / (1 - e * Math.cos(E));
+  }
+  return E;
+}
+
+function posiziona(fase) {
+  var e = caso().ecc;
+  var E = keplero(2 * Math.PI * fase, e);
+  var nu = 2 * Math.atan2(Math.sqrt(1 + e) * Math.sin(E / 2), Math.sqrt(1 - e) * Math.cos(E / 2));
+  var r = A_PX * (1 - e * Math.cos(E));
+  elSat.setAttribute('cx', CX + r * Math.cos(nu));
+  elSat.setAttribute('cy', CY - r * Math.sin(nu));
+}
+
+var faseprec = 0, lampoFino = 0, tOrigine = null;
+
+function ciclo(now) {
+  if (!ridotto) {
+    if (tOrigine === null) tOrigine = now;
+    var fase = ((now - tOrigine) / 1000) / Tschermo();
+    fase = fase - Math.floor(fase);
+    if (fase < faseprec) lampoFino = now + 200;
+    faseprec = fase;
+    posiziona(fase);
+    var acceso = now < lampoFino;
+    elTacca.setAttribute('stroke', acceso ? '#FFD86E' : '#ffffff');
+    elTacca.setAttribute('stroke-width', acceso ? '6' : '3');
+    if (inCorsa) {
+      document.getElementById('cronoVal').textContent = locale((now - t0) / 1000, 2);
+    }
+  }
+  requestAnimationFrame(ciclo);
+}
+requestAnimationFrame(ciclo);
+
+/* ================= CRONOMETRO ================= */
+
+var btnCrono = document.getElementById('btnCrono');
+var btnDieci = document.getElementById('btnDieci');
+var btnAstro = document.getElementById('btnAstro');
+var btnAzzera = document.getElementById('btnAzzera');
+var btnPesa = document.getElementById('btnPesa');
+var btnConfronta = document.getElementById('btnConfronta');
+var elAvviso = document.getElementById('avvisoGiri');
+
+btnCrono.addEventListener('click', premiCrono);
+btnDieci.addEventListener('click', function () {
+  dieciGiri = !dieciGiri;
+  btnDieci.setAttribute('aria-pressed', dieciGiri ? 'true' : 'false');
+  btnDieci.textContent = dieciGiri ? "Torno a 1 giro" : "Cronometra 10 giri";
+  azzera();
+});
+btnAstro.addEventListener('click', function () {
+  Tmisurato = caso().Ttab;
+  inCorsa = false;
+  btnCrono.textContent = "Avvia";
+  btnCrono.classList.remove('attivo');
+  document.getElementById('cronoVal').textContent = locale(caso().Ttab / caso().fattore, 2);
+  elAvviso.classList.add('nascosto');
+  mostraTmisurato(TESTI[LANG].mostraTmisurato_data);
+  btnPesa.disabled = false;
+});
+btnAzzera.addEventListener('click', azzera);
+
+document.addEventListener('keydown', function (ev) {
+  if (ev.code === 'Space' || ev.key === ' ') {
+    var t = ev.target && ev.target.tagName;
+    if (t === 'BUTTON' || t === 'INPUT' || t === 'SUMMARY') return;
+    ev.preventDefault();
+    premiCrono();
+  }
+});
+
+function premiCrono() {
+  if (ridotto) {
+    elAvviso.classList.remove('nascosto');
+    elAvviso.innerHTML = TESTI[LANG].msg_riduceMotion;
+    return;
+  }
+  if (!inCorsa) {
+    inCorsa = true;
+    t0 = performance.now();
+    btnCrono.textContent = "Ferma";
+    btnCrono.classList.add('attivo');
+    elAvviso.classList.add('nascosto');
+  } else {
+    inCorsa = false;
+    var dt = (performance.now() - t0) / 1000;
+    btnCrono.textContent = "Avvia";
+    btnCrono.classList.remove('attivo');
+    document.getElementById('cronoVal').textContent = locale(dt, 2);
+    var attesi = dieciGiri ? 10 : 1;
+    var giri = dt / Tschermo();
+    if (giri < attesi * 0.5 || giri > attesi * 2) {
+      elAvviso.classList.remove('nascosto');
+      elAvviso.innerHTML = TESTI[LANG].msg_giri_intro + locale(giri, 1) +
+        (dieciGiri ? TESTI[LANG].msg_giri_instead : TESTI[LANG].msg_giri_one) +
+        TESTI[LANG].msg_giri_warning;
+      Tmisurato = null;
+      btnPesa.disabled = true;
+      document.getElementById('cronoReale').textContent = TESTI[LANG].cronoReale_invalid;
+      return;
+    }
+    elAvviso.classList.add('nascosto');
+    Tmisurato = dt * caso().fattore / attesi;
+    mostraTmisurato(dieciGiri ? TESTI[LANG].note_dieci : TESTI[LANG].note_uno);
+    btnPesa.disabled = false;
+  }
+}
+
+/* se la pagina va in secondo piano l'animazione si ferma ma l'orologio no:
+   un cronometraggio in corso diventerebbe falso senza che si veda. Meglio dirlo. */
+document.addEventListener('visibilitychange', function () {
+  if (document.hidden) return;
+  tOrigine = null; faseprec = 0;
+  if (inCorsa) {
+    inCorsa = false;
+    btnCrono.textContent = "Avvia";
+    btnCrono.classList.remove('attivo');
+    document.getElementById('cronoVal').textContent = "0,00";
+    elAvviso.classList.remove('nascosto');
+    elAvviso.innerHTML = TESTI[LANG].msg_visibilityChange;
+  }
+});
+
+function mostraTmisurato(nota) {
+  var c = caso();
+  document.getElementById('cronoReale').innerHTML =
+    "T = <b>" + locale(Math.round(Tmisurato), 0) + " s</b> = " + durata(Tmisurato, c.unitaT) +
+    " &nbsp;·&nbsp; " + nota;
+}
+
+function azzera() {
+  inCorsa = false;
+  Tmisurato = null;
+  confrontato = false;
+  btnCrono.textContent = "Avvia";
+  btnCrono.classList.remove('attivo');
+  btnPesa.disabled = true;
+  btnConfronta.disabled = true;
+  document.getElementById('cronoVal').textContent = "0,00";
+  document.getElementById('cronoReale').textContent = "nessun giro cronometrato";
+  elAvviso.classList.add('nascosto');
+  document.getElementById('boxConfronto').classList.add('nascosto');
+  document.getElementById('notaLuna').classList.add('nascosto');
+  document.getElementById('massaVal').textContent = "—";
+  document.getElementById('massaTerrestri').innerHTML = "";
+  for (var i = 0; i <= 4; i++) {
+    document.getElementById('s' + i).classList.remove('on');
+    var v = document.getElementById('v' + i);
+    if (v) v.innerHTML = "—";
+  }
+  document.getElementById('v3b').innerHTML = "—";
+  document.getElementById('v3c').innerHTML = "—";
+  document.getElementById('curT').value = 0;
+  document.getElementById('curR').value = 0;
+  aggiornaCursori();
+}
+
+/* ================= PESATA ================= */
+
+var timers = [];
+function pulisciTimer() { timers.forEach(clearTimeout); timers = []; }
+
+btnPesa.addEventListener('click', function () {
+  if (Tmisurato === null) return;
+  pulisciTimer();
+  var r = rMetri(), T = Tmisurato;
+  var r3 = Math.pow(r, 3);
+  var numeratore = 4 * Math.PI * Math.PI * r3;
+  var T2 = T * T;
+  var GT2 = G * T2;
+  var M = numeratore / GT2;
+
+  document.getElementById('v0').innerHTML = num(r, 5) + " m";
+  document.getElementById('v1').innerHTML = num(r3, 5) + " m³";
+  document.getElementById('v2').innerHTML = num(numeratore, 5) + " m³";
+  document.getElementById('v3b').innerHTML = locale(Math.round(T), 0) + " s";
+  document.getElementById('v3').innerHTML = num(T2, 5) + " s²";
+  document.getElementById('v3c').innerHTML = num(GT2, 5) + " m³ kg⁻¹";
+  document.getElementById('v4').innerHTML = num(M, 5) + " kg";
+
+  for (var i = 0; i <= 4; i++) {
+    (function (i) {
+      timers.push(setTimeout(function () {
+        document.getElementById('s' + i).classList.add('on');
+        if (i === 4) contaSu(M);
+      }, i === 0 ? 0 : i * 400));
+    })(i);
+  }
+});
+
+function contaSu(M) {
+  var p = cifreSig(M, 5);
+  var finale = parseFloat(p.m.replace(',', '.'));
+  var esp = p.e;
+  var el = document.getElementById('massaVal');
+  var inizio = performance.now();
+  var chiuso = false;
+
+  function chiudi() {
+    if (chiuso) return;
+    chiuso = true;
+    el.innerHTML = p.m + "×10<sup>" + esp + "</sup>";
+    fineConto(M);
+  }
+  function passo(now) {
+    if (chiuso) return;
+    var k = Math.min(1, (now - inizio) / 800);
+    if (k >= 1) { chiudi(); return; }
+    var v = finale * (1 - Math.pow(1 - k, 3));
+    el.innerHTML = locale(v, 4) + "×10<sup>" + esp + "</sup>";
+    requestAnimationFrame(passo);
+  }
+  if (ridotto) { chiudi(); return; }
+  requestAnimationFrame(passo);
+  /* rete di sicurezza: se il browser congela i fotogrammi (scheda in secondo piano)
+     il numero finale deve comparire lo stesso */
+  timers.push(setTimeout(chiudi, 1100));
+}
+
+function fineConto(M) {
+  var c = caso();
+  document.getElementById('massaTerrestri').innerHTML =
+    TESTI[LANG].risultato_terrestri + masseTerrestri(M) + TESTI[LANG].risultato_terrestri_2;
+  var aria = document.getElementById('ariaOut');
+  var pm = cifreSig(M, 5);
+  aria.textContent = "Massa " + c.corpo + ": " + pm.m + " per dieci alla " + pm.e +
+                     " chilogrammi, cioè " + masseTerrestri(M) + " masse terrestri.";
+  btnConfronta.disabled = false;
+  aggiornaCursori();
+}
+
+btnConfronta.addEventListener('click', function () {
+  if (Tmisurato === null) return;
+  var c = caso();
+  var M = massa(rMetri(), Tmisurato);
+  var p = (M / c.Mtab - 1) * 100;
+  confrontato = true;
+  document.getElementById('boxConfronto').classList.remove('nascosto');
+  document.getElementById('labTuo').innerHTML = num(M, 5) + " kg";
+  document.getElementById('labTab').innerHTML = c.MtabTxt;
+  var mx = Math.max(M, c.Mtab);
+  var barT = document.getElementById('barTuo'), barB = document.getElementById('barTab');
+  barT.style.width = '0'; barB.style.width = '0';
+  setTimeout(function () {
+    barT.style.width = (100 * M / mx).toFixed(3) + '%';
+    barB.style.width = (100 * c.Mtab / mx).toFixed(3) + '%';
+  }, 30);
+  document.getElementById('scartoVal').textContent = perc(p);
+  document.getElementById('scartoVal').style.color = Math.abs(p) < 0.1 ? 'var(--acqua)' : 'var(--oro)';
+
+  var nota = "";
+  if (chiave === 'stazione') {
+    nota = "Ricorda: qui lo scarto non misura la bontà del metodo. Il periodo di partenza viene dalla massa che stai ricavando, quindi stai controllando la coerenza dei conti, non la natura.";
+  } else if (chiave === 'luna') {
+    nota = "Hai pesato la Terra <b>in eccesso</b>. Non è il cronometro.";
+    document.getElementById('notaLuna').classList.remove('nascosto');
+  } else if (chiave === 'io') {
+    nota = "Meno di un millesimo di scarto, con un solo cronometro e una distanza. Giove pesa 318 volte la Terra, e nessuno lo ha mai messo su una bilancia.";
+  } else {
+    nota = "Tre decimillesimi di scarto: hai pesato una stella. Il metodo è lo stesso con cui si pesano stelle che nessuno raggiungerà mai.";
+  }
+  document.getElementById('scartoNota').innerHTML = nota;
+});
+
+/* ================= CURSORI DI ERRORE ================= */
+
+var curT = document.getElementById('curT');
+var curR = document.getElementById('curR');
+curT.addEventListener('input', aggiornaCursori);
+curR.addEventListener('input', aggiornaCursori);
+
+function aggiornaCursori() {
+  var dT = parseFloat(curT.value);
+  var dRkm = parseFloat(curR.value);
+  document.getElementById('curTLab').textContent = (dT > 0 ? "+" : "") + locale(dT, 0) + " s";
+  document.getElementById('curRLab').textContent = (dRkm > 0 ? "+" : "") + locale(dRkm, 0) + " km";
+
+  if (Tmisurato === null) {
+    document.getElementById('inT').textContent = "—";
+    document.getElementById('outT').textContent = "—";
+    document.getElementById('inR').textContent = "—";
+    document.getElementById('outR').textContent = "—";
+    document.getElementById('massaErr').innerHTML = "—";
+    return;
+  }
+  var r = rMetri(), T = Tmisurato;
+  var base = massa(r, T);
+  var pInT = dT / T * 100;
+  var pOutT = (massa(r, T + dT) / base - 1) * 100;
+  var pInR = dRkm * 1000 / r * 100;
+  var pOutR = (massa(r + dRkm * 1000, T) / base - 1) * 100;
+  document.getElementById('inT').textContent = perc(pInT);
+  document.getElementById('outT').textContent = perc(pOutT);
+  document.getElementById('inR').textContent = perc(pInR);
+  document.getElementById('outR').textContent = perc(pOutR);
+  document.getElementById('massaErr').innerHTML =
+    num(massa(r + dRkm * 1000, T + dT), 5) + " kg";
+}
+
+/* ================= AGGIORNAMENTO DEL CASO ================= */
+
+function aggiornaCaso() {
+  var c = caso();
+  document.getElementById('descCaso').innerHTML = c.desc + " " + c.rSpieg;
+  document.getElementById('compress').innerHTML =
+    "Time is compressed <b>" + locale(c.fattore, 0) + "×</b> · 1 second here = <b>" +
+    durataLunga(c.fattore) + "</b> up there · one lap lasts " +
+    locale(c.Ttab / c.fattore, 1) + " s on the screen";
+  document.getElementById('notaEcc').textContent = c.eccNota;
+  document.getElementById('notaStazione').classList.toggle('nascosto', chiave !== 'stazione');
+  disegnaOrbita();
+  tOrigine = null; faseprec = 0;
+  if (ridotto) {
+    document.getElementById('cronoReale').textContent =
+      "animation switched off · use the tabulated-time button";
+  }
+}
+
+/* ================= TABELLA DATI ================= */
+
+var tb = document.getElementById('tabDati');
+FONTI.forEach(function (riga) {
+  var tr = document.createElement('tr');
+  tr.innerHTML = "<td>" + riga[0] + "</td><td>" + riga[1] + "</td>";
+  tb.appendChild(tr);
+});
+
+/* ================= CAMBIO LINGUA ================= */
+
+function applicaI18n() {
+  Array.prototype.forEach.call(document.querySelectorAll('[data-i18n]'), function (el) {
+    var key = el.getAttribute('data-i18n');
+    if (TESTI[LANG] && TESTI[LANG][key]) {
+      el.innerHTML = TESTI[LANG][key];
+    }
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-aria-i18n]'), function (el) {
+    var key = el.getAttribute('data-aria-i18n');
+    if (TESTI[LANG] && TESTI[LANG][key]) {
+      el.setAttribute('aria-label', TESTI[LANG][key]);
+    }
+  });
+  btnDieci.textContent = dieciGiri ? TESTI[LANG].btn_dieci_ritorno : TESTI[LANG].btn_dieci;
+  btnPesa.textContent = TESTI[LANG].btn_pesa;
+  btnConfronta.textContent = TESTI[LANG].btn_confronta;
+  btnAstro.textContent = TESTI[LANG].btn_astro;
+  btnAzzera.textContent = TESTI[LANG].btn_azzera;
+  document.getElementById('cronoReale').textContent = TESTI[LANG].cronoReale_init;
+}
+
+function setLang(l) {
+  if (window.__LINGUE.indexOf(l) === -1) return;
+  LANG = l;
+  applicaI18n();
+  aggiornaCaso();
+  if (Tmisurato !== null) aggiornaCursori();
+}
+
+/* ================= AVVIO ================= */
+
+applicaI18n();
+aggiornaCaso();
+aggiornaCursori();
+
+/* ------------------------------------------------------------
+   AUTOCOLLAUDO — gira in console, non tocca la pagina.
+   ------------------------------------------------------------ */
+(function collaudo(){
+  var esiti = [];
+  function ok(nome, avuto, atteso, toll){
+    var passa = Math.abs(avuto-atteso)/Math.abs(atteso) < (toll||0.01);
+    esiti.push((passa?'OK  ':'NO  ') + nome + '  = ' + avuto.toPrecision(6) +
+               (passa ? '' : '   atteso ' + atteso));
+    return passa;
+  }
+  ok('Terra da Stazione Spaziale (kg)', massa(6791e3, 5569), 5.972e24, 0.005);
+  ok('Terra dalla Luna (kg)', massa(384400e3, 27.32166*86400), 5.972e24, 0.02);
+  ok('Giove da Io (kg)', massa(421800e3, 1.769138*86400), 1.898e27, 0.005);
+  ok('Sole dalla Terra (kg)', massa(1.495979e11, 365.2564*86400), 1.98841e30, 0.005);
+  var falliti = esiti.filter(function(e){ return e.indexOf('NO') === 0; }).length;
+  console.log('%cAutocollaudo esperimento 4 — ' + (falliti ? falliti + ' CONTROLLI FALLITI' : 'tutti i controlli passati'),
+              'font-weight:bold;color:' + (falliti ? '#c00' : '#0a0'));
+  esiti.forEach(function(e){ console.log('  ' + e); });
+})();
+
+try{ if(typeof setLang==='function') setLang('en'); }catch(e){}
+</script>
+</body>
+</html>

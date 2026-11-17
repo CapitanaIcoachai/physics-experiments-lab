@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quanto tempo ci mette il caso ad attraversarti</title>
+<style>
+
+:root{
+  --scuro-1:#16224A; --scuro-2:#0D1120; --scuro-3:#04060E;
+  --carta:#FAF7F1; --inchiostro:#33302B; --tenue:#7E7768;
+  --oro:#E5A50A; --oro-chiaro:#FFD86E; --viola:#7C5CFF; --acqua:#2DD4BF;
+  --bordo:#E7E1D3; --panna:#FCFAF6;
+  --tit:'Bebas Neue','Avenir Next Condensed','Oswald',sans-serif;
+  --testo:'DM Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'DM Mono','SF Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--carta); color:var(--inchiostro);
+  font-family:var(--testo); font-size:17px; line-height:1.62;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 18px 90px}
+
+/* ---- fascia alta ---- */
+.hero{
+  background:radial-gradient(120% 95% at 50% 30%,
+    var(--scuro-1) 0%, var(--scuro-2) 45%, var(--scuro-3) 78%, var(--carta) 100%);
+  color:#fff; padding:54px 0 62px; margin-bottom:34px;
+}
+.hero .wrap{padding-bottom:0}
+.occhiello{
+  font-family:var(--mono); font-size:12px; letter-spacing:.22em;
+  text-transform:uppercase; color:#8F97B8; margin:0 0 14px;
+}
+.hero h1{
+  font-family:var(--tit); font-weight:500; font-size:clamp(38px,7.2vw,62px);
+  line-height:.98; letter-spacing:.01em; margin:0 0 20px; max-width:15ch;
+}
+.kicker{color:#C9CEE2; font-size:17.5px; max-width:56ch; margin:0 0 22px}
+.firme{
+  font-family:var(--mono); font-size:12.5px; line-height:1.75;
+  color:#7F87A8; max-width:62ch; margin:0;
+}
+.firme b{color:#AEB6D4; font-weight:400}
+
+/* ---- struttura ---- */
+.passo{
+  font-family:var(--mono); font-size:12px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--tenue); margin:38px 0 14px;
+}
+h2{font-family:var(--tit);font-weight:500;font-size:30px;letter-spacing:.01em;margin:34px 0 12px}
+h3{font-size:18px;margin:26px 0 8px}
+p{margin:0 0 15px}
+.tenue{color:var(--tenue);font-size:15.5px}
+
+/* ---- schede di scelta ---- */
+.schede{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin-bottom:16px}
+.scheda{
+  border:1.5px solid var(--bordo); border-radius:11px; background:var(--panna);
+  padding:13px 15px; cursor:pointer; text-align:left; font:inherit;
+  color:inherit; transition:border-color .16s, background .16s;
+  min-height:48px;
+}
+.scheda:hover{border-color:#C9C1AC}
+.scheda[aria-pressed="true"]{border-color:var(--oro);background:#FFFBEF}
+.scheda .n{display:block;font-size:16.5px;margin-bottom:2px}
+.scheda .d{
+  display:block;font-family:var(--mono);font-size:11.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--tenue);
+}
+.scheda[aria-pressed="true"] .d{color:#A08420}
+
+/* ---- il pulsante centrale ---- */
+.raddoppia{
+  display:block;width:100%;margin:22px 0 8px;padding:20px 18px;
+  border:none;border-radius:13px;cursor:pointer;
+  background:var(--scuro-2);color:#fff;font-family:var(--tit);font-weight:500;
+  font-size:27px;letter-spacing:.05em;min-height:56px;
+  transition:transform .09s, background .16s;
+}
+.raddoppia:hover{background:#1B2440}
+.raddoppia:active{transform:scale(.985)}
+.raddoppia:disabled{background:#B9B3A4;cursor:default}
+.sotto-bottone{
+  display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:12.5px;color:var(--tenue);margin-bottom:26px;
+}
+.reset{
+  background:none;border:none;font:inherit;color:var(--tenue);
+  text-decoration:underline;cursor:pointer;padding:6px 0;
+}
+
+/* ---- riquadro risultato ---- */
+.box{border:1px solid var(--bordo);border-radius:13px;background:var(--panna);padding:19px 21px;margin:18px 0}
+.box.oro{border-color:#EBD9A4;background:#FFFBEF}
+.box.scuro{background:var(--scuro-2);border-color:#26304F;color:#E8EAF2}
+.box.scuro .et{color:#8F97B8}
+.et{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--tenue);margin:0 0 7px;
+}
+.grande{font-family:var(--tit);font-weight:500;font-size:clamp(30px,6vw,44px);line-height:1.02;margin:0}
+.grande .u{font-size:.5em;color:var(--tenue);letter-spacing:.02em}
+.box.scuro .grande .u{color:#8F97B8}
+
+.coppia{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.coppia{grid-template-columns:1fr}}
+
+/* ---- orologio ---- */
+.crono{
+  font-family:var(--mono);font-size:13px;line-height:1.6;
+  background:var(--scuro-2);color:#D5D9E8;border-radius:10px;
+  padding:12px 15px;margin:14px 0;
+}
+.crono b{color:var(--oro-chiaro);font-weight:400}
+.crono .verso{color:var(--acqua)}
+
+/* ---- canvas ---- */
+.vasca{
+  position:relative;border:1px solid var(--bordo);border-radius:12px;
+  overflow:hidden;background:#0A0D18;margin:16px 0 6px;
+}
+canvas{display:block;width:100%;height:40vh;min-height:230px;max-height:340px}
+.contatore{
+  display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:12.5px;color:var(--tenue);margin-bottom:20px;
+}
+.contatore b{color:var(--inchiostro);font-weight:400}
+
+/* ---- barra logaritmica ---- */
+.logbar{position:relative;height:92px;margin:12px 0 30px}
+.logbar .pista{
+  position:absolute;left:0;right:0;top:26px;height:5px;border-radius:3px;
+  background:linear-gradient(90deg,#EFE9DA,#E0D8C4);
+}
+.logbar .anc{position:absolute;top:33px;width:1px;background:#C9C1AC}
+.logbar .anc.r0{height:9px}
+.logbar .anc.r1{height:23px}
+.logbar .anc span{
+  position:absolute;left:50%;transform:translateX(-50%);
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.03em;color:var(--tenue);
+  white-space:nowrap;
+}
+.logbar .anc.r0 span{top:12px}
+.logbar .anc.r1 span{top:26px}
+.logbar .cur{
+  position:absolute;top:19px;width:3px;height:19px;border-radius:2px;background:var(--oro);
+  transition:left .4s cubic-bezier(.34,.9,.4,1);
+}
+.logbar .fant{position:absolute;top:22px;width:2px;height:13px;border-radius:2px;background:#E6C97A}
+.logbar .fant.f2{background:#F0E0B8}
+@media(max-width:620px){
+  .logbar{height:auto;padding:0}
+  .logbar .anc span{font-size:9px}
+}
+
+/* ---- cursore temperatura ---- */
+.temp{display:flex;align-items:center;gap:13px;margin:8px 0 4px;flex-wrap:wrap}
+.temp input[type=range]{flex:1;min-width:190px;accent-color:var(--oro);height:34px}
+.temp .val{font-family:var(--mono);font-size:14px;min-width:74px}
+.nota-temp{font-family:var(--mono);font-size:11.5px;color:var(--tenue);margin:0 0 24px}
+
+/* ---- conti a mano ---- */
+.formulaBox{
+  border-left:3px solid var(--oro);background:#FFFBEF;border-radius:0 10px 10px 0;
+  padding:15px 18px;margin:18px 0;
+}
+.formulaBox .et{color:#A08420}
+pre{
+  font-family:var(--mono);font-size:13px;line-height:1.62;margin:0;
+  white-space:pre-wrap;word-wrap:break-word;color:#4A463F;
+}
+pre b{color:var(--inchiostro);font-weight:400;background:#FBEFC9;padding:0 3px;border-radius:3px}
+
+/* ---- sezione onesta ---- */
+.onesta{border-top:1px solid var(--bordo);margin-top:46px;padding-top:8px}
+.onesta h2{color:var(--inchiostro)}
+.onesta li{margin-bottom:15px}
+.onesta ol{padding-left:20px}
+.onesta b{font-weight:600}
+
+table{border-collapse:collapse;width:100%;font-size:14.5px;margin:14px 0}
+th,td{border-bottom:1px solid var(--bordo);padding:8px 9px;text-align:left;vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--tenue);font-weight:400}
+.tab-wrap{overflow-x:auto}
+
+footer{border-top:1px solid var(--bordo);margin-top:44px;padding-top:18px}
+footer p{font-family:var(--mono);font-size:12px;color:var(--tenue);margin:0 0 6px}
+
+</style>
+</head>
+<body>
+<a href="../index.html" style="display:inline-block;margin:14px;font:12px monospace;color:inherit">&larr; All experiments</a>
+
+
+<header class="hero">
+  <div class="wrap">
+<div class="lab-hero-ico" style="width:52px;height:52px;color:#8A6A07;margin:0 0 10px"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 18c2-1 2-4 4-5s1 4 3 3 0-5 2-6 1 5 3 3 1-4 4-4"/><path d="M4 18h.01"/></svg></div>
+    <p class="occhiello" data-i18n="occhiello">Laboratorio di fisica · Esperimento 6</p>
+    <h1 data-i18n="hero_titolo">Quanto tempo ci mette il caso ad attraversarti</h1>
+    <p class="kicker" data-i18n="hero_kicker">Una molecola non sa dove sta andando. Viene spintonata a caso, milioni di volte al secondo, e va dove capita. Eppure c'è una formula che dice quanto ci mette. E dice una cosa che non ti aspetti: raddoppiare la distanza costa <i>quattro</i> volte il tempo.</p>
+    <p class="firme" data-i18n="hero_firme">Legge della diffusione &lt;x²&gt; = 2Dt · <b>Robert Brown, 1827</b> (lo vede al microscopio) · <b>Albert Einstein, 1905</b> (spiega perché) · <b>Jean Perrin, 1908-1909</b> (lo misura, Nobel 1926) · relazione di Stokes-Einstein per il coefficiente D</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <p class="passo" data-i18n="passo_1">1 · Scegli chi deve vagare</p>
+  <div class="schede" id="sc-viagg"></div>
+  <p class="tenue" id="nota-viagg"></p>
+
+  <p class="passo" data-i18n="passo_2">2 · Scegli che cosa deve attraversare</p>
+  <div class="schede" id="sc-dist"></div>
+
+  <p class="passo" data-i18n="passo_3">3 · Poi premi, e guarda il tempo</p>
+  <button class="raddoppia" id="btn-radd" data-i18n="btn_raddoppia">RADDOPPIA LA DISTANZA</button>
+  <div class="sotto-bottone">
+    <span id="conta-press" data-i18n="conta_press_zero"></span>
+    <button class="reset" id="btn-reset" data-i18n="btn_reset">torna all'inizio</button>
+  </div>
+
+  <div class="coppia">
+    <div class="box oro">
+      <p class="et" data-i18n="et_distanza">Distanza da attraversare</p>
+      <p class="grande"><span id="v-dist">—</span></p>
+    </div>
+    <div class="box oro">
+      <p class="et" data-i18n="et_tempo">Tempo tipico</p>
+      <p class="grande"><span id="v-tempo">—</span></p>
+    </div>
+  </div>
+  <p class="tenue" id="v-ancora"></p>
+
+  <div class="logbar" id="logbar"></div>
+
+  <div class="box">
+    <p class="et" data-i18n="et_velocita">Velocità apparente</p>
+    <p class="grande" style="font-size:clamp(24px,4.6vw,32px)"><span id="v-vel">—</span></p>
+    <p class="tenue" style="margin:8px 0 0" id="v-vel-nota"></p>
+  </div>
+
+  <p class="passo" data-i18n="passo_4">4 · Guardalo succedere davvero</p>
+  <div class="crono" id="crono">—</div>
+  <div class="vasca"><canvas id="cv"></canvas></div>
+  <div class="contatore">
+    <span><span data-i18n="contatore_oltre_pre">oltre il traguardo <b>in questo istante</b>: </span><b id="c-oltre">0</b><span data-i18n="contatore_oltre_suf"> su 200</span></span>
+    <span id="c-stato">fermo</span>
+  </div>
+
+  <div class="temp">
+    <label for="sl-temp" style="font-family:var(--mono);font-size:12.5px" data-i18n="label_temp">Temperatura dell'acqua</label>
+    <input type="range" id="sl-temp" min="5" max="40" step="1" value="20">
+    <span class="val" id="v-temp">20 °C</span>
+  </div>
+  <p class="nota-temp" data-i18n="nota_temp">Tutti i numeri di partenza sono misurati a 20 °C. Dentro di te sei a 37 °C, dove l'acqua è meno viscosa e tutto va circa una volta e mezza più veloce.</p>
+
+  <p class="passo" data-i18n="passo_5">5 · Rifai i conti a mano</p>
+  <div class="formulaBox">
+    <p class="et" data-i18n="et_formula_principale">La formula che fa girare questo laboratorio</p>
+    <pre id="conti">—</pre>
+  </div>
+
+  <div class="formulaBox">
+    <p class="et" data-i18n="et_formula_D">Da dove viene il D del granello</p>
+    <pre id="conti-se">—</pre>
+  </div>
+
+  <h2 data-i18n="h2_respiro">Il respiro che stai facendo adesso</h2>
+  <p data-i18n="p_respiro_1">Dentro il polmone l'aria e il sangue sono separati da una parete di sei decimi di micrometro: cento volte più sottile di un capello. L'ossigeno la attraversa in <b>novanta milionesimi di secondo</b>, e il sangue passa di lì per tre quarti di secondo. C'è <b>ottomila volte più tempo di quanto ne serva</b>: il polmone lavora con un margine enorme, ed è per questo che puoi correre.</p>
+
+  <p data-i18n="p_respiro_2">Poi il conto cambia segno. Dalla parete dell'alveolo all'alluce c'è circa un metro, e per sola diffusione quel metro costa <b>quasi otto anni</b>. Il sangue lo fa in meno di un minuto: quattro milioni di volte più in fretta.</p>
+
+  <p data-i18n="p_respiro_3">Quindi la forma del tuo corpo non è un caso. Un polmone piegato in cinquanta-settanta metri quadrati di superficie sottilissima, perché la diffusione funzioni bene solo dove serve. E una pompa con centomila chilometri di tubi, perché su tutte le altre distanze la diffusione non serve a niente. Un capillare non è mai molto lontano da una cellula — poche decine di micrometri — ed è esattamente la scala in cui il caso ancora conviene. Le cose piccole possono respirare per diffusione. Tu no.</p>
+
+  <h2 data-i18n="h2_sorpresa">La sorpresa: il granello non ha una velocità</h2>
+  <p data-i18n="p_sorpresa_1">Per tutta la vita hai imparato che distanza uguale velocità per tempo. Qui no. La stessa molecola di ossigeno, nella stessa acqua, alla stessa temperatura, sembra viaggiare a <b>0,20 millimetri al secondo</b> se le chiedi di attraversare una cellula, e a <b>4 nanometri al secondo</b> — tredici centimetri all'anno — se le chiedi di attraversare un metro. Non ha rallentato: non ha mai avuto una velocità. Ha solo il quadrato del tempo dalla parte sbagliata dell'uguale.</p>
+
+  <p data-i18n="p_sorpresa_2">Fra la cellula e il metro la distanza cresce di 50.000 volte e il tempo di 2,5 miliardi di volte, perché 50.000² = 2,5×10⁹. E lo senti in piccolo premendo il pulsante: raddoppiare costa quattro volte il tempo, non due.</p>
+
+  <p data-i18n="p_sorpresa_3">C'è un secondo colpo, dentro il primo. Verrebbe da concludere che la diffusione è lenta: è falso. Su distanze piccole è velocissima — la migliore consegna possibile, gratuita, senza pompe né motori: attraversa una cellula in un decimo di secondo e la parete di un alveolo in novanta microsecondi. La diffusione non è né lenta né veloce. È l'unica strategia di trasporto che cambia giudizio a seconda di quanto lontano guardi, e il punto in cui smette di convenire, per l'ossigeno nel corpo umano, cade proprio intorno al decimo di millimetro. Sopra quella soglia servono un cuore e dei polmoni.</p>
+
+  <div class="onesta">
+    <h2 data-i18n="h2_onesta">Che cosa questo modello non dice</h2>
+
+    <ol>
+      <li data-i18n="onesta_li_1"><b>La formula conta una sola direzione.</b> &lt;x²&gt; = 2Dt vale per lo spostamento lungo un asse. Nel piano diventa &lt;r²&gt; = 4Dt, nello spazio &lt;r²&gt; = 6Dt. Il 2 non è sacro: è il numero delle direzioni che hai deciso di contare, moltiplicato per due. Con la versione tridimensionale l'ossigeno «attraversa» una cellula non in 0,10 secondi ma in 0,033. Tutti e tre i conti sono giusti, rispondono a tre domande diverse, e chi non dichiara quale sta usando sbaglia di un fattore tre senza accorgersene.</li>
+
+      <li data-i18n="onesta_li_2"><b>Non esiste un istante di arrivo</b>, ed è più serio. La distanza che leggi a schermo è una radice di media di quadrati, non una scadenza. I granelli si distribuiscono a campana: al tempo del traguardo circa il <b>32 per cento</b> si trova oltre, la maggior parte è ancora indietro, e la distanza media in valore assoluto è 0,80 volte quella che scriviamo. Peggio: se cambi domanda e chiedi «quanto ci mette il primo granello a toccare quel punto la prima volta», in una dimensione senza pareti il tempo medio di primo arrivo è <b>infinito</b> — anche se il granello quel punto lo tocca quasi certamente, prima o poi. Due domande vicinissime, due risposte incompatibili. Quando in biologia si legge «il segnale arriva in x secondi», è quasi sempre una scelta, spesso taciuta, fra queste due domande.</li>
+
+      <li data-i18n="onesta_li_3"><b>Stokes-Einstein presuppone una pallina rigida</b>, molto più grande delle molecole del liquido, sola, in un fluido continuo. Per il granello di Perrin è ragionevole. Per una molecola di ossigeno, grande quanto le molecole d'acqua che dovrebbe spintonare, l'ipotesi è falsa: per l'ossigeno abbiamo usato un D <i>misurato</i>, non calcolato. Per lo zucchero l'ipotesi è al limite, eppure la formula girata al contrario restituisce 0,37 nanometri, che è la taglia giusta. Non è fortuna: per molecole piccole in acqua la relazione resta buona entro qualche decina per cento. Quello che non si può fare è usarla per predire la terza cifra.</li>
+
+      <li data-i18n="onesta_li_4"><b>A tempi molto corti la diffusione è il modello sbagliato.</b> Sotto il tempo di rilassamento inerziale τ = m/(6πηr), che per il nostro granello vale 6,7×10⁻⁸ secondi (assumendo per la resina di gommagutta una densità di 1200 kg/m³), il moto non è a zig-zag ma balistico, e lo spostamento cresce con t e non con la sua radice. Einstein riteneva che quella velocità istantanea non si sarebbe mai potuta misurare. È stata misurata nel 2010 in aria e nel 2011 in acqua, un secolo dopo, con pinzette ottiche — e si è visto che il passaggio non è netto come dice la formula semplice, perché il fluido conserva memoria del movimento appena fatto.</li>
+
+      <li data-i18n="onesta_li_5"><b>Dentro una cellula vera non c'è acqua.</b> Il citoplasma è affollato di proteine e filamenti, e le misure danno spesso &lt;x²&gt; proporzionale a t elevato a un esponente <i>minore</i> di uno: la diffusione è «anomala», rallentata, e l'esponente cambia col tracciante e col tipo di cellula. Perché sia così, e quanto sia generale, è materia di ricerca aperta. Il nostro «un decimo di secondo per attraversare una cellula» è un limite ideale, non una misura fisiologica.</li>
+
+      <li data-i18n="onesta_li_6"><b>Tutti i numeri di partenza sono a 20 °C.</b> Dentro il corpo umano sei a 37 °C, dove l'acqua è meno viscosa e D è 1,53 volte più grande: quei quasi otto anni per un metro diventano poco più di cinque. E nel tessuto reale, non in acqua pura, D è ancora più basso. «Otto anni» va letto come un ordine di grandezza che spiega la forma di un corpo, non come una previsione da cronometro.</li>
+
+      <li data-i18n="onesta_li_7"><b>Una nota storica onesta.</b> Con questa misura Perrin ricavò il numero di Avogadro contando granelli al microscopio: ottenne valori fra 6,5×10²³ e 7,2×10²³, dall'otto al venti per cento sopra il valore che oggi conosciamo esattamente, 6,02214076×10²³. Non azzeccò la cifra. Convinse comunque i chimici che gli atomi esistono, perché lo stesso numero saltava fuori da metodi completamente diversi. È un buon promemoria su che cosa renda credibile una misura: non la precisione di un singolo conto, ma il fatto che strade indipendenti si incontrino.</li>
+
+    </ol>
+
+    <h3 data-i18n="h3_controlli">I controlli che questa pagina deve superare</h3>
+    <div class="tab-wrap">
+    <table>
+      <tr><th data-i18n="th_caso">Caso</th><th data-i18n="th_devedare">Deve dare</th></tr>
+      <tr><td data-i18n="tab_caso_1">Ossigeno attraverso una tua cellula (20 µm)</td><td>0,100 secondi</td></tr>
+      <tr><td data-i18n="tab_caso_2">Ossigeno dal cuore all'alluce (1 m)</td><td>7,9 anni</td></tr>
+      <tr><td data-i18n="tab_caso_3">Granello di Perrin attraverso una cellula</td><td>7 min 47 s</td></tr>
+      <tr><td data-i18n="tab_caso_4">Sei pressioni di RADDOPPIA da 20 µm</td><td>1280 µm e 22,1 giorni</td></tr>
+      <tr><td data-i18n="tab_caso_5">Frazione oltre il traguardo a fine corsa</td><td>circa 32 su 100</td></tr>
+      <tr><td data-i18n="tab_caso_6">Taglia dell'emoglobina, formula girata al contrario</td><td>3,1 nanometri</td></tr>
+    </table>
+    </div>
+  </div>
+
+  
+
+
+<footer style="padding:24px;text-align:center;font:12px monospace;opacity:.7">physics-experiments-lab &middot; MIT License &middot; Copyright (c) 2026 Capitan AI</footer>
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   COSTANTI — ciascuna con la sua fonte. Nessun altro numero magico.
+   ============================================================ */
+var K_BOLTZMANN = 1.380649e-23;   /* J/K — dal 2019 esatta per definizione SI */
+var R_GRANELLO  = 0.5e-6;         /* m — il granello di resina di Perrin */
+var DENSITA_RESINA = 1200;        /* kg/m3 — gommagutta; serve solo per tau inerziale */
+var ANNO = 3.156e7;               /* s */
+
+/* viscosita' dell'acqua, in Pa*s, a quattro temperature misurate */
+var ETA_TAB = [[5,1.519e-3],[20,1.002e-3],[25,0.890e-3],[37,0.6913e-3]];
+
+function etaAcqua(tC){
+  if(tC <= ETA_TAB[0][0]) return ETA_TAB[0][1];
+  if(tC >= ETA_TAB[ETA_TAB.length-1][0]) return ETA_TAB[ETA_TAB.length-1][1];
+  for(var i=0;i<ETA_TAB.length-1;i++){
+    var a=ETA_TAB[i], b=ETA_TAB[i+1];
+    if(tC>=a[0] && tC<=b[0]){
+      var f=(tC-a[0])/(b[0]-a[0]);
+      return a[1] + f*(b[1]-a[1]);
+    }
+  }
+  return 1.002e-3;
+}
+
+/* I quattro viaggiatori. Per i tre molecolari D e' MISURATO, non calcolato:
+   Stokes-Einstein su una molecola grande quanto il solvente non e' lecita.
+   I testi (nome/det/nota) vivono in TESTI[LANG].viaggiatori, stesso indice. */
+var VIAGGIATORI = [
+  { id:'ossigeno',   D0:2.0e-9,  T0:20, misurato:true },
+  { id:'glucosio',   D0:6.7e-10, T0:25, misurato:true },
+  { id:'emoglobina', D0:6.9e-11, T0:20, misurato:true },
+  { id:'granello',   D0:null,    T0:20, misurato:false }
+];
+
+/* Le sei distanze. I testi (nome/det) vivono in TESTI[LANG].distanze, stesso indice. */
+var DISTANZE = [
+  { x:8e-9   },
+  { x:2e-6   },
+  { x:20e-6  },
+  { x:70e-6  },
+  { x:1e-3   },
+  { x:1.0    }
+];
+
+/* Le ancore della barra logaritmica. I nomi vivono in TESTI[LANG].ancore, stesso indice. */
+var ANCORE = [
+  {t:1e-9},
+  {t:1e-6},
+  {t:1e-3},
+  {t:0.3},
+  {t:4},
+  {t:3600},
+  {t:86400},
+  {t:5.3e6},
+  {t:2.5e9},
+  {t:1.6e11}
+];
+var LOG_MIN = -9, LOG_MAX = 12;
+
+/* ============================================================
+   TESTI — dizionario di ogni stringa visibile all'utente, per lingua.
+   TESTI.en/fr/es/de sono copie dell'italiano in attesa della traduzione
+   .
+   ============================================================ */
+var TESTI = {
+  it: {
+    titolo_pagina: "Quanto tempo ci mette il caso ad attraversarti",
+    occhiello: "Laboratorio di fisica · Esperimento 6",
+    hero_titolo: "Quanto tempo ci mette il caso ad attraversarti",
+    hero_kicker: "Una molecola non sa dove sta andando. Viene spintonata a caso, milioni di volte al secondo, e va dove capita. Eppure c'è una formula che dice quanto ci mette. E dice una cosa che non ti aspetti: raddoppiare la distanza costa <i>quattro</i> volte il tempo.",
+    hero_firme: "Legge della diffusione &lt;x²&gt; = 2Dt · <b>Robert Brown, 1827</b> (lo vede al microscopio) · <b>Albert Einstein, 1905</b> (spiega perché) · <b>Jean Perrin, 1908-1909</b> (lo misura, Nobel 1926) · relazione di Stokes-Einstein per il coefficiente D",
+    passo_1: "1 · Scegli chi deve vagare",
+    passo_2: "2 · Scegli che cosa deve attraversare",
+    passo_3: "3 · Poi premi, e guarda il tempo",
+    btn_raddoppia: "RADDOPPIA LA DISTANZA",
+    conta_press_zero: "nessuna pressione · sei alla distanza di partenza",
+    btn_reset: "torna all'inizio",
+    et_distanza: "Distanza da attraversare",
+    et_tempo: "Tempo tipico",
+    et_velocita: "Velocità apparente",
+    passo_4: "4 · Guardalo succedere davvero",
+    contatore_oltre_pre: "oltre il traguardo <b>in questo istante</b>: ",
+    contatore_oltre_suf: " su 200",
+    label_temp: "Temperatura dell'acqua",
+    nota_temp: "Tutti i numeri di partenza sono misurati a 20 °C. Dentro di te sei a 37 °C, dove l'acqua è meno viscosa e tutto va circa una volta e mezza più veloce.",
+    passo_5: "5 · Rifai i conti a mano",
+    et_formula_principale: "La formula che fa girare questo laboratorio",
+    et_formula_D: "Da dove viene il D del granello",
+    h2_respiro: "Il respiro che stai facendo adesso",
+    p_respiro_1: "Dentro il polmone l'aria e il sangue sono separati da una parete di sei decimi di micrometro: cento volte più sottile di un capello. L'ossigeno la attraversa in <b>novanta milionesimi di secondo</b>, e il sangue passa di lì per tre quarti di secondo. C'è <b>ottomila volte più tempo di quanto ne serva</b>: il polmone lavora con un margine enorme, ed è per questo che puoi correre.",
+    p_respiro_2: "Poi il conto cambia segno. Dalla parete dell'alveolo all'alluce c'è circa un metro, e per sola diffusione quel metro costa <b>quasi otto anni</b>. Il sangue lo fa in meno di un minuto: quattro milioni di volte più in fretta.",
+    p_respiro_3: "Quindi la forma del tuo corpo non è un caso. Un polmone piegato in cinquanta-settanta metri quadrati di superficie sottilissima, perché la diffusione funzioni bene solo dove serve. E una pompa con centomila chilometri di tubi, perché su tutte le altre distanze la diffusione non serve a niente. Un capillare non è mai molto lontano da una cellula — poche decine di micrometri — ed è esattamente la scala in cui il caso ancora conviene. Le cose piccole possono respirare per diffusione. Tu no.",
+    h2_sorpresa: "La sorpresa: il granello non ha una velocità",
+    p_sorpresa_1: "Per tutta la vita hai imparato che distanza uguale velocità per tempo. Qui no. La stessa molecola di ossigeno, nella stessa acqua, alla stessa temperatura, sembra viaggiare a <b>0,20 millimetri al secondo</b> se le chiedi di attraversare una cellula, e a <b>4 nanometri al secondo</b> — tredici centimetri all'anno — se le chiedi di attraversare un metro. Non ha rallentato: non ha mai avuto una velocità. Ha solo il quadrato del tempo dalla parte sbagliata dell'uguale.",
+    p_sorpresa_2: "Fra la cellula e il metro la distanza cresce di 50.000 volte e il tempo di 2,5 miliardi di volte, perché 50.000² = 2,5×10⁹. E lo senti in piccolo premendo il pulsante: raddoppiare costa quattro volte il tempo, non due.",
+    p_sorpresa_3: "C'è un secondo colpo, dentro il primo. Verrebbe da concludere che la diffusione è lenta: è falso. Su distanze piccole è velocissima — la migliore consegna possibile, gratuita, senza pompe né motori: attraversa una cellula in un decimo di secondo e la parete di un alveolo in novanta microsecondi. La diffusione non è né lenta né veloce. È l'unica strategia di trasporto che cambia giudizio a seconda di quanto lontano guardi, e il punto in cui smette di convenire, per l'ossigeno nel corpo umano, cade proprio intorno al decimo di millimetro. Sopra quella soglia servono un cuore e dei polmoni.",
+    h2_onesta: "Che cosa questo modello non dice",
+    onesta_li_1: "<b>La formula conta una sola direzione.</b> &lt;x²&gt; = 2Dt vale per lo spostamento lungo un asse. Nel piano diventa &lt;r²&gt; = 4Dt, nello spazio &lt;r²&gt; = 6Dt. Il 2 non è sacro: è il numero delle direzioni che hai deciso di contare, moltiplicato per due. Con la versione tridimensionale l'ossigeno «attraversa» una cellula non in 0,10 secondi ma in 0,033. Tutti e tre i conti sono giusti, rispondono a tre domande diverse, e chi non dichiara quale sta usando sbaglia di un fattore tre senza accorgersene.",
+    onesta_li_2: "<b>Non esiste un istante di arrivo</b>, ed è più serio. La distanza che leggi a schermo è una radice di media di quadrati, non una scadenza. I granelli si distribuiscono a campana: al tempo del traguardo circa il <b>32 per cento</b> si trova oltre, la maggior parte è ancora indietro, e la distanza media in valore assoluto è 0,80 volte quella che scriviamo. Peggio: se cambi domanda e chiedi «quanto ci mette il primo granello a toccare quel punto la prima volta», in una dimensione senza pareti il tempo medio di primo arrivo è <b>infinito</b> — anche se il granello quel punto lo tocca quasi certamente, prima o poi. Due domande vicinissime, due risposte incompatibili. Quando in biologia si legge «il segnale arriva in x secondi», è quasi sempre una scelta, spesso taciuta, fra queste due domande.",
+    onesta_li_3: "<b>Stokes-Einstein presuppone una pallina rigida</b>, molto più grande delle molecole del liquido, sola, in un fluido continuo. Per il granello di Perrin è ragionevole. Per una molecola di ossigeno, grande quanto le molecole d'acqua che dovrebbe spintonare, l'ipotesi è falsa: per l'ossigeno abbiamo usato un D <i>misurato</i>, non calcolato. Per lo zucchero l'ipotesi è al limite, eppure la formula girata al contrario restituisce 0,37 nanometri, che è la taglia giusta. Non è fortuna: per molecole piccole in acqua la relazione resta buona entro qualche decina per cento. Quello che non si può fare è usarla per predire la terza cifra.",
+    onesta_li_4: "<b>A tempi molto corti la diffusione è il modello sbagliato.</b> Sotto il tempo di rilassamento inerziale τ = m/(6πηr), che per il nostro granello vale 6,7×10⁻⁸ secondi (assumendo per la resina di gommagutta una densità di 1200 kg/m³), il moto non è a zig-zag ma balistico, e lo spostamento cresce con t e non con la sua radice. Einstein riteneva che quella velocità istantanea non si sarebbe mai potuta misurare. È stata misurata nel 2010 in aria e nel 2011 in acqua, un secolo dopo, con pinzette ottiche — e si è visto che il passaggio non è netto come dice la formula semplice, perché il fluido conserva memoria del movimento appena fatto.",
+    onesta_li_5: "<b>Dentro una cellula vera non c'è acqua.</b> Il citoplasma è affollato di proteine e filamenti, e le misure danno spesso &lt;x²&gt; proporzionale a t elevato a un esponente <i>minore</i> di uno: la diffusione è «anomala», rallentata, e l'esponente cambia col tracciante e col tipo di cellula. Perché sia così, e quanto sia generale, è materia di ricerca aperta. Il nostro «un decimo di secondo per attraversare una cellula» è un limite ideale, non una misura fisiologica.",
+    onesta_li_6: "<b>Tutti i numeri di partenza sono a 20 °C.</b> Dentro il corpo umano sei a 37 °C, dove l'acqua è meno viscosa e D è 1,53 volte più grande: quei quasi otto anni per un metro diventano poco più di cinque. E nel tessuto reale, non in acqua pura, D è ancora più basso. «Otto anni» va letto come un ordine di grandezza che spiega la forma di un corpo, non come una previsione da cronometro.",
+    onesta_li_7: "<b>Una nota storica onesta.</b> Con questa misura Perrin ricavò il numero di Avogadro contando granelli al microscopio: ottenne valori fra 6,5×10²³ e 7,2×10²³, dall'otto al venti per cento sopra il valore che oggi conosciamo esattamente, 6,02214076×10²³. Non azzeccò la cifra. Convinse comunque i chimici che gli atomi esistono, perché lo stesso numero saltava fuori da metodi completamente diversi. È un buon promemoria su che cosa renda credibile una misura: non la precisione di un singolo conto, ma il fatto che strade indipendenti si incontrino.",
+    h3_controlli: "I controlli che questa pagina deve superare",
+    th_caso: "Caso",
+    th_devedare: "Deve dare",
+    tab_caso_1: "Ossigeno attraverso una tua cellula (20 µm)",
+    tab_caso_2: "Ossigeno dal cuore all'alluce (1 m)",
+    tab_caso_3: "Granello di Perrin attraverso una cellula",
+    tab_caso_4: "Sei pressioni di RADDOPPIA da 20 µm",
+    tab_caso_5: "Frazione oltre il traguardo a fine corsa",
+    tab_caso_6: "Taglia dell'emoglobina, formula girata al contrario",
+    footer_1: "Laboratorio di fisica · Esperimento 6 di 10",
+    footer_2: "Nessuna libreria, nessuna chiamata di rete: tutto quello che vedi è calcolato qui.",
+
+    /* frammenti per unita' di misura, usati nelle funzioni di formattazione JS */
+    unita: {
+      nanometri: "nanometri",
+      micrometri: "micrometri",
+      millimetri: "millimetri",
+      metro: "metro",
+      metri: "metri",
+      chilometri: "chilometri",
+      nanosecondi: "nanosecondi",
+      microsecondi: "microsecondi",
+      millisecondi: "millisecondi",
+      secondi: "secondi",
+      minuti: "minuti",
+      ore: "ore",
+      giorni: "giorni",
+      anni: "anni",
+      millenni: "millenni",
+      picometri_al_secondo: "picometri al secondo",
+      nanometri_al_secondo: "nanometri al secondo",
+      micrometri_al_secondo: "micrometri al secondo",
+      millimetri_al_secondo: "millimetri al secondo",
+      metri_al_secondo: "metri al secondo"
+    },
+
+    /* forma lunga del tempo (fmtTempoLungo) */
+    tempo_lungo_min_s: "{m} min {s} s",
+    tempo_lungo_h_min: "{h} h {mm} min",
+
+    /* ancora concreta accanto al tempo (ancoraVicina) */
+    ancora_quanto: "quanto {n}",
+    ancora_volte: "{r} volte {n}",
+    ancora_esimo: "un {inv}-esimo di {n}",
+
+    /* istogramma finale sul canvas */
+    istogramma_nota: "qui si trova circa un terzo dei granelli, non tutti",
+
+    /* stato della simulazione */
+    stato_traguardo: "traguardo raggiunto · guarda la campana",
+    stato_corsa_template: "in corsa · {pct}% del tempo tipico",
+    stato_fermo: "fermo",
+
+    /* orologio (aggiornaCrono) */
+    crono_corre_template: "Qui l’orologio <span class=\"verso\">corre <b>{n} volte più veloce</b></span> del tuo.",
+    crono_va_template: "Qui l’orologio <span class=\"verso\">va <b>{n} volte più lento</b></span> del tuo.",
+    crono_nota: "La corsa a schermo dura sempre una quindicina di secondi, per tutti i viaggiatori e tutte le distanze: il filmato non cambia mai, perché la legge in unità normalizzate è sempre la stessa. Cambiano le etichette e questo moltiplicatore.",
+
+    /* conti a mano, blocco 1 (t = x^2/2D) */
+    conti_riga1: "t = x² / (2 × D)",
+    conti_x: "x = {lxn} {lxu} = {scix} metri",
+    conti_D: "D = {sciD} metri quadrati al secondo",
+    conti_D_sub: "    ({stato}, a {tempC} °C)",
+    conti_misurato: "misurato",
+    conti_calcolato: "calcolato qui sotto",
+    conti_x2: "x² = {v}",
+    conti_2D: "2 × D = {v}",
+    conti_t: "t = {a} / {b} = <b>{c} secondi</b>",
+    conti_cioe: "cioè <b>{n} {u}{extra}</b>",
+    conti_extra_pre: " (",
+    conti_extra_suf: ")",
+    conti_finale_1: "La x è al quadrato: se raddoppi la distanza il tempo si moltiplica",
+    conti_finale_2: "per quattro, non per due. È tutto qui.",
+
+    /* conti a mano, blocco 2 (Stokes-Einstein) */
+    conti_se_riga1: "D = k × T / (6 × π × η × r)      — Stokes-Einstein",
+    conti_se_k: "k = 1,380649×10⁻²³ J/K   (dal 2019 esatta per definizione)",
+    conti_se_T: "T = {tempC} + 273,15 = {T} K",
+    conti_se_eta: "η = {eta} Pa·s   (viscosità dell’acqua a {tempC} °C)",
+    conti_se_r: "r = 0,5 micrometri = 5,0×10⁻⁷ m   (il granello di Perrin)",
+    conti_se_kT: "k × T = {v}",
+    conti_se_den: "6 × π × η × r = {v}",
+    conti_se_D: "D = <b>{v} m²/s</b>",
+    conti_se_attenzione_1: "Attenzione: per {nome} questo NON è il D che",
+    conti_se_attenzione_2: "stiamo usando. Stokes-Einstein vale per una pallina rigida molto più",
+    conti_se_attenzione_3: "grande delle molecole del liquido: per una molecola è falsa. Per i tre",
+    conti_se_attenzione_4: "viaggiatori molecolari usiamo un D misurato in laboratorio.",
+    conti_se_usiamo: "È il D che stiamo usando adesso, e cambia se muovi la temperatura.",
+    conti_se_girata_1: "Girata al contrario, r = k×T/(6×π×η×D), la stessa formula restituisce",
+    conti_se_girata_2: "3,1 nanometri per l’emoglobina e 0,37 per lo zucchero: le taglie giuste.",
+    conti_se_girata_3: "Va bene come controllo dell’ordine di grandezza, non per la terza cifra.",
+
+    v_ancora_template: "In tempo umano: {a}.",
+    v_vel_nota: "Non è una proprietà del viaggiatore: v = 2D/x ha la distanza al denominatore. Più lontano gli chiedi di andare, più lenta diventa. È il modo più corto per capire che la diffusione, a differenza di una corsa, non ha una velocità.",
+
+    conta_press_singolare: "pressione",
+    conta_press_plurale: "pressioni",
+    conta_press_template: "{n} {parola} · distanza ×{dx} · tempo ×{dt}",
+
+    /* testi delle schede-scelta (nome/det) e delle note (nota) -- indici paralleli a VIAGGIATORI */
+    viaggiatori: [
+      { nome:"Una molecola di ossigeno", det:"D misurato · in acqua", nota:"D = 2,0×10⁻⁹ m²/s, misurato in acqua a 20 °C. Le fonti danno fra 1,9 e 2,3×10⁻⁹ a seconda della temperatura e del metodo: con 2,3×10⁻⁹ il tempo su una cellula scende da 0,100 a 0,087 s. L’ordine di grandezza è solido, la terza cifra no." },
+      { nome:"Una molecola di zucchero", det:"D misurato · glucosio", nota:"D = 6,7×10⁻¹⁰ m²/s, misurato a 25 °C. Girando Stokes-Einstein al contrario a quella temperatura si ottiene un raggio di 0,37 nanometri, che è la taglia giusta per una molecola di zucchero: un buon controllo dell’ordine di grandezza." },
+      { nome:"Una proteina del sangue", det:"D misurato · emoglobina", nota:"D = 6,9×10⁻¹¹ m²/s, misurato. Girando la formula al contrario si ricava un raggio di 3,1 nanometri, che è la taglia nota dell’emoglobina: la relazione, usata come controllo e non come previsione, funziona." },
+      { nome:"Un granello di resina", det:"D calcolato qui sotto", nota:"È il granello che Perrin guardava al microscopio: raggio mezzo micrometro. Per lui il D non lo prendiamo da una tabella, lo calcoliamo con Stokes-Einstein davanti a te, e cambia quando muovi la temperatura." }
+    ],
+
+    /* indici paralleli a DISTANZE */
+    distanze: [
+      { nome:"La parete di una cellula", det:"8 nanometri" },
+      { nome:"Un batterio", det:"2 micrometri" },
+      { nome:"Una tua cellula", det:"20 micrometri" },
+      { nome:"Lo spessore di un capello", det:"70 micrometri" },
+      { nome:"Un millimetro", det:"1 millimetro" },
+      { nome:"Dal cuore all’alluce", det:"un metro" }
+    ],
+
+    /* indici paralleli a ANCORE */
+    ancore: ["un nanosecondo", "un microsecondo", "un millisecondo", "un battito di ciglia", "un respiro", "un’ora", "un giorno", "le vacanze estive", "una vita umana", "la storia scritta"]
+  }
+};
+TESTI.en = JSON.parse(JSON.stringify(TESTI.it));  /* PENDING: traduzione richiesta, non ancora arrivata */
+/* English: reviewed translation merged from the lab translation pass. Keys not listed here fall back to the Italian text. */
+Object.assign(TESTI.en, {"titolo_pagina": "How long chance takes to cross you", "occhiello": "Physics laboratory · Experiment 6", "hero_titolo": "How long chance takes to cross you", "hero_kicker": "A molecule does not know where it is going. It is jostled at random, millions of times a second, and goes wherever it happens to go. Yet there is a formula that says how long it takes. And it says something you would not expect: doubling the distance costs <i>four<\/i> times the time.", "hero_firme": "Diffusion law &lt;x²&gt; = 2Dt · <b>Robert Brown, 1827<\/b> (seen under the microscope) · <b>Albert Einstein, 1905<\/b> (explains why) · <b>Jean Perrin, 1908-1909<\/b> (measures it, Nobel 1926) · Stokes-Einstein relation for the coefficient D", "passo_1": "1 · Choose who wanders", "passo_2": "2 · Choose what it has to cross", "passo_3": "3 · Then press, and watch the time", "btn_raddoppia": "DOUBLE THE DISTANCE", "btn_reset": "back to the start", "et_distanza": "Distance to cross", "et_tempo": "Typical time", "et_velocita": "Apparent speed", "passo_4": "4 · Watch it happen for real", "label_temp": "Water temperature", "nota_temp": "All the starting numbers are measured at 20 °C. Inside you are at 37 °C, where water is less viscous and everything goes about one and a half times faster.", "passo_5": "5 · Redo the calculations by hand", "et_formula_principale": "The formula that drives this laboratory", "et_formula_D": "Where the D of the grain comes from", "h2_respiro": "The breath you are taking now", "p_respiro_1": "Inside the lung the air and the blood are separated by a wall six tenths of a micrometre thick: a hundred times thinner than a hair. Oxygen crosses it in <b>ninety millionths of a second<\/b>, and the blood passes through there in three quarters of a second. There is <b>eight thousand times more time than is needed<\/b>: the lung works with an enormous margin, and that is why you can run.", "p_respiro_2": "Then the sum changes sign. From the wall of the alveolus to the big toe there is about a metre, and by diffusion alone that metre costs <b>almost eight years<\/b>. The blood does it in less than a minute: four million times faster.", "p_respiro_3": "So the shape of your body is not an accident. A lung folded into fifty to seventy square metres of very thin surface, because diffusion works well only where it is needed. And a pump with a hundred thousand kilometres of tubes, because over all the other distances diffusion is useless. A capillary is never very far from a cell — a few tens of micrometres — and that is exactly the scale where chance still pays off. Small things can breathe by diffusion. You cannot.", "h2_sorpresa": "The surprise: the grain has no speed", "p_sorpresa_1": "All your life you have learned that distance equals speed times time. Not here. The same oxygen molecule, in the same water, at the same temperature, seems to travel at <b>0.20 millimetres per second<\/b> if you ask it to cross a cell, and at <b>4 nanometres per second<\/b> — thirteen centimetres a year — if you ask it to cross a metre. It has not slowed down: it never had a speed. It just has the square of the time on the wrong side of the equals sign.", "p_sorpresa_2": "Between the cell and the metre the distance grows 50,000 times and the time grows 2.5 billion times, because 50,000² = 2.5×10⁹. And you feel it on a small scale by pressing the button: doubling costs four times the time, not two.", "p_sorpresa_3": "There is a second blow, inside the first. You would conclude that diffusion is slow: that is false. Over small distances it is very fast — the best possible delivery service, free, with no pumps or motors: it crosses a cell in a tenth of a second and the wall of an alveolus in ninety microseconds. Diffusion is neither slow nor fast. It is the only transport strategy whose verdict changes depending on how far you look, and the point where it stops being worth it, for oxygen in the human body, falls right around a tenth of a millimetre. Above that threshold you need a heart and lungs.", "h2_onesta": "What this model does not say", "onesta_li_1": "<b>The formula counts one direction.<\/b> &lt;x²&gt; = 2Dt holds for displacement along one axis. In the plane it becomes &lt;r²&gt; = 4Dt, in space &lt;r²&gt; = 6Dt. The 2 is not sacred: it is the number of directions you have decided to count, multiplied by two. With the three-dimensional version oxygen crosses a cell not in 0.10 seconds but in 0.033. All three calculations are correct, they answer three different questions, and anyone who does not state which one they are using is out by a factor of three without noticing.", "onesta_li_2": "<b>There is no moment of arrival<\/b>, and that is more serious. The distance you read on screen is a root mean square, not a deadline. The grains spread out like a bell: at the time of the finish line about <b>32 per cent<\/b> are beyond it, most are still behind, and the average distance in absolute value is 0.80 times the one we write. Worse: if you change the question and ask “how long does the first grain take to reach that point for the first time”, in one dimension without walls the mean first-arrival time is <b>infinite<\/b> — even though the grain almost certainly reaches that point, sooner or later. Two very close questions, two incompatible answers. When biology says “the signal arrives in x seconds”, it is almost always a choice, often unstated, between these two questions.", "onesta_li_3": "<b>Stokes-Einstein assumes a rigid sphere<\/b>, much bigger than the molecules of the liquid, alone, in a continuous fluid. For Perrin’s grain this is reasonable. For an oxygen molecule, as big as the water molecules it should be jostling, the assumption is false: for oxygen we used a <i>measured<\/i> D, not a calculated one. For sugar the assumption is borderline, yet running the formula backwards gives 0.37 nanometres, which is the right size. This is not luck: for small molecules in water the relation stays good to within a few tens of per cent. What cannot be done is to use it to predict the third digit.", "onesta_li_4": "<b>At very short times diffusion is the wrong model.<\/b> Below the inertial relaxation time τ = m/(6πηr), which for our grain is 6.7×10⁻⁸ seconds (assuming a density of 1200 kg/m³ for the gamboge resin), the motion is not zigzag but ballistic, and the displacement grows with t and not with its square root. Einstein thought that instantaneous speed could never be measured. It was measured in 2010 in air and in 2011 in water, a century later, with optical tweezers — and it turned out that the transition is not as sharp as the simple formula says, because the fluid keeps a memory of the movement it has just made.", "onesta_li_5": "<b>Inside a real cell there is no water.<\/b> The cytoplasm is crowded with proteins and filaments, and measurements often give &lt;x²&gt; proportional to t raised to an exponent <i>smaller<\/i> than one: the diffusion is “anomalous”, slowed down, and the exponent changes with the tracer and the type of cell. Why this happens, and how general it is, is an open research question. Our “a tenth of a second to cross a cell” is an ideal limit, not a physiological measurement.", "onesta_li_6": "<b>All the starting numbers are at 20 °C.<\/b> Inside the human body you are at 37 °C, where water is less viscous and D is 1.53 times larger: those almost eight years for a metre become a little over five. And in real tissue, not pure water, D is lower still. “Eight years” should be read as an order of magnitude that explains the shape of a body, not as a stopwatch prediction.", "onesta_li_7": "<b>An honest historical note.<\/b> With this measurement Perrin derived Avogadro’s number by counting grains under the microscope: he obtained values between 6.5×10²³ and 7.2×10²³, from eight to twenty per cent above the value we know exactly today, 6.02214076×10²³. He did not get the digit right. He nonetheless convinced chemists that atoms exist, because the same number kept turning up from completely different methods. It is a good reminder of what makes a measurement credible: not the precision of a single calculation, but the fact that independent roads meet.", "h3_controlli": "The checks this page must pass", "th_caso": "Case", "th_devedare": "Must give", "tab_caso_1": "Oxygen across one of your cells (20 µm)", "tab_caso_2": "Oxygen from the heart to the big toe (1 m)", "tab_caso_3": "Perrin’s grain across a cell", "tab_caso_4": "Six presses of DOUBLE from 20 µm", "tab_caso_5": "Fraction beyond the finish line at the end of the run", "tab_caso_6": "Haemoglobin size, formula run backwards", "v_vel_nota": "It is not a property of the traveller: v = 2D/x has the distance in the denominator. The farther you ask it to go, the slower it becomes. It is the shortest way to understand that diffusion, unlike a race, has no speed.", "conta_press_zero": "no presses · you are at the starting distance", "contatore_oltre_pre": "past the finish line <b>at this instant<\/b>:", "footer_1": "Physics laboratory · Experiment 6 of 10", "footer_2": "No library, no network call: everything you see is computed here.", "tempo_lungo_min_s": "{m} min {s} s", "tempo_lungo_h_min": "{h} h {mm} min", "ancora_quanto": "about the same as {n}", "ancora_volte": "{r} times {n}", "ancora_esimo": "one {inv}th of {n}", "istogramma_nota": "about a third of the grains are found here, not all of them", "stato_traguardo": "finish line reached · look at the bell curve", "stato_corsa_template": "running · {pct}% of the typical time", "stato_fermo": "stopped", "crono_corre_template": "Here the clock <span class=\"verso\">runs <b>{n} times faster<\/b><\/span> than yours.", "crono_va_template": "Here the clock <span class=\"verso\">runs <b>{n} times slower<\/b><\/span> than yours.", "conti_x": "x = {lxn} {lxu} = {scix} metres", "conti_D": "D = {sciD} square metres per second", "conti_D_sub": "    ({stato}, at {tempC} °C)", "conti_misurato": "measured", "conti_calcolato": "computed below", "conti_t": "t = {a} / {b} = <b>{c} seconds<\/b>", "conti_cioe": "that is <b>{n} {u}{extra}<\/b>", "conti_finale_1": "The x is squared: if you double the distance the time is multiplied", "conti_finale_2": "by four, not by two. That is all there is to it.", "conti_se_riga1": "D = k × T / (6 × π × η × r)      — Stokes-Einstein", "conti_se_k": "k = 1.380649×10⁻²³ J/K   (exact by definition since 2019)", "conti_se_T": "T = {tempC} + 273.15 = {T} K", "conti_se_eta": "η = {eta} Pa·s   (viscosity of water at {tempC} °C)", "conti_se_r": "r = 0.5 micrometres = 5.0×10⁻⁷ m   (Perrin's grain)", "conti_se_attenzione_1": "Careful: for {nome} this is NOT the D that", "conti_se_attenzione_2": "we are using. Stokes-Einstein holds for a rigid ball much larger", "conti_se_attenzione_3": "than the molecules of the liquid: for a molecule it is false. For the three", "conti_se_attenzione_4": "molecular travellers we use a D measured in the laboratory.", "conti_se_usiamo": "This is the D we are using now, and it changes if you move the temperature.", "conti_se_girata_1": "Turned around, r = k×T/(6×π×η×D), the same formula returns", "conti_se_girata_2": "3.1 nanometres for haemoglobin and 0.37 for sugar: the right sizes.", "conti_se_girata_3": "Fine as an order-of-magnitude check, not for the third digit.", "v_ancora_template": "In human time: {a}.", "conta_press_singolare": "press", "conta_press_plurale": "presses", "conta_press_template": "{n} {parola} · distance ×{dx} · time ×{dt}", "contatore_oltre_suf": " out of 200", "viaggiatori": [{"nome": "An oxygen molecule", "det": "measured D · in water", "nota": "D = 2.0×10⁻⁹ m²/s, measured in water at 20 °C. Sources give between 1.9 and 2.3×10⁻⁹ depending on temperature and method: with 2.3×10⁻⁹ the time across a cell drops from 0.100 to 0.087 s. The order of magnitude is solid, the third digit is not."}, {"nome": "A sugar molecule", "det": "measured D · glucose", "nota": "D = 6.7×10⁻¹⁰ m²/s, measured at 25 °C. Turning Stokes-Einstein around at that temperature gives a radius of 0.37 nanometres, which is the right size for a sugar molecule: a good order-of-magnitude check."}, {"nome": "A blood protein", "det": "measured D · haemoglobin", "nota": "D = 6.9×10⁻¹¹ m²/s, measured. Turning the formula around gives a radius of 3.1 nanometres, which is the known size of haemoglobin: the relation, used as a check and not as a prediction, works."}, {"nome": "A resin grain", "det": "D computed below", "nota": "This is the grain Perrin looked at under the microscope: radius half a micrometre. For it we do not take D from a table, we compute it with Stokes-Einstein in front of you, and it changes when you move the temperature."}], "distanze": [{"nome": "The wall of a cell", "det": "8 nanometres"}, {"nome": "A bacterium", "det": "2 micrometres"}, {"nome": "One of your cells", "det": "20 micrometres"}, {"nome": "The thickness of a hair", "det": "70 micrometres"}, {"nome": "A millimetre", "det": "1 millimetre"}, {"nome": "From the heart to the big toe", "det": "one metre"}], "ancore": ["a nanosecond", "a microsecond", "a millisecond", "the blink of an eye", "a breath", "an hour", "a day", "the summer holidays", "a human lifetime", "recorded history"], "unita": {"nanometri": "nanometres", "micrometri": "micrometres", "millimetri": "millimetres", "metro": "metre", "metri": "metres", "chilometri": "kilometres", "nanosecondi": "nanoseconds", "microsecondi": "microseconds", "millisecondi": "milliseconds", "secondi": "seconds", "minuti": "minutes", "ore": "hours", "giorni": "days", "anni": "years", "millenni": "millennia", "picometri_al_secondo": "picometres per second", "nanometri_al_secondo": "nanometres per second", "micrometri_al_secondo": "micrometres per second", "millimetri_al_secondo": "millimetres per second", "metri_al_secondo": "metres per second"}});
+TESTI.fr = JSON.parse(JSON.stringify(TESTI.it));  /* PENDING */
+TESTI.es = JSON.parse(JSON.stringify(TESTI.it));  /* PENDING */
+TESTI.de = JSON.parse(JSON.stringify(TESTI.it));  /* PENDING */
+
+window.__LINGUE = ['it','en','fr','es','de'];
+var LANG = 'en';
+
+/* ============================================================
+   STATO
+   ============================================================ */
+var st = { viagg:0, dist:2, pressioni:0, tempC:20 };
+
+/* ============================================================
+   FISICA
+   ============================================================ */
+function D_granello(tC){
+  var T = tC + 273.15;
+  return K_BOLTZMANN * T / (6 * Math.PI * etaAcqua(tC) * R_GRANELLO);
+}
+/* Per i D misurati: riscalatura con la temperatura.
+   D(T) = D(T0) * (T/T0) * (eta(T0)/eta(T)). Per molecole piccole e'
+   un'estrapolazione ragionevole, non esatta: e' dichiarato a schermo. */
+function D_misurato(v, tC){
+  var T = tC + 273.15, T0 = v.T0 + 273.15;
+  return v.D0 * (T/T0) * (etaAcqua(v.T0)/etaAcqua(tC));
+}
+function D_ora(){
+  var v = VIAGGIATORI[st.viagg];
+  return v.misurato ? D_misurato(v, st.tempC) : D_granello(st.tempC);
+}
+function x_ora(){ return DISTANZE[st.dist].x * Math.pow(2, st.pressioni); }
+function t_ora(){ var x = x_ora(); return x*x / (2 * D_ora()); }
+function v_apparente(){ return 2 * D_ora() / x_ora(); }
+
+/* ============================================================
+   FORMATTAZIONE — tre cifre significative, mai di piu'.
+   "466,655 secondi" sarebbe una bugia sulla precisione dei dati.
+   ============================================================ */
+function it(x, dec){
+  if(!isFinite(x)) return '—';
+  return x.toLocaleString('en-US',{minimumFractionDigits:dec, maximumFractionDigits:dec});
+}
+function tre(x){
+  if(x === 0) return '0';
+  var e = Math.floor(Math.log10(Math.abs(x)));
+  var dec = Math.max(0, 2 - e);
+  if(dec > 6) dec = 6;
+  return it(x, dec);
+}
+function sci(x, sig){
+  if(x === 0) return '0';
+  var e = Math.floor(Math.log10(Math.abs(x)));
+  var m = x / Math.pow(10, e);
+  return it(m, (sig||3)-1) + '×10' + esponente(e);
+}
+function esponente(e){
+  var su = {'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  return String(e).split('').map(function(c){ return su[c] || c; }).join('');
+}
+function fmtLunghezza(m){
+  var U = TESTI[LANG].unita;
+  if(m < 1e-6)  return { n: tre(m*1e9), u:U.nanometri };
+  if(m < 1e-3)  return { n: tre(m*1e6), u:U.micrometri };
+  if(m < 1)     return { n: tre(m*1e3), u:U.millimetri };
+  if(m < 1000)  return { n: tre(m),     u: m===1 ? U.metro : U.metri };
+  return { n: tre(m/1000), u:U.chilometri };
+}
+function fmtTempo(s){
+  var U = TESTI[LANG].unita;
+  if(s < 1e-6)   return { n: tre(s*1e9),  u:U.nanosecondi };
+  if(s < 1e-3)   return { n: tre(s*1e6),  u:U.microsecondi };
+  if(s < 1)      return { n: tre(s*1e3),  u:U.millisecondi };
+  if(s < 120)    return { n: tre(s),      u: U.secondi };
+  if(s < 7200)   return { n: tre(s/60),   u:U.minuti };
+  if(s < 2*86400)return { n: tre(s/3600), u:U.ore };
+  if(s < 2*ANNO) return { n: tre(s/86400),u:U.giorni };
+  if(s < 1e4*ANNO) return { n: tre(s/ANNO), u:U.anni };
+  return { n: tre(s/(1000*ANNO)), u:U.millenni };
+}
+/* forma lunga per il caso "7 min 47 s", che e' piu' parlante di "7,78 minuti" */
+function fmtTempoLungo(s){
+  var L = TESTI[LANG];
+  if(s >= 120 && s < 7200){
+    var m = Math.floor(s/60), r = Math.round(s - m*60);
+    if(r === 60){ m++; r = 0; }
+    return L.tempo_lungo_min_s.replace('{m}', m).replace('{s}', r);
+  }
+  if(s >= 7200 && s < 2*86400){
+    var h = Math.floor(s/3600), mm = Math.round((s - h*3600)/60);
+    if(mm === 60){ h++; mm = 0; }
+    return L.tempo_lungo_h_min.replace('{h}', h).replace('{mm}', mm);
+  }
+  return null;
+}
+function fmtVelocita(v){
+  var U = TESTI[LANG].unita;
+  if(v < 1e-9)  return tre(v*1e12) + ' ' + U.picometri_al_secondo;
+  if(v < 1e-6)  return tre(v*1e9)  + ' ' + U.nanometri_al_secondo;
+  if(v < 1e-3)  return tre(v*1e6)  + ' ' + U.micrometri_al_secondo;
+  if(v < 1)     return tre(v*1e3)  + ' ' + U.millimetri_al_secondo;
+  return tre(v) + ' ' + U.metri_al_secondo;
+}
+/* un'ancora concreta accanto al tempo */
+function ancoraVicina(s){
+  var best = null, bd = Infinity, bi = -1;
+  for(var i=0;i<ANCORE.length;i++){
+    var d = Math.abs(Math.log10(s) - Math.log10(ANCORE[i].t));
+    if(d < bd){ bd = d; best = ANCORE[i]; bi = i; }
+  }
+  if(!best) return '';
+  var L = TESTI[LANG], nome = L.ancore[bi];
+  var r = s / best.t;
+  if(r > 0.7 && r < 1.4)  return L.ancora_quanto.replace('{n}', nome);
+  if(r >= 1.4) return L.ancora_volte.replace('{r}', tre(r)).replace('{n}', nome);
+  return L.ancora_esimo.replace('{inv}', tre(1/r)).replace('{n}', nome);
+}
+
+/* ============================================================
+   I18N — applica TESTI[LANG] a tutti gli elementi [data-i18n] e
+   richiama gli aggiornamenti dinamici, cosi' anche il testo generato
+   a runtime cambia lingua.
+   ============================================================ */
+function applyI18n(){
+  document.documentElement.lang = LANG;
+  document.title = TESTI[LANG].titolo_pagina;
+  var els = document.querySelectorAll('[data-i18n]');
+  els.forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    var val = TESTI[LANG][key];
+    if(val !== undefined) el.innerHTML = val;
+  });
+}
+function aggiornaLogbarTesti(){
+  var spans = logbar.querySelectorAll('.anc span');
+  spans.forEach(function(s, i){ s.textContent = TESTI[LANG].ancore[i]; });
+}
+function setLang(l){
+  if(window.__LINGUE.indexOf(l) === -1) return;
+  LANG = l;
+  applyI18n();
+  aggiornaLogbarTesti();
+  ridisegnaSchede();
+  aggiorna();
+}
+window.setLang = setLang;
+
+/* ============================================================
+   SCHEDE
+   ============================================================ */
+function costruisciSchede(cont, lista, attivo, onClick){
+  cont.innerHTML = '';
+  lista.forEach(function(el, i){
+    var b = document.createElement('button');
+    b.className = 'scheda';
+    b.type = 'button';
+    b.setAttribute('aria-pressed', i === attivo ? 'true' : 'false');
+    var n = document.createElement('span'); n.className = 'n'; n.textContent = el.nome;
+    var d = document.createElement('span'); d.className = 'd'; d.textContent = el.det;
+    b.appendChild(n); b.appendChild(d);
+    b.addEventListener('click', function(){ onClick(i); });
+    cont.appendChild(b);
+  });
+}
+
+/* ============================================================
+   BARRA LOGARITMICA
+   ============================================================ */
+var logbar = document.getElementById('logbar');
+var cursore, fantasmi = [];
+function costruisciLogbar(){
+  logbar.innerHTML = '';
+  var pista = document.createElement('div'); pista.className = 'pista';
+  logbar.appendChild(pista);
+  /* etichette su due righe alternate: alcune ancore sono vicine in scala
+     log (millisecondo/battito di ciglia, giorno/vacanze estive) e sulla
+     stessa riga il testo si sovrappone illeggibile */
+  ANCORE.forEach(function(a, i){
+    var p = (Math.log10(a.t) - LOG_MIN) / (LOG_MAX - LOG_MIN) * 100;
+    var d = document.createElement('div');
+    d.className = 'anc ' + (i % 2 === 0 ? 'r0' : 'r1');
+    d.style.left = p + '%';
+    var s = document.createElement('span'); s.textContent = TESTI[LANG].ancore[i];
+    d.appendChild(s); logbar.appendChild(d);
+  });
+  for(var i=0;i<2;i++){
+    var f = document.createElement('div');
+    f.className = 'fant' + (i ? ' f2' : '');
+    f.style.left = '-10%'; f.style.opacity = i ? '.35' : '.6';
+    logbar.appendChild(f); fantasmi.push(f);
+  }
+  cursore = document.createElement('div'); cursore.className = 'cur';
+  logbar.appendChild(cursore);
+}
+var storiaPos = [];
+function muoviCursore(s){
+  var p = (Math.log10(s) - LOG_MIN) / (LOG_MAX - LOG_MIN) * 100;
+  p = Math.max(0, Math.min(100, p));
+  storiaPos.push(p);
+  if(storiaPos.length > 3) storiaPos.shift();
+  cursore.style.left = p + '%';
+  if(storiaPos.length >= 2) fantasmi[0].style.left = storiaPos[storiaPos.length-2] + '%';
+  if(storiaPos.length >= 3) fantasmi[1].style.left = storiaPos[storiaPos.length-3] + '%';
+}
+
+/* ============================================================
+   CANVAS — simulazione in unita' normalizzate sul traguardo.
+   u = x_fisico / x_traguardo,  s = t_fisico / t_traguardo.
+   In queste unita' la legge diventa <u^2> = s, IDENTICA per tutti i
+   viaggiatori e tutte le distanze: il filmato non cambia mai, cambiano
+   solo le etichette e il moltiplicatore dell'orologio. E' detto a schermo.
+   ============================================================ */
+var N_GRAN = 200, DS = 1/900;
+var cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+var gran = [], sTempo = 0, girando = false, finita = false;
+var SCIA = 20, N_SCIE = 5;
+
+function gauss(){
+  var u1 = Math.random() || 1e-12, u2 = Math.random();
+  return Math.sqrt(-2*Math.log(u1)) * Math.cos(2*Math.PI*u2);
+}
+function resetGranelli(){
+  gran = [];
+  for(var i=0;i<N_GRAN;i++) gran.push({ x:0, y:0, scia:[] });
+  sTempo = 0; finita = false;
+}
+function dimensiona(){
+  var r = window.devicePixelRatio || 1;
+  var w = cv.clientWidth, h = cv.clientHeight;
+  cv.width = Math.round(w*r); cv.height = Math.round(h*r);
+  ctx.setTransform(r,0,0,r,0,0);
+}
+function disegna(){
+  var w = cv.clientWidth, h = cv.clientHeight;
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle = '#0A0D18'; ctx.fillRect(0,0,w,h);
+
+  var cx = w/2, cy = h/2;
+  var scala = w / 5.4;          /* u = 1 sta a circa 1/2.7 della semilarghezza */
+
+  /* le due linee del traguardo */
+  ctx.strokeStyle = '#E5A50A'; ctx.lineWidth = 1.5; ctx.setLineDash([5,4]);
+  [-1,1].forEach(function(s){
+    ctx.beginPath();
+    ctx.moveTo(cx + s*scala, 0); ctx.lineTo(cx + s*scala, h);
+    ctx.stroke();
+  });
+  ctx.setLineDash([]);
+
+  if(finita){ disegnaIstogramma(w,h,cx,scala); return; }
+
+  /* scie, solo per i primi cinque: con duecento diventa poltiglia grigia */
+  ctx.lineWidth = 1;
+  for(var i=0;i<N_SCIE && i<gran.length;i++){
+    var g = gran[i];
+    if(g.scia.length < 2) continue;
+    ctx.strokeStyle = 'rgba(124,92,255,.5)';
+    ctx.beginPath();
+    ctx.moveTo(cx + g.scia[0][0]*scala, cy + g.scia[0][1]*scala);
+    for(var j=1;j<g.scia.length;j++) ctx.lineTo(cx + g.scia[j][0]*scala, cy + g.scia[j][1]*scala);
+    ctx.stroke();
+  }
+
+  var oltre = 0;
+  for(var k=0;k<gran.length;k++){
+    var p = gran[k];
+    var fuori = Math.abs(p.x) >= 1;
+    if(fuori) oltre++;
+    ctx.fillStyle = fuori ? '#2DD4BF' : 'rgba(233,238,255,.72)';
+    ctx.beginPath();
+    ctx.arc(cx + p.x*scala, cy + p.y*scala, fuori ? 2.4 : 2, 0, 6.2832);
+    ctx.fill();
+  }
+  document.getElementById('c-oltre').textContent = oltre;
+}
+function disegnaIstogramma(w,h,cx,scala){
+  var NB = 41, bin = new Array(NB).fill(0), maxU = 2.7;
+  gran.forEach(function(g){
+    var i = Math.round((g.x/maxU + 1) / 2 * (NB-1));
+    if(i >= 0 && i < NB) bin[i]++;
+  });
+  var mx = Math.max.apply(null, bin) || 1;
+  var bw = w / NB;
+  for(var i=0;i<NB;i++){
+    var u = (i/(NB-1)*2 - 1) * maxU;
+    var hh = bin[i]/mx * (h*0.68);
+    ctx.fillStyle = Math.abs(u) >= 1 ? 'rgba(45,212,191,.85)' : 'rgba(233,238,255,.55)';
+    ctx.fillRect(i*bw + 1, h - hh - 26, bw - 2, hh);
+  }
+  var oltre = gran.filter(function(g){ return Math.abs(g.x) >= 1; }).length;
+  document.getElementById('c-oltre').textContent = oltre;
+  ctx.fillStyle = '#C9CEE2';
+  ctx.font = '12px ui-monospace, Menlo, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(TESTI[LANG].istogramma_nota, cx, h - 8);
+}
+function passo(){
+  if(girando && !finita){
+    var d = Math.sqrt(DS);
+    for(var i=0;i<gran.length;i++){
+      var g = gran[i];
+      g.x += gauss()*d; g.y += gauss()*d;
+      if(i < N_SCIE){
+        g.scia.push([g.x,g.y]);
+        if(g.scia.length > SCIA) g.scia.shift();
+      }
+    }
+    sTempo += DS;
+    if(sTempo >= 1){ finita = true; girando = false; aggiornaStato(); }
+  }
+  disegna();
+  requestAnimationFrame(passo);
+}
+function aggiornaStato(){
+  var e = document.getElementById('c-stato');
+  var L = TESTI[LANG];
+  if(finita) e.textContent = L.stato_traguardo;
+  else if(girando) e.textContent = L.stato_corsa_template.replace('{pct}', Math.round(sTempo*100));
+  else e.textContent = L.stato_fermo;
+}
+
+/* ============================================================
+   OROLOGIO — il fattore va detto NEI DUE VERSI. Per meta' delle
+   combinazioni questa non e' un'accelerazione, e' un rallentatore.
+   ============================================================ */
+function aggiornaCrono(){
+  var tReale = 15;                 /* la corsa a schermo dura ~15 s a 60 fps */
+  var f = t_ora() / tReale;
+  var e = document.getElementById('crono');
+  var L = TESTI[LANG], n;
+  if(f >= 1){ n = f; } else { n = 1/f; }
+  var testo = f >= 1
+    ? L.crono_corre_template.replace('{n}', sci(n,3))
+    : L.crono_va_template.replace('{n}', sci(n,3));
+  e.innerHTML = testo + '<br>' + L.crono_nota;
+}
+
+/* ============================================================
+   CONTI A MANO
+   ============================================================ */
+function aggiornaConti(){
+  var L = TESTI[LANG];
+  var v = VIAGGIATORI[st.viagg], D = D_ora(), x = x_ora(), t = t_ora();
+  var nomeViagg = L.viaggiatori[st.viagg].nome;
+  var lx = fmtLunghezza(x), lt = fmtTempo(t), lungo = fmtTempoLungo(t);
+  var righe = [];
+  righe.push(L.conti_riga1);
+  righe.push('');
+  righe.push(L.conti_x.replace('{lxn}', lx.n).replace('{lxu}', lx.u).replace('{scix}', sci(x,3)));
+  righe.push(L.conti_D.replace('{sciD}', sci(D,3)));
+  righe.push(L.conti_D_sub.replace('{stato}', v.misurato ? L.conti_misurato : L.conti_calcolato).replace('{tempC}', st.tempC));
+  righe.push('');
+  righe.push(L.conti_x2.replace('{v}', sci(x*x,3)));
+  righe.push(L.conti_2D.replace('{v}', sci(2*D,3)));
+  righe.push(L.conti_t.replace('{a}', sci(x*x,3)).replace('{b}', sci(2*D,3)).replace('{c}', sci(t,3)));
+  righe.push('');
+  var extra = lungo ? (L.conti_extra_pre + lungo + L.conti_extra_suf) : '';
+  righe.push(L.conti_cioe.replace('{n}', lt.n).replace('{u}', lt.u).replace('{extra}', extra));
+  righe.push('');
+  righe.push(L.conti_finale_1);
+  righe.push(L.conti_finale_2);
+  document.getElementById('conti').innerHTML = righe.join('\n');
+
+  var T = st.tempC + 273.15, eta = etaAcqua(st.tempC);
+  var kT = K_BOLTZMANN * T, den = 6*Math.PI*eta*R_GRANELLO;
+  var r2 = [];
+  r2.push(L.conti_se_riga1);
+  r2.push('');
+  r2.push(L.conti_se_k);
+  r2.push(L.conti_se_T.replace('{tempC}', st.tempC).replace('{T}', it(T,2)));
+  r2.push(L.conti_se_eta.replace('{eta}', sci(eta,4)).replace('{tempC}', st.tempC));
+  r2.push(L.conti_se_r);
+  r2.push('');
+  r2.push(L.conti_se_kT.replace('{v}', sci(kT,5)));
+  r2.push(L.conti_se_den.replace('{v}', sci(den,5)));
+  r2.push(L.conti_se_D.replace('{v}', sci(kT/den,5)));
+  r2.push('');
+  if(v.misurato){
+    r2.push(L.conti_se_attenzione_1.replace('{nome}', nomeViagg.toLowerCase()));
+    r2.push(L.conti_se_attenzione_2);
+    r2.push(L.conti_se_attenzione_3);
+    r2.push(L.conti_se_attenzione_4);
+  } else {
+    r2.push(L.conti_se_usiamo);
+  }
+  r2.push('');
+  r2.push(L.conti_se_girata_1);
+  r2.push(L.conti_se_girata_2);
+  r2.push(L.conti_se_girata_3);
+  document.getElementById('conti-se').innerHTML = r2.join('\n');
+}
+
+/* ============================================================
+   AGGIORNAMENTO GENERALE
+   ============================================================ */
+function aggiorna(muovi){
+  var L = TESTI[LANG];
+  var x = x_ora(), t = t_ora(), v = v_apparente();
+  var lx = fmtLunghezza(x), lt = fmtTempo(t), lungo = fmtTempoLungo(t);
+
+  document.getElementById('v-dist').innerHTML = lx.n + ' <span class="u">' + lx.u + '</span>';
+  document.getElementById('v-tempo').innerHTML =
+    (lungo ? lungo : lt.n + ' <span class="u">' + lt.u + '</span>');
+  document.getElementById('v-ancora').textContent =
+    L.v_ancora_template.replace('{a}', ancoraVicina(t));
+
+  document.getElementById('v-vel').textContent = fmtVelocita(v);
+  document.getElementById('v-vel-nota').textContent = L.v_vel_nota;
+
+  document.getElementById('conta-press').textContent = st.pressioni === 0
+    ? L.conta_press_zero
+    : L.conta_press_template
+        .replace('{n}', st.pressioni)
+        .replace('{parola}', st.pressioni === 1 ? L.conta_press_singolare : L.conta_press_plurale)
+        .replace('{dx}', Math.pow(2,st.pressioni))
+        .replace('{dt}', Math.pow(4,st.pressioni));
+
+  document.getElementById('btn-radd').disabled = (x >= 1e4);
+
+  document.getElementById('nota-viagg').textContent = L.viaggiatori[st.viagg].nota;
+
+  if(muovi !== false) muoviCursore(t);
+  aggiornaCrono();
+  aggiornaConti();
+  aggiornaStato();
+}
+
+/* ============================================================
+   AVVIO
+   ============================================================ */
+function ridisegnaSchede(){
+  costruisciSchede(document.getElementById('sc-viagg'), TESTI[LANG].viaggiatori, st.viagg, function(i){
+    st.viagg = i; ridisegnaSchede(); riparti();
+  });
+  costruisciSchede(document.getElementById('sc-dist'), TESTI[LANG].distanze, st.dist, function(i){
+    st.dist = i; st.pressioni = 0; ridisegnaSchede(); riparti();
+  });
+}
+function riparti(){
+  resetGranelli(); girando = true; aggiorna();
+}
+
+document.getElementById('btn-radd').addEventListener('click', function(){
+  st.pressioni++; riparti();
+});
+document.getElementById('btn-reset').addEventListener('click', function(){
+  st.pressioni = 0; riparti();
+});
+document.getElementById('sl-temp').addEventListener('input', function(e){
+  st.tempC = parseInt(e.target.value,10);
+  document.getElementById('v-temp').textContent = st.tempC + ' °C';
+  aggiorna();
+});
+window.addEventListener('resize', dimensiona);
+
+applyI18n();
+costruisciLogbar();
+ridisegnaSchede();
+dimensiona();
+resetGranelli();
+girando = true;
+aggiorna();
+requestAnimationFrame(passo);
+
+/* ------------------------------------------------------------
+   AUTOCOLLAUDO — gira in console, non tocca la pagina.
+   Se uno di questi salta, la pagina sta mentendo.
+   ------------------------------------------------------------ */
+(function collaudo(){
+  var esiti = [];
+  function ok(nome, avuto, atteso, toll){
+    var passa = Math.abs(avuto-atteso)/Math.abs(atteso) < (toll||0.01);
+    esiti.push((passa?'OK  ':'NO  ') + nome + '  = ' + avuto.toPrecision(4) +
+               (passa ? '' : '   atteso ' + atteso));
+    return passa;
+  }
+  var salva = { v:st.viagg, d:st.dist, p:st.pressioni, t:st.tempC };
+  st.tempC = 20;
+  st.viagg = 0; st.dist = 2; st.pressioni = 0;
+  ok('ossigeno + cellula (s)', t_ora(), 0.100);
+  st.dist = 5;
+  ok('ossigeno + metro (anni)', t_ora()/ANNO, 7.9, 0.02);
+  st.viagg = 3; st.dist = 2;
+  ok('granello D (m2/s)', D_ora(), 4.2858e-13);
+  ok('granello + cellula (s)', t_ora(), 466.7);
+  st.pressioni = 6;
+  ok('sei raddoppi: distanza (um)', x_ora()*1e6, 1280);
+  ok('sei raddoppi: tempo (giorni)', t_ora()/86400, 22.1, 0.02);
+  /* la formula girata al contrario deve restituire le taglie vere */
+  var kT20 = K_BOLTZMANN*293.15, kT25 = K_BOLTZMANN*298.15;
+  ok('raggio emoglobina (nm)', kT20/(6*Math.PI*etaAcqua(20)*6.9e-11)*1e9, 3.1, 0.02);
+  ok('raggio glucosio a 25 C (nm)', kT25/(6*Math.PI*etaAcqua(25)*6.7e-10)*1e9, 0.37, 0.02);
+  /* il polmone */
+  st.viagg = 0; st.pressioni = 0;
+  var tPolmone = Math.pow(0.6e-6,2)/(2*2.0e-9);
+  ok('parete alveolo (us)', tPolmone*1e6, 90);
+  ok('margine del polmone', 0.75/tPolmone, 8333, 0.01);
+  /* il generatore gaussiano: media 0, varianza 1 */
+  var s1=0, s2=0, N=40000;
+  for(var i=0;i<N;i++){ var g=gauss(); s1+=g; s2+=g*g; }
+  ok('gauss: media', s1/N + 1, 1, 0.02);
+  ok('gauss: varianza', s2/N, 1, 0.03);
+  st.viagg=salva.v; st.dist=salva.d; st.pressioni=salva.p; st.tempC=salva.t;
+  var falliti = esiti.filter(function(e){ return e.indexOf('NO') === 0; }).length;
+  console.log('%cAutocollaudo esperimento 6 — ' + (falliti ? falliti + ' CONTROLLI FALLITI' : 'tutti i controlli passati'),
+              'font-weight:bold;color:' + (falliti ? '#c00' : '#0a0'));
+  esiti.forEach(function(e){ console.log('  ' + e); });
+})();
+
+})();
+
+try{ if(typeof setLang==='function') setLang('en'); }catch(e){}
+</script>
+</body>
+</html>

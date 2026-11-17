@@ -1,0 +1,1711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How big can an animal get? The square-cube law</title>
+<style>
+
+:root{
+  --scuro-1:#16224A; --scuro-2:#0D1120; --scuro-3:#04060E;
+  --carta:#FAF7F1; --inchiostro:#33302B; --attenuato:#7E7768;
+  --oro:#E5A50A; --oro-chiaro:#FFD86E; --viola:#7C5CFF; --acqua:#2DD4BF;
+  --rosso:#D6455B;
+  --bordo:#E7E1D3; --bianco:#FFFFFF; --crema:#FCFAF6;
+  --titolo:'Bebas Neue','Avenir Next Condensed','Oswald',sans-serif;
+  --testo:'DM Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'DM Mono','SFMono-Regular',Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--carta); color:var(--inchiostro);
+  font-family:var(--testo); font-size:16.5px; line-height:1.62;
+  -webkit-text-size-adjust:100%;
+}
+h1,h2,h3,.big{font-family:var(--titolo);font-weight:500;letter-spacing:.012em;line-height:1.04;margin:0}
+p{margin:0 0 .85em}
+a{color:var(--inchiostro)}
+
+/* ---------- fascia alta scura ---------- */
+.hero{
+  position:relative; color:#EDEAF6; padding:34px 20px 40px;
+  background:
+    radial-gradient(820px 400px at 10% -6%, rgba(124,92,255,.22), rgba(124,92,255,0) 62%),
+    radial-gradient(720px 380px at 92% 8%, rgba(63,106,245,.16), rgba(63,106,245,0) 64%),
+    radial-gradient(150% 130% at 50% 0%, #16224A 0%, #0D1120 54%, #04060E 100%);
+}
+.hero .inner{max-width:1040px;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--oro-chiaro);margin-bottom:14px}
+.hero h1{font-size:clamp(38px,10.5vw,74px);color:#fff}
+.hero .sotto{font-size:clamp(15px,4vw,19px);color:#B9C0DC;margin-top:12px;max-width:62ch}
+.credenziale{
+  margin-top:20px;display:inline-flex;flex-wrap:wrap;gap:8px 14px;align-items:center;
+  font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:#95A0C6;
+  border-top:1px solid rgba(255,255,255,.14);padding-top:14px;
+}
+.credenziale b{color:#DCE2F5;font-weight:500}
+
+/* ---------- impaginato ---------- */
+main{max-width:1040px;margin:0 auto;padding:0 16px 90px}
+section{margin-top:34px}
+.tit{display:flex;align-items:baseline;gap:12px;margin:0 0 14px}
+.tit .num{font-family:var(--mono);font-size:12px;letter-spacing:.18em;color:var(--attenuato);white-space:nowrap}
+.tit h2{font-size:clamp(26px,6.4vw,38px)}
+.riquadro{background:var(--bianco);border:1px solid var(--bordo);border-radius:20px;padding:20px}
+.riquadro.crema{background:var(--crema)}
+.riquadro + .riquadro{margin-top:14px}
+.nota{font-size:14.2px;color:var(--attenuato)}
+.mono{font-family:var(--mono)}
+.etichetta{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--attenuato)}
+
+/* ---------- scelta creatura ---------- */
+.creature{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.creatura{
+  cursor:pointer;text-align:left;font-family:var(--testo);font-size:15px;color:var(--inchiostro);
+  background:var(--bianco);border:1px solid var(--bordo);border-radius:16px;padding:13px 14px;
+  transition:border-color .2s ease-out, box-shadow .2s ease-out, background .2s ease-out;
+}
+.creatura:hover{border-color:#CFC6AE}
+.creatura[aria-pressed="true"]{border-color:var(--oro);background:#FFFBF0;box-shadow:0 0 0 2px rgba(229,165,10,.22)}
+.creatura .n{font-family:var(--titolo);font-size:23px;display:block;line-height:1.06}
+.creatura .s{font-family:var(--mono);font-size:11.5px;color:var(--attenuato);display:block;margin-top:5px;letter-spacing:.02em}
+
+/* ---------- manopola ---------- */
+.manopolaBox{margin-top:14px}
+.lettura{display:flex;flex-wrap:wrap;gap:18px 30px;align-items:flex-end;margin-bottom:6px}
+.valore .v{font-family:var(--titolo);font-size:clamp(40px,11vw,60px);line-height:.94;display:block}
+.valore .u{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--attenuato);display:block;margin-top:7px}
+.valore .v small{font-size:.46em;letter-spacing:.02em;color:var(--attenuato);font-family:var(--mono)}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:34px;background:transparent;margin:6px 0 0;
+}
+input[type=range]:focus-visible{outline:2px solid var(--viola);outline-offset:4px;border-radius:8px}
+input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:99px;background:linear-gradient(90deg,#EFE7D2,#E2D8BE)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;margin-top:-11px;border-radius:50%;background:var(--oro);border:3px solid #fff;box-shadow:0 2px 8px rgba(60,45,10,.32);cursor:grab}
+input[type=range]::-moz-range-track{height:8px;border-radius:99px;background:#EFE7D2}
+input[type=range]::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:var(--oro);border:3px solid #fff;box-shadow:0 2px 8px rgba(60,45,10,.32);cursor:grab}
+.tacche{position:relative;height:16px;margin:-2px 2px 8px}
+.tacca{position:absolute;top:0;width:2px;height:9px;background:#CFC6AE;border-radius:2px;transform:translateX(-1px)}
+.scatti{display:flex;flex-wrap:wrap;gap:7px;margin-top:6px}
+.scatto{
+  cursor:pointer;font-family:var(--mono);font-size:11.8px;letter-spacing:.01em;
+  background:#fff;border:1px solid var(--bordo);border-radius:99px;padding:6px 11px;color:var(--inchiostro);
+  transition:background .2s ease-out,border-color .2s ease-out;
+}
+.scatto:hover{background:#FFFBF0;border-color:var(--oro)}
+.scatto[data-attivo="1"]{background:var(--oro);border-color:var(--oro);color:#2A2100}
+.badgeTaglia{
+  margin-top:12px;display:flex;gap:11px;align-items:center;flex-wrap:wrap;
+  background:#F4F1FF;border:1px solid #DFD6FF;border-radius:14px;padding:11px 14px;
+  transition:opacity .25s ease-out;
+}
+.badgeTaglia .p{font-family:var(--titolo);font-size:21px;color:#3B2E7A;line-height:1.05}
+.badgeTaglia .q{font-family:var(--mono);font-size:12px;color:#6C61A8}
+
+/* ---------- canvas ---------- */
+.telaBox{margin-top:14px}
+canvas{display:block;width:100%;border-radius:14px}
+#scena{background:linear-gradient(180deg,#FFFFFF 0%,#FBF8F1 100%);border:1px solid var(--bordo)}
+#confronto{background:var(--crema);border:1px solid var(--bordo);margin-top:10px}
+#loglog{background:var(--bianco);border:1px solid var(--bordo)}
+#ossa{background:var(--bianco);border:1px solid var(--bordo)}
+
+/* ---------- barre ---------- */
+.barre{display:grid;gap:13px;margin-top:4px}
+.barra .cap{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:6px}
+.barra .nome{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+.barra .exp{font-family:var(--mono);font-size:11px;color:var(--attenuato);letter-spacing:.08em}
+.barra .num{font-family:var(--titolo);font-size:26px;line-height:1;text-align:right}
+.barra .num i{font-family:var(--mono);font-size:11.5px;font-style:normal;color:var(--attenuato);letter-spacing:.06em;display:block;margin-top:4px}
+.track{position:relative;height:15px;background:#F1ECDF;border-radius:99px;overflow:hidden}
+.fill{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:99px;transition:width .3s ease-out}
+.tracciaWrap{position:relative}
+.soglia{position:absolute;top:-4px;bottom:-4px;width:3px;border-radius:2px;transform:translateX(-1.5px)}
+.soglia.rossa{background:var(--rosso)}
+.soglia.grigia{background:#B9B0A0}
+.sogliaTxt{font-family:var(--mono);font-size:11px;margin-top:6px;display:block}
+.sogliaTxt.rossa{color:var(--rosso)}
+.sogliaTxt.grigia{color:var(--attenuato)}
+.f-massa{background:linear-gradient(90deg,#9C86FF,#7C5CFF)}
+.f-forza{background:linear-gradient(90deg,#6EE7D8,#2DD4BF)}
+.f-sforzo{background:linear-gradient(90deg,#FFD86E,#E5A50A)}
+.f-rel{background:linear-gradient(90deg,#E58898,#D6455B)}
+.logNota{font-family:var(--mono);font-size:11.5px;color:var(--attenuato);margin-bottom:12px;letter-spacing:.02em}
+
+/* ---------- allarme crollo ---------- */
+.crollo{
+  margin-top:14px;border-radius:18px;padding:16px 18px;border:1px solid #F0C9CF;background:#FDF3F4;
+  transition:opacity .3s ease-out;
+}
+.crollo.ok{border-color:#CDE9E4;background:#F1FBF9}
+.crollo .k{font-family:var(--titolo);font-size:23px;line-height:1.06;display:block;margin-bottom:4px}
+.crollo.no .k{color:#A32C3F}
+.crollo.ok .k{color:#136A5C}
+.crollo p{margin:0;font-size:14.6px}
+
+/* ---------- interruttore 8,78 / 50 ---------- */
+.duenumeri{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;margin-top:4px}
+.numOpz{
+  cursor:pointer;text-align:left;background:var(--bianco);border:1px solid var(--bordo);border-radius:16px;padding:13px 14px;
+  font-family:var(--testo);color:var(--inchiostro);transition:border-color .2s ease-out,background .2s ease-out;
+}
+.numOpz[aria-pressed="true"]{border-color:var(--viola);background:#F7F5FF;box-shadow:0 0 0 2px rgba(124,92,255,.18)}
+.numOpz .big{font-size:34px;display:block;line-height:1}
+.numOpz .tag{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--attenuato);display:block;margin-top:6px}
+.numOpz .soglia2{font-family:var(--mono);font-size:12.5px;display:block;margin-top:8px;color:var(--inchiostro)}
+
+/* ---------- formule ---------- */
+.formule{overflow-x:auto;background:#0D1120;border-radius:18px;padding:18px 16px;border:1px solid #1D2440}
+.formule pre{margin:0;font-family:var(--mono);font-size:13px;line-height:1.72;color:#D6DCF2;white-space:pre-wrap;word-break:normal}
+.formule b{color:var(--oro-chiaro);font-weight:500}
+.formule i{color:var(--acqua);font-style:normal}
+.formule u{color:#A794FF;text-decoration:none}
+
+/* ---------- casi ---------- */
+.casi{display:grid;gap:12px}
+.caso{background:var(--bianco);border:1px solid var(--bordo);border-radius:18px;padding:17px 18px}
+.caso h3{font-size:22px;margin-bottom:9px}
+.caso .riga{display:grid;grid-template-columns:104px 1fr;gap:6px 12px;font-size:14.6px;margin-top:9px}
+.caso .riga .et{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--attenuato);padding-top:4px}
+.caso .ris{color:var(--inchiostro)}
+.caso b{font-weight:600}
+.caso .ctrl{font-family:var(--mono);font-size:12.4px;line-height:1.62;color:#5E574B;overflow-x:auto}
+
+/* ---------- ossa di galileo ---------- */
+.ossoGriglia{display:grid;grid-template-columns:1fr;gap:14px}
+.ossoDati{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:12px}
+.datoBox{border:1px solid var(--bordo);border-radius:14px;padding:12px 13px;background:var(--crema)}
+.datoBox .v{font-family:var(--titolo);font-size:29px;line-height:1;display:block}
+.datoBox .l{font-family:var(--mono);font-size:11px;letter-spacing:.09em;color:var(--attenuato);display:block;margin-top:6px;text-transform:uppercase}
+
+/* ---------- onestà ---------- */
+.punti{counter-reset:p;display:grid;gap:14px}
+.punto{background:var(--bianco);border:1px solid var(--bordo);border-radius:18px;padding:16px 18px;position:relative}
+.punto::before{
+  counter-increment:p;content:counter(p);
+  font-family:var(--titolo);font-size:20px;color:var(--oro);
+  display:inline-block;margin-right:9px;
+}
+.punto p:first-of-type{display:inline}
+.punto.grave{border-color:#EAD9AE;background:#FFFCF3}
+
+/* ---------- vari ---------- */
+.evidenza{background:linear-gradient(180deg,rgba(229,165,10,.20),rgba(229,165,10,.20));box-shadow:inset 0 -.55em rgba(255,216,110,.5);padding:0 .06em}
+ul.pulita{margin:.4em 0 0;padding-left:1.15em}
+ul.pulita li{margin-bottom:.4em}
+footer{margin-top:44px;border-top:1px solid var(--bordo);padding-top:20px;font-size:13.6px;color:var(--attenuato)}
+footer b{color:var(--inchiostro);font-weight:600}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+@media (min-width:760px){
+  .ossoGriglia{grid-template-columns:1.05fr .95fr;align-items:start}
+  .caso .riga{grid-template-columns:118px 1fr}
+}
+@media (max-width:520px){
+  .barra .cap{flex-direction:column;align-items:flex-start;gap:1px}
+  .barra .num{text-align:left;font-size:30px;margin-top:2px}
+  .barra .num i{margin-top:3px}
+}
+@media (max-width:420px){
+  body{font-size:16px}
+  .riquadro{padding:16px 14px;border-radius:18px}
+  .caso .riga{grid-template-columns:1fr;gap:2px}
+  .caso .riga .et{padding-top:8px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important}
+}
+
+</style>
+</head>
+<body>
+<a href="../index.html" style="display:inline-block;margin:14px;font:12px monospace;color:inherit">&larr; All experiments</a>
+
+
+<header class="hero">
+  <div class="inner">
+<div class="lab-hero-ico" style="width:52px;height:52px;color:#8A6A07;margin:0 0 10px"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="14" width="6" height="6" rx=".8"/><rect x="12" y="4" width="10" height="10" rx="1"/><path d="M10 14 12 12"/></svg></div>
+    <div class="eyebrow" data-i18n="eyebrow_exp">Esperimento 5 · Biomeccanica</div>
+    <h1><span data-i18n="h1_line1">Quanto grande può</span><br><span data-i18n="h1_line2">diventare un animale</span></h1>
+    <p class="sotto" data-i18n="hero_sotto">Ingrandisci una creatura vera mantenendo esatte le proporzioni. Le aree crescono come il quadrato della lunghezza, i volumi come il cubo. Da questa sola differenza dipende tutto quello che vedrai succedere.</p>
+    <div class="credenziale">
+      <span data-i18n="cred_1">Legge del quadrato-cubo</span>
+      <span data-i18n="cred_2"><b>Galileo Galilei</b>, <i>Discorsi</i>, Giornata seconda, 1638</span>
+      <span data-i18n="cred_3">ripresa da <b>J. B. S. Haldane</b>, <i>On Being the Right Size</i>, 1926</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- 1 · CHI -->
+<section aria-labelledby="t-chi">
+  <div class="tit"><span class="num">01</span><h2 id="t-chi" data-i18n="tit_chi">Scegli chi ingrandire</h2></div>
+  <div class="creature" id="creature" role="group" data-i18n="aria_creatures" aria-label="Scelta della creatura"></div>
+  <p class="nota" id="notaCreatura" style="margin-top:11px"></p>
+</section>
+
+<!-- 2 · MANOPOLA -->
+<section aria-labelledby="t-man">
+  <div class="tit"><span class="num">02</span><h2 id="t-man" data-i18n="tit_man">Gira la manopola</h2></div>
+  <div class="riquadro manopolaBox">
+    <div class="lettura">
+      <div class="valore"><span class="v" id="vK">1</span><span class="u" data-i18n="etichetta_k">fattore di ingrandimento k</span></div>
+      <div class="valore"><span class="v" id="vL">7,5 mm</span><span class="u" data-i18n="etichetta_L">lunghezza vera</span></div>
+      <div class="valore"><span class="v" id="vM">9,3 mg</span><span class="u" data-i18n="etichetta_m">massa</span></div>
+    </div>
+    <input type="range" id="manopola" min="0" max="265" step="1" value="0"
+           data-i18n="aria_manopola" aria-label="Fattore di ingrandimento" aria-valuetext="l’animale vero, 7,5 millimetri">
+    <div class="tacche" id="tacche" aria-hidden="true"></div>
+    <div class="scatti" id="scatti" role="group" data-i18n="aria_scatti" aria-label="Taglie notevoli"></div>
+    <div class="badgeTaglia" id="badge">
+      <span class="p" id="badgeP" data-i18n="badge_formica_vera">la formica vera</span>
+      <span class="q" id="badgeQ">7,5 mm</span>
+    </div>
+  </div>
+
+  <div class="riquadro telaBox">
+    <canvas id="scena" width="900" height="420" role="img" data-i18n="canvas_scena_label" aria-label="Disegno della creatura ingrandita, con righello della lunghezza vera"></canvas>
+    <canvas id="confronto" width="900" height="150" role="img" data-i18n="canvas_confronto_label" aria-label="Confronto a scala reale con una persona alta 1,75 metri"></canvas>
+    <p class="nota" style="margin:10px 0 0" data-i18n="nota_confronto">Nella striscia in basso la persona è alta 1,75 m e la creatura è disegnata alla sua scala vera accanto a lei. Sotto una certa taglia la creatura diventa un puntino di due pixel: non è la sua dimensione, è il limite dello schermo.</p>
+  </div>
+</section>
+
+<!-- 3 · BARRE -->
+<section aria-labelledby="t-bar">
+  <div class="tit"><span class="num">03</span><h2 id="t-bar" data-i18n="tit_bar">Quattro grandezze, quattro velocità</h2></div>
+  <div class="riquadro">
+    <p class="logNota" data-i18n="nota_log">Le barre sono in scala logaritmica: ogni tacca è un fattore dieci. Il valore in chiaro è scritto a destra.</p>
+    <div class="barre" id="barre">
+
+      <div class="barra">
+        <div class="cap">
+          <div><span class="nome" style="color:#5B43C9" data-i18n="barra_massa_nome">Massa del corpo</span> <span class="exp" data-i18n="barra_massa_exp">× k³</span></div>
+          <div class="num" id="nMassa">9,3 mg<i id="iMassa">× 1</i></div>
+        </div>
+        <div class="tracciaWrap"><div class="track"><div class="fill f-massa" id="bMassa"></div></div></div>
+      </div>
+
+      <div class="barra">
+        <div class="cap">
+          <div><span class="nome" style="color:#12897A" data-i18n="barra_forza_nome">Forza delle zampe</span> <span class="exp" data-i18n="barra_forza_exp">× k²</span></div>
+          <div class="num" id="nForza">0,89 mN<i id="iForza">× 1</i></div>
+        </div>
+        <div class="tracciaWrap"><div class="track"><div class="fill f-forza" id="bForza"></div></div></div>
+      </div>
+
+      <div class="barra">
+        <div class="cap">
+          <div><span class="nome" style="color:#9A6E00" data-i18n="barra_sforzo_nome">Schiacciamento nell’osso</span> <span class="exp" data-i18n="barra_sforzo_exp">× k</span></div>
+          <div class="num" id="nSforzo">× 1<i id="iSforzo">compared with the real animal</i></div>
+        </div>
+        <div class="tracciaWrap">
+          <div class="track"><div class="fill f-sforzo" id="bSforzo"></div></div>
+          <div class="soglia grigia" id="sSforzo" style="display:none"></div>
+        </div>
+        <span class="sogliaTxt grigia" id="txtSforzo"></span>
+      </div>
+
+      <div class="barra">
+        <div class="cap">
+          <div><span class="nome" style="color:#B2384A" data-i18n="barra_rel_nome">Forza relativa</span> <span class="exp" data-i18n="barra_rel_exp">÷ k · va all’indietro</span></div>
+          <div class="num" id="nRel">9,78<i id="iRel">pesi corporei che le zampe reggono</i></div>
+        </div>
+        <div class="tracciaWrap">
+          <div class="track"><div class="fill f-rel" id="bRel"></div></div>
+          <div class="soglia rossa" id="sRel" style="left:74.6%"></div>
+        </div>
+        <span class="sogliaTxt rossa" id="txtRel">sotto questa riga non si regge in piedi</span>
+      </div>
+
+    </div>
+
+    <div class="crollo ok" id="crollo">
+      <span class="k" id="crolloK">Sta in piedi.</span>
+      <p id="crolloP"></p>
+    </div>
+  </div>
+
+  <div class="riquadro">
+    <div class="etichetta" style="margin-bottom:9px">Perché corrono a velocità diverse</div>
+    <canvas id="loglog" width="900" height="330" role="img" data-i18n="grafico_loglog_label" aria-label="Grafico logaritmico con quattro rette di pendenza 3, 2, 1 e meno 1"></canvas>
+    <p class="nota" style="margin:10px 0 0" data-i18n="nota_loglog">Su due assi logaritmici le quattro grandezze sono quattro rette, e la pendenza di ciascuna è esattamente il suo esponente: 3, 2, 1, −1. Non c'è niente da misurare: sono geometria.</p>
+  </div>
+</section>
+
+<!-- 4 · INTERRUTTORE -->
+<section aria-labelledby="t-num">
+  <div class="tit"><span class="num">04</span><h2 id="t-num" data-i18n="tit_num">Da dove viene il numero di partenza</h2></div>
+  <div class="riquadro">
+    <p style="margin-bottom:14px" data-i18n="testo_num_intro">Tutti i conti su questa pagina partono da una sola misura: quanti pesi corporei riescono a spingere le zampe di una formica tagliafoglie. Prova a cambiarla e guarda cosa succede alla soglia.</p>
+    <div class="duenumeri" id="duenumeri" role="group" aria-label="Carrying capacity of the ant"></div>
+    <p class="nota" id="notaDue" style="margin:13px 0 0"></p>
+  </div>
+</section>
+
+<!-- 5 · OSSO DI GALILEO -->
+<section aria-labelledby="t-osso">
+  <div class="tit"><span class="num">05</span><h2 id="t-osso" data-i18n="tit_osso">L’osso di Galileo</h2></div>
+  <div class="riquadro">
+    <p data-i18n="testo_osso">Se vuoi che lo schiacciamento dentro l’osso <b>non cambi</b> mentre ingrandisci, l’area dell’osso deve crescere come k³ e non come k². L’area va col quadrato del diametro, quindi il diametro deve crescere come k·√k. Rispetto al resto del corpo l’osso diventa √k volte più tozzo. Questo è il disegno che Galileo pubblica nel 1638.</p>
+    <div class="ossoGriglia">
+      <div>
+        <canvas id="ossa" width="760" height="420" role="img" data-i18n="canvas_ossa_label" aria-label="Due femori a confronto, disegnati alla stessa lunghezza sullo schermo"></canvas>
+        <p class="nota" style="margin:9px 0 0" data-i18n="nota_ossa">I due ossi sono disegnati <b>alla stessa lunghezza sullo schermo</b>: l’unica differenza visibile è lo spessore, ed è il punto della tavola del 1638.</p>
+      </div>
+      <div>
+        <label class="etichetta" for="kOsso" data-i18n="label_gigante">Gigante alto <span id="ossoAlt">3</span> volte te — <span id="ossoM">5,25 m</span></label>
+        <input type="range" id="kOsso" min="10" max="60" step="1" value="30" data-i18n="aria_kOsso" aria-label="Fattore di ingrandimento del gigante" aria-valuetext="tre volte, 5,25 metri">
+        <div class="ossoDati">
+          <div class="datoBox">
+            <span class="v" id="dIso">7,8 cm</span>
+            <span class="l" data-i18n="dato_iso_label">a proporzioni esatte</span>
+          </div>
+          <div class="datoBox" style="background:#FFFBF0;border-color:#EAD9AE">
+            <span class="v" id="dGal" style="color:#9A6E00">13,5 cm</span>
+            <span class="l" data-i18n="dato_gal_label">per reggere lo stesso sforzo</span>
+          </div>
+          <div class="datoBox">
+            <span class="v" id="dRad">1,73 ×</span>
+            <span class="l" data-i18n="dato_rad_label">più tozzo, cioè √k</span>
+          </div>
+          <div class="datoBox">
+            <span class="v" id="dLung">1,35 m</span>
+            <span class="l" data-i18n="dato_lung_label">lunghezza del femore</span>
+          </div>
+        </div>
+        <p class="nota" style="margin-top:12px" data-i18n="nota_femore">Femore di partenza: 450 mm di lunghezza, 26 mm di diametro esterno. Galilei, <i>Discorsi</i>, Giornata seconda, 1638.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · FORMULE -->
+<section aria-labelledby="t-for">
+  <div class="tit"><span class="num">06</span><h2 id="t-for" data-i18n="tit_for">Le formule, per rifare i conti a mano</h2></div>
+  <div class="formule">
+<pre data-i18n="formule_testo"><b>IL FATTORE DI INGRANDIMENTO.</b>  k = lunghezza nuova / lunghezza di partenza.
+k = 1 è l'animale vero; k = 10 vuol dire dieci volte più lungo, ma anche dieci volte
+più largo e dieci volte più alto. Le proporzioni non cambiano mai: è questa l'ipotesi
+di tutto l'esperimento.
+
+<b>LA MASSA.</b>  <i>m = m₀ × k³</i>.  Raddoppi la lunghezza, la massa fa per otto.
+La triplichi, fa per ventisette.
+
+<b>LA FORZA DEI MUSCOLI.</b>  <i>F = F₀ × k²</i>, perché la forza di un muscolo va con
+l'AREA della sua sezione, tagliata di traverso, e l'area cresce come il quadrato.
+(Come ordine di grandezza si citano 25 N per cm² di sezione: qui è solo illustrativo,
+in questa pagina non entra in nessun conto.)
+
+<b>IL PESO.</b>  <i>P = m × g</i>,  con g = 9,81 m/s².  Segue la massa: P = P₀ × k³.
+
+<b>LA FORZA RELATIVA, la formula che decide tutto.</b>
+   <u>F / P = (F₀ / P₀) / k</u>        perché sopra c'è k², sotto k³, e k²/k³ = 1/k.
+Quante volte il proprio peso riesci a spingere si divide per il fattore di
+ingrandimento. Ingrandisci dieci volte, sei dieci volte più debole rispetto a te stesso.
+
+<b>LO SCHIACCIAMENTO DENTRO L'OSSO.</b>  <i>σ = P / A = σ₀ × k</i>
+(sopra k³, sotto k²). Raddoppi la taglia, raddoppi lo schiacciamento dentro l'osso.
+
+<b>LA REGOLA DELL'OSSO DI GALILEO.</b>  Se vuoi che lo sforzo NON cambi, l'area dell'osso
+deve crescere come k³ e non come k². L'area va col quadrato del diametro, quindi il
+diametro deve crescere come <u>k^(3/2) = k · √k</u>. Rispetto al resto del corpo l'osso
+diventa √k volte più tozzo. È il disegno che Galileo pubblica nel 1638.</pre>
+  </div>
+</section>
+
+<!-- 7 · CASI -->
+<section aria-labelledby="t-casi">
+  <div class="tit"><span class="num">07</span><h2 id="t-casi" data-i18n="tit_casi">I casi, con i conti in chiaro</h2></div>
+  <div class="casi">
+
+    <article class="caso">
+      <h3 data-i18n="caso_1_titolo">La formica tagliafoglie ingrandita fino a pesare quanto te</h3>
+      <div class="riga"><span class="et" data-i18n="caso_1_ingressi">Ingressi</span><span data-i18n="caso_1_ingressi_testo"><i>Atta cephalotes</i>, 9,3 mg e 7,5 mm; capacità di carico misurata 8,78 volte il proprio peso, quindi le zampe reggono 1 + 8,78 = 9,78 pesi corporei; ingrandimento fino a 70 kg.</span></div>
+      <div class="riga"><span class="et" data-i18n="caso_1_risultato">Risultato</span><span class="ris" data-i18n="caso_1_risultato_testo">k = <b data-v="k70"></b>, lunga <b data-v="lung70"></b>; le zampe reggono <b data-v="fr70"></b> volte il proprio peso: <b data-v="kg70"></b> sotto un corpo di 70.</span></div>
+      <div class="riga"><span class="et" data-i18n="caso_1_controllo">Controllo</span><span class="ctrl" data-i18n="caso_1_controllo_testo">k = (70 / 9,3 mg)^(1/3) = <span data-v="k70esatto"></span>. Controprova: 196³ = <span data-v="k70cubo"></span> → <span data-v="massa70"></span>. Forza relativa 9,78/196 = <span data-v="fr70lungo"></span> → <span data-v="kg70lungo"></span>. Carico trasportabile: <span data-v="fr70lungo"></span> − 1 è negativo, quindi non trasporta niente e non sta nemmeno in piedi. Per confronto, tu con la forza relativa della formica vera porteresti <span data-v="porti"></span>.</span></div>
+    </article>
+
+    <article class="caso">
+      <h3 data-i18n="caso_2_titolo">La soglia esatta: quando smette di reggersi</h3>
+      <div class="riga"><span class="et" data-i18n="caso_2_ingressi">Ingressi</span><span data-i18n="caso_2_ingressi_testo">Si cerca il k a cui la forza relativa vale 1.</span></div>
+      <div class="riga"><span class="et" data-i18n="caso_2_risultato">Risultato</span><span class="ris" data-i18n="caso_2_risultato_testo">k = <b data-v="ksoglia"></b>: una formica lunga <b data-v="lsoglia"></b> — il palmo della tua mano — e pesante <b data-v="msoglia"></b>.</span></div>
+      <div class="riga"><span class="et" data-i18n="caso_2_controllo">Controllo</span><span class="ctrl" data-i18n="caso_2_controllo_testo">9,78/k = 1 → k = 9,78 → <span data-v="lsogliamm"></span>; massa 9,3 mg × 9,78³ = <span data-v="msoglia"></span>. Ed è una soglia sul solo margine di stare in piedi: il <b>carico</b> trasportabile si è già dimezzato molto prima, a k = 9,78/5,39 = <span data-v="kmeta"></span>, cioè in una formica lunga <span data-v="lmeta"></span>. A k = <span data-v="k489"></span> (<span data-v="l489"></span>) la capacità totale è scesa a <span data-v="cap489"></span> pesi corporei, quindi il carico è passato da 8,78 a <span data-v="car489"></span>: si è diviso per 8,78, non dimezzato.</span></div>
+    </article>
+
+    <article class="caso">
+      <h3 data-i18n="caso_3_titolo">L’osso di Galileo, il caso che disegnò lui</h3>
+      <div class="riga"><span class="et" data-i18n="caso_3_ingressi">Ingressi</span><span data-i18n="caso_3_ingressi_testo">Femore umano: 450 mm di lunghezza, 26 mm di diametro; gigante alto tre volte te, 5,25 m (k = 3).</span></div>
+      <div class="riga"><span class="et" data-i18n="caso_3_risultato">Risultato</span><span class="ris" data-i18n="caso_3_risultato_testo">A proporzioni esatte l’osso sarebbe spesso <b data-v="dIso"></b>; per reggere lo stesso sforzo deve essere spesso <b data-v="dGal"></b>: √3 = <b data-v="rad3"></b> volte più tozzo. Non sembra più un femore, sembra una colonna.</span></div>
+      <div class="riga"><span class="et" data-i18n="caso_3_controllo">Controllo</span><span class="ctrl" data-i18n="caso_3_controllo_testo">Isometrico: 26 × 3 = <span data-v="dIsomm"></span>. A sforzo costante: 3^(3/2) = <span data-v="tre15"></span> → <span data-v="dGalmm"></span>. Verifica: <span data-v="verSnell"></span>; e (135,1/78)² = <span data-v="verQuad"></span> = k, il fattore che mancava.</span></div>
+    </article>
+
+    <article class="caso">
+      <h3 data-i18n="caso_4_titolo">Quanto sono lontane le tue ossa dal rompersi, stando ferme in piedi</h3>
+      <div class="riga"><span class="et" data-i18n="caso_4_ingressi">Ingressi</span><span data-i18n="caso_4_ingressi_testo">70 kg su due gambe; femore 26 mm esterni e 14 mm di canale (assunzione dichiarata); rottura dell’osso corticale 170 MPa (misure fra 130 e 190).</span></div>
+      <div class="riga"><span class="et" data-i18n="caso_4_risultato">Risultato</span><span class="ris" data-i18n="caso_4_risultato_testo">Sforzo <b data-v="sigma0due"></b>: <b data-v="margine"></b> volte meno di quanto serve a romperle. Il puro schiacciamento arriverebbe a k = <b data-v="margine"></b>, cioè <b data-v="hRott"></b> di altezza e <b data-v="mRott"></b>. <b>Il limite alla taglia non è lì.</b></span></div>
+      <div class="riga"><span class="et" data-i18n="caso_4_controllo">Controllo</span><span class="ctrl" data-i18n="caso_4_controllo_testo">Sezione a tubo: (π/4)(26²−14²) = <span data-v="sez1"></span>, due femori <span data-v="sez2"></span>. Peso <span data-v="pesoN"></span> → <span data-v="sigma0"></span>. Margine 170/0,911 = <span data-v="margineEsatto"></span>. Un gigante alto tre volte te avrebbe <span data-v="sigma3"></span>, ancora <span data-v="marg3"></span> volte sotto.</span></div>
+    </article>
+
+    <article class="caso">
+      <h3 data-i18n="caso_5_titolo">L’elefante non è un uomo ingrandito</h3>
+      <div class="riga"><span class="et" data-i18n="caso_5_ingressi">Ingressi</span><span data-i18n="caso_5_ingressi_testo">Uomo 1,75 m e 70 kg; elefante africano ≈ 3,2 m al garrese e ≈ 6000 kg.</span></div>
+      <div class="riga"><span class="et" data-i18n="caso_5_risultato">Risultato</span><span class="ris" data-i18n="caso_5_risultato_testo">Un uomo ingrandito a 3,2 m peserebbe <b data-v="mEle"></b>; l’elefante ne pesa 6000, <b data-v="volteEle"></b> volte di più.</span></div>
+      <div class="riga"><span class="et" data-i18n="caso_5_controllo">Controllo</span><span class="ctrl" data-i18n="caso_5_controllo_testo">k = <span data-v="kEle"></span>, k³ = <span data-v="kEle3"></span> → <span data-v="mEle"></span>. Al contrario: per arrivare a 6000 kg un uomo isometrico dovrebbe essere alto <span data-v="hEle"></span>. L’elefante ha risolto cambiando forma, non taglia: zampe dritte come colonne, nessun salto, nessun galoppo.</span></div>
+    </article>
+
+    <article class="caso">
+      <h3 data-i18n="caso_6_titolo">Che cosa cambia se usi il numero sbagliato</h3>
+      <div class="riga"><span class="et" data-i18n="caso_6_ingressi">Ingressi</span><span data-i18n="caso_6_ingressi_testo">50 volte il proprio peso (il dato che si legge quasi ovunque) invece di 8,78 (misurato).</span></div>
+      <div class="riga"><span class="et" data-i18n="caso_6_risultato">Risultato</span><span class="ris" data-i18n="caso_6_risultato_testo">La soglia del crollo si sposta da 7,3 cm a <b data-v="l50"></b>: un fattore <b data-v="fatt50"></b>.</span></div>
+      <div class="riga"><span class="et" data-i18n="caso_6_controllo">Controllo</span><span class="ctrl" data-i18n="caso_6_controllo_testo">Con 50 le zampe reggono 51 pesi corporei, e 51/k = 1 → k = 51 → <span data-v="l50mm"></span>. La conclusione qualitativa non cambia — nessuna formica gigante, perché anche così alla tua taglia la forza relativa sarebbe 51/196 = <span data-v="fr50"></span> — ma il numero che dai cambia di cinque volte.</span></div>
+    </article>
+
+  </div>
+</section>
+
+<!-- 8 · PARAGONE -->
+<section aria-labelledby="t-corpo">
+  <div class="tit"><span class="num">08</span><h2 id="t-corpo" data-i18n="tit_corpo">Il paragone corporeo</h2></div>
+  <div class="riquadro crema">
+    <p data-i18n="testo_paragone">Prendi in mano una borsa della spesa piena: tre bottiglie d’acqua da un litro e mezzo, tre chili e mezzo. Quella è <span class="evidenza">tutta la forza che resta alle zampe della formica ingrandita fino a pesare quanto te</span> — e sopra ci deve stare un corpo di settanta chili. Tu, che pesi lo stesso, ti alzi in piedi senza pensarci. E se fossi tu ad avere la forza relativa della formica vera, usciresti dal supermercato con seicentoquindici chili in braccio: un’utilitaria.</p>
+    <p data-i18n="testo_paragone_2">Sull’osso funziona allo stesso modo. Il tuo femore è spesso più o meno come il tuo pollice, ventisei millimetri. Il femore di un gigante alto cinque metri e venticinque, per non schiacciarsi più del tuo, dovrebbe essere spesso tredici centimetri e mezzo: quanto il tuo braccio all’altezza del bicipite, su un osso lungo un metro e mezzo. Galileo lo ha disegnato nel 1638 e ha commentato che a guardarlo non sembra più un osso.</p>
+  </div>
+</section>
+
+<!-- 9 · SORPRESA -->
+<section aria-labelledby="t-sor">
+  <div class="tit"><span class="num">09</span><h2 id="t-sor" data-i18n="tit_sor">La sorpresa</h2></div>
+  <div class="riquadro">
+    <p data-i18n="sorpresa_intro">Ce ne sono due, e la seconda vale più della prima.</p>
+    <p><b data-i18n="sorpresa_prima_titolo">La prima.</b> <span data-i18n="sorpresa_prima">La formica ingrandita non diventa un mostro, diventa un invalido, e non serve nemmeno arrivare alla taglia di un uomo. Bastano 7,3 centimetri — il palmo della tua mano. A quella lunghezza la forza che resta alle zampe è appena il peso del corpo e niente più: 9,78 diviso 9,78 fa 1, e da lì in poi non c’è più margine per muoversi, arrampicarsi, trasportare. Alla tua taglia la forza relativa è 0,050. Il fattore è esattamente il fattore di ingrandimento, 196, perché la forza va come il quadrato e il peso come il cubo.</span></p>
+    <p><b data-i18n="sorpresa_seconda_titolo">La seconda</b> <span data-i18n="sorpresa_seconda">è sul numero stesso. Il “cinquanta volte il proprio peso” che si legge in ogni pagina sulle formiche non è una misura: circola senza uno studio alle spalle. L’unica misura pubblicata su formiche tagliafoglie — novanta individui da nove colonie, con carichi aggiunti a poco a poco fino al cedimento — dà 8,78 volte, con un’incertezza di 0,26. Il numero vero è quasi sei volte più piccolo della leggenda. La conclusione dell’esperimento non cambia, ma la soglia si sposta da 38 centimetri a 7,3. È il motivo per cui vale la pena chiedere sempre da dove viene una cifra, anche quando la cifra sta scritta dappertutto.</span></p>
+  </div>
+</section>
+
+<!-- 10 · ONESTÀ -->
+<section aria-labelledby="t-non">
+  <div class="tit"><span class="num">10</span><h2 id="t-non" data-i18n="tit_non">Che cosa questo modello non dice</h2></div>
+  <div class="punti">
+
+    <div class="punto">
+      <p><b data-i18n="punto_1_titolo">La legge vale solo se la forma resta identica, e nessun animale vero fa così.</b> <span data-i18n="punto_1">Nello stesso studio del 2019 le formiche misurate andavano da 1,2 a 36,8 milligrammi, cioè un fattore 3 in lunghezza, e la legge prevede che su quel salto la forza relativa cali di tre volte. Misurata, non cala per niente: resta 8,78, con una pendenza di 1,04, indistinguibile da 1. Una spiegazione plausibile è che le operaie grandi di <i>Atta</i> abbiano teste e muscoli proporzionalmente più grossi delle piccole — cambierebbero forma, e appena la forma cambia la formula non si applica più. Va detto però che questa è un’interpretazione, non un risultato dello studio, che misura la capacità e non la sua causa. La legge non è sbagliata: è un’ipotesi che l’animale vero rifiuta, ed è per questo che serve, come termine di paragone per capire di quanto la natura se ne allontana.</span></p>
+    </div>
+
+    <div class="punto">
+      <p><b data-i18n="punto_2_titolo">Esistono artropodi terrestri molto oltre i 7,3 centimetri.</b> <span data-i18n="punto_2">Il granchio del cocco arriva a 4,1 chili e a un metro da zampa a zampa. Non è una formica ingrandita: corpo, zampe, esoscheletro e andatura sono costruiti in un altro modo.</span></p>
+    </div>
+
+    <div class="punto">
+      <p><b data-i18n="punto_3_titolo">La forza che un muscolo fa per centimetro quadrato non è una costante di natura.</b> <span data-i18n="punto_3_p1">I 25 newton per cm² che si citano sono il valore d’uso; le misure sull’uomo vivo vanno da 2 a 73 a seconda del metodo, e una revisione sistematica del 2024 propone 26,8. Attenzione a come è costruita questa pagina: <b>tutti i numeri partono dal dato misurato di 8,78 pesi corporei</b>, non dalla tensione specifica. La cifra dei 25 N/cm² compare solo come ordine di grandezza illustrativo dentro la formula, e non entra in nessun conto.</span></p>
+      <p style="margin-top:.7em" data-i18n="punto_3_p2">Per lo stesso motivo, la capacità di carico assoluta la sappiamo dire solo per la formica. Per il topolino, il gatto e te non esiste una misura pubblicata equivalente: quando scegli una di queste tre creature la barra della forza relativa dice di quante volte diventi più debole di te stesso, e non a che taglia crolli. Quella riga rossa compare solo per la formica, perché solo lì c’è un numero misurato dietro.</p>
+    </div>
+
+    <div class="punto grave">
+      <p><b data-i18n="punto_4_grave_titolo">Ed è il punto più debole di questa pagina.</b> <span data-i18n="punto_4_grave">Il conto delle ossa considera solo la compressione dritta, peso diviso sezione, e viene un margine di 187. Nella realtà le ossa lavorano soprattutto a flessione, perché i muscoli e la spinta del terreno le piegano di lato, e i margini misurati su animali in movimento stanno fra 2 e 5, non 187. Il numero dei 327 metri non è una previsione di quanto grande può diventare un animale: è la dimostrazione che lo schiacciamento non è il limite. Il limite vero arriva molto prima, e nessuno sa dire esattamente dove: ci entrano i picchi di carico quando si corre e si salta, l’instabilità delle ossa lunghe che si inflettono di lato, la cartilagine, i tendini, il cuore, il calore da smaltire.</span></p>
+    </div>
+
+    <div class="punto">
+      <p><b data-i18n="punto_5_titolo">Quale regola seguano davvero le ossa è una domanda aperta.</b> <span data-i18n="punto_5">Alexander e colleghi nel 1979 hanno misurato le ossa degli arti dei mammiferi dal toporagno all’elefante: non seguono né la regola di Galileo (diametro come k^1,5) né l’isometria pura, stanno in mezzo, più vicine all’isometria, e gli animali grandi compensano soprattutto con la postura. Perché gli esponenti misurati stiano proprio lì, una derivazione accettata da tutti non esiste. E sulla massa massima dei sauropodi le stime pubblicate per lo stesso identico fossile arrivano a differire di un fattore due.</span></p>
+    </div>
+
+    <div class="punto">
+      <p><b data-i18n="punto_6_titolo">Esiste un’altra regola di scala famosissima</b>, <span data-i18n="punto_6">quella di Kleiber sul metabolismo, con esponente 3/4. Non compare in questo esperimento e non ne parliamo, perché quell’esponente è ancora oggetto di discussione fra i biologi e non ha nulla della certezza dei nostri 2 e 3.</span></p>
+    </div>
+
+    <div class="punto">
+      <p><b data-i18n="punto_7_titolo">Le assunzioni numeriche.</b> <span data-i18n="punto_7">g = 9,81 m/s², densità del corpo circa quella dell’acqua, femore 26 mm esterni e 14 mm di canale. Per la formica e per i quadrupedi la “lunghezza” è quella testa-corpo, per te è l’altezza: sono grandezze diverse, e i confronti fra creature vanno letti sapendolo. Se cambi questi valori cambiano tutti i numeri della pagina; non cambiano gli esponenti, che sono geometria pura — ed è una delle poche leggi in cui gli esponenti sono esatti: 2 per le aree, 3 per i volumi, non c’è niente da misurare e niente da discutere.</span></p>
+    </div>
+
+  </div>
+</section>
+
+
+
+
+</main>
+<footer style="padding:24px;text-align:center;font:12px monospace;opacity:.7">physics-experiments-lab &middot; MIT License &middot; Copyright (c) 2026 Capitan AI</footer>
+<script>
+"use strict";
+/* =========================================================================
+   INFRASTRUTTURA i18n
+   ========================================================================= */
+window.__LINGUE = ['it','en','fr','es','de'];
+let LANG = 'en';
+function setLang(l){
+  if (!window.__LINGUE.includes(l)) return;
+  LANG = l;
+  document.documentElement.lang = l;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (TESTI[LANG] && TESTI[LANG][key]) { if (el.hasAttribute('aria-label') && /^(aria_|canvas_|grafico_)/.test(key)) el.setAttribute('aria-label', TESTI[LANG][key]); else el.innerHTML = TESTI[LANG][key]; }
+  });
+  aggiorna(false);
+  disegnaCreature();
+  disegnaDueNumeri();
+  riempiCasi();
+  disegnaOssa();
+}
+
+var TESTI = {
+  it: {
+    /* ---- header ---- */
+    eyebrow_exp: 'Esperimento 5 · Biomeccanica',
+    h1_line1: 'Quanto grande può',
+    h1_line2: 'diventare un animale',
+    hero_sotto: 'Ingrandisci una creatura vera mantenendo esatte le proporzioni. Le aree crescono come il quadrato della lunghezza, i volumi come il cubo. Da questa sola differenza dipende tutto quello che vedrai succedere.',
+    cred_1: 'Legge del quadrato-cubo',
+    cred_2: '<b>Galileo Galilei</b>, <i>Discorsi</i>, Giornata seconda, 1638',
+    cred_3: 'ripresa da <b>J. B. S. Haldane</b>, <i>On Being the Right Size</i>, 1926',
+
+    /* ---- sezione 1: CHI ---- */
+    tit_chi: 'Scegli chi ingrandire',
+    aria_creatures: 'Scelta della creatura',
+
+    /* ---- creature ---- */
+    creatura_formica_nome: 'Formica tagliafoglie',
+    creatura_formica_specie: 'Atta cephalotes',
+    creatura_formica_dettaglio: 'Operaia media: 7,5 mm e 9,3 mg. È la sola creatura di questa pagina per cui esiste una capacità di carico misurata — 8,78 pesi corporei, su 90 individui di 9 colonie — quindi è la sola in cui sappiamo dire a che taglia crolla.',
+
+    creatura_topo_nome: 'Topolino domestico',
+    creatura_topo_specie: 'Mus musculus',
+    creatura_topo_dettaglio: '8,5 cm testa-corpo e 20 g: valore d\'uso, gli individui veri vanno da 12 a 30 g e da 6,5 a 9,5 cm. Per il topo non esiste una misura di capacità di carico come quella sulle formiche: la barra della forza relativa dirà di quante volte diventa più debole di se stesso, non dove crolla.',
+
+    creatura_gatto_nome: 'Gatto di casa',
+    creatura_gatto_specie: 'Felis catus',
+    creatura_gatto_dettaglio: '46 cm testa-corpo e 4,5 kg: valore d\'uso per un adulto. Anche qui nessuna misura di capacità di carico: niente riga rossa, solo il confronto con il gatto vero.',
+
+    creatura_te_nome: 'Te stesso',
+    creatura_te_specie: 'Homo sapiens',
+    creatura_te_dettaglio: '1,75 m e 70 kg. Qui la "lunghezza" è l\'altezza, non la misura testa-corpo dei quadrupedi. Per te il conto delle ossa è in newton e megapascal veri, perché del femore umano conosciamo le misure: 26 mm esterni, 14 mm di canale, 450 mm di lunghezza.',
+
+    /* ---- ancore ---- */
+    ancora_moneta: 'come una moneta da due euro',
+    ancora_palmo: 'come il palmo della tua mano',
+    ancora_ratto: 'come un ratto',
+    ancora_tasso: 'come un tasso',
+    ancora_peso_te: 'pesante quanto te',
+    ancora_orso: 'come un orso polare in piedi',
+    ancora_gigante: 'gigante alto tre volte te',
+    ancora_elefante: 'pesante quanto un elefante africano',
+
+    /* ---- sezione 2: MANOPOLA ---- */
+    tit_man: 'Gira la manopola',
+    etichetta_k: 'fattore di ingrandimento k',
+    etichetta_L: 'lunghezza vera',
+    etichetta_m: 'massa',
+    aria_manopola: 'Fattore di ingrandimento',
+    aria_scatti: 'Taglie notevoli',
+
+    badge_formica_vera: 'la formica vera',
+    nota_confronto: 'Nella striscia in basso la persona è alta 1,75 m e la creatura è disegnata alla sua scala vera accanto a lei. Sotto una certa taglia la creatura diventa un puntino di due pixel: non è la sua dimensione, è il limite dello schermo.',
+
+    canvas_scena_label: 'Disegno della creatura ingrandita, con righello della lunghezza vera',
+    canvas_confronto_label: 'Confronto a scala reale con una persona alta 1,75 metri',
+
+    altezza: 'di altezza',
+    lunghezza: 'di lunghezza',
+    non_si_regge: 'non si regge in piedi',
+
+    testo_confronto_tu: 'tu, 1,75 m',
+    testo_confronto_puntino: 'un puntino: sarebbe più sottile di un pixel',
+    testo_confronto_esce: 'esce dal riquadro',
+
+    /* ---- sezione 3: BARRE ---- */
+    tit_bar: 'Quattro grandezze, quattro velocità',
+    nota_log: 'Le barre sono in scala logaritmica: ogni tacca è un fattore dieci. Il valore in chiaro è scritto a destra.',
+
+    barra_massa_nome: 'Massa del corpo',
+    barra_massa_exp: '× k³',
+
+    barra_forza_nome: 'Forza delle zampe',
+    barra_forza_exp: '× k²',
+
+    barra_sforzo_nome: 'Schiacciamento nell\'osso',
+    barra_sforzo_exp: '× k',
+    barra_sforzo_nota_uomo: 'su due femori, in piedi e fermo',
+    barra_sforzo_nota_altro: 'rispetto all\'animale vero',
+
+    barra_rel_nome: 'Forza relativa',
+    barra_rel_exp: '÷ k · va all\'indietro',
+    barra_rel_nota_formica: 'pesi corporei che le zampe reggono',
+    barra_rel_nota_altro: 'rispetto all\'animale vero (1 = il vero)',
+
+    sottoriga_non_regge: 'sotto questa riga non si regge in piedi',
+    sottoriga_non_misurato: 'la riga è l\'animale vero; per questa creatura nessuno ha misurato a che taglia crolla',
+
+    crollo_sta_in_piedi: 'Sta in piedi.',
+    crollo_soglia_esatta: 'Esattamente sulla soglia: ',
+    crollo_non_regge: 'A ',
+    crollo_non_regge_2: ' ha smesso di reggersi. Adesso è lunga ',
+
+    crollo_msg_invalido: 'Non è un mostro, è un invalido — e il carico trasportabile era finito molto prima.',
+    crollo_msg_soglia: 'Le zampe reggono 1,00 volte il peso del corpo e non un grammo di più: ',
+    crollo_msg_soglia_2: ' diviso ',
+    crollo_msg_soglia_3: ' fa 1. Da qui in poi non c\'è più margine per muoversi, arrampicarsi, trasportare. Il carico utile era finito molto prima.',
+
+    crollo_msg_ok: 'Oltre al proprio peso le zampe possono ancora spingere ',
+    crollo_msg_ok_2: ' volte il corpo, cioè ',
+    crollo_msg_ok_3: '. Crolla a k = ',
+    crollo_msg_ok_4: ', quando sarà lunga ',
+
+    crollo_nessuna_soglia: 'Qui non esiste una soglia misurata.',
+    crollo_msg_nessuna: 'La legge dice solo questo, ed è già molto: rispetto a ',
+    crollo_msg_nessuna_2: ' vero sei ',
+    crollo_msg_nessuna_3: ' volte più debole in rapporto al tuo peso. Dove crolli davvero non lo sa nessuno, e la pagina non lo inventa.',
+
+    grafico_loglog_label: 'Grafico logaritmico con quattro rette di pendenza 3, 2, 1 e meno 1',
+    nota_loglog: 'Su due assi logaritmici le quattro grandezze sono quattro rette, e la pendenza di ciascuna è esattamente il suo esponente: 3, 2, 1, −1. Non c\'è niente da misurare: sono geometria.',
+
+    /* ---- sezione 4: INTERRUTTORE ---- */
+    tit_num: 'Da dove viene il numero di partenza',
+    testo_num_intro: 'Tutti i conti su questa pagina partono da una sola misura: quanti pesi corporei riescono a spingere le zampe di una formica tagliafoglie. Prova a cambiarla e guarda cosa succede alla soglia.',
+
+    num_tag_misurato: 'misurato, 90 individui',
+    num_spiega_misurato: '8,78 ± 0,26 pesi corporei, formiche tagliafoglie, 9 colonie',
+    num_tag_diffuso: 'diffuso, senza misura nota',
+    num_spiega_diffuso: 'la cifra che si legge quasi ovunque, senza uno studio alle spalle',
+
+    num_soglia: 'soglia del crollo: ',
+
+    nota_due_1: 'La conclusione non cambia — nessuna formica gigante in nessuno dei due casi — ma il numero che dai sì: la soglia passa da ',
+    nota_due_2: ' a ',
+    nota_due_3: ', un fattore ',
+    nota_due_4: '. L\'interruttore agisce sulla formica, l\'unica creatura con una capacità di carico misurata.',
+
+    /* ---- sezione 5: OSSO DI GALILEO ---- */
+    tit_osso: 'L\'osso di Galileo',
+    testo_osso: 'Se vuoi che lo schiacciamento dentro l\'osso <b>non cambi</b> mentre ingrandisci, l\'area dell\'osso deve crescere come k³ e non come k². L\'area va col quadrato del diametro, quindi il diametro deve crescere come k·√k. Rispetto al resto del corpo l\'osso diventa √k volte più tozzo. Questo è il disegno che Galileo pubblica nel 1638.',
+
+    canvas_ossa_label: 'Due femori a confronto, disegnati alla stessa lunghezza sullo schermo',
+    nota_ossa: 'I due ossi sono disegnati <b>alla stessa lunghezza sullo schermo</b>: l\'unica differenza visibile è lo spessore, ed è il punto della tavola del 1638.',
+
+    label_gigante: 'Gigante alto <span id="ossoAlt">3</span> volte te — <span id="ossoM">5,25 m</span>',
+    aria_kOsso: 'Fattore di ingrandimento del gigante',
+
+    dato_iso_label: 'a proporzioni esatte',
+    dato_gal_label: 'per reggere lo stesso sforzo',
+    dato_rad_label: 'più tozzo, cioè √k',
+    dato_lung_label: 'lunghezza del femore',
+
+    nota_femore: 'Femore di partenza: 450 mm di lunghezza, 26 mm di diametro esterno. Galilei, <i>Discorsi</i>, Giornata seconda, 1638.',
+
+    /* ---- sezione 6: FORMULE ---- */
+    tit_for: 'Le formule, per rifare i conti a mano',
+    formule_testo: '<b>IL FATTORE DI INGRANDIMENTO.</b>  k = lunghezza nuova / lunghezza di partenza.\nk = 1 è l\'animale vero; k = 10 vuol dire dieci volte più lungo, ma anche dieci volte\npiù largo e dieci volte più alto. Le proporzioni non cambiano mai: è questa l\'ipotesi\ndi tutto l\'esperimento.\n\n<b>LA MASSA.</b>  <i>m = m₀ × k³</i>.  Raddoppi la lunghezza, la massa fa per otto.\nLa triplichi, fa per ventisette.\n\n<b>LA FORZA DEI MUSCOLI.</b>  <i>F = F₀ × k²</i>, perché la forza di un muscolo va con\nl\'AREA della sua sezione, tagliata di traverso, e l\'area cresce come il quadrato.\n(Come ordine di grandezza si citano 25 N per cm² di sezione: qui è solo illustrativo,\nin questa pagina non entra in nessun conto.)\n\n<b>IL PESO.</b>  <i>P = m × g</i>,  con g = 9,81 m/s².  Segue la massa: P = P₀ × k³.\n\n<b>LA FORZA RELATIVA, la formula che decide tutto.</b>\n   <u>F / P = (F₀ / P₀) / k</u>        perché sopra c\'è k², sotto k³, e k²/k³ = 1/k.\nQuante volte il proprio peso riesci a spingere si divide per il fattore di\ningrandimento. Ingrandisci dieci volte, sei dieci volte più debole rispetto a te stesso.\n\n<b>LO SCHIACCIAMENTO DENTRO L\'OSSO.</b>  <i>σ = P / A = σ₀ × k</i>\n(sopra k³, sotto k²). Raddoppi la taglia, raddoppi lo schiacciamento dentro l\'osso.\n\n<b>LA REGOLA DELL\'OSSO DI GALILEO.</b>  Se vuoi che lo sforzo NON cambi, l\'area dell\'osso\ndeve crescere come k³ e non come k². L\'area va col quadrato del diametro, quindi il\ndiametro deve crescere come <u>k^(3/2) = k · √k</u>. Rispetto al resto del corpo l\'osso\ndiventa √k volte più tozzo. È il disegno che Galileo pubblica nel 1638.',
+
+    /* ---- sezione 7: CASI ---- */
+    tit_casi: 'I casi, con i conti in chiaro',
+
+    caso_1_titolo: 'La formica tagliafoglie ingrandita fino a pesare quanto te',
+    caso_1_ingressi: 'Ingressi',
+    caso_1_ingressi_testo: '<i>Atta cephalotes</i>, 9,3 mg e 7,5 mm; capacità di carico misurata 8,78 volte il proprio peso, quindi le zampe reggono 1 + 8,78 = 9,78 pesi corporei; ingrandimento fino a 70 kg.',
+    caso_1_risultato: 'Risultato',
+    caso_1_risultato_testo: 'k = <b data-v="k70"></b>, lunga <b data-v="lung70"></b>; le zampe reggono <b data-v="fr70"></b> volte il proprio peso: <b data-v="kg70"></b> sotto un corpo di 70.',
+    caso_1_controllo: 'Controllo',
+    caso_1_controllo_testo: 'k = (70 / 9,3 mg)^(1/3) = <span data-v="k70esatto"></span>. Controprova: 196³ = <span data-v="k70cubo"></span> → <span data-v="massa70"></span>. Forza relativa 9,78/196 = <span data-v="fr70lungo"></span> → <span data-v="kg70lungo"></span>. Carico trasportabile: <span data-v="fr70lungo"></span> − 1 è negativo, quindi non trasporta niente e non sta nemmeno in piedi. Per confronto, tu con la forza relativa della formica vera porteresti <span data-v="porti"></span>.',
+
+    caso_2_titolo: 'La soglia esatta: quando smette di reggersi',
+    caso_2_ingressi: 'Ingressi',
+    caso_2_ingressi_testo: 'Si cerca il k a cui la forza relativa vale 1.',
+    caso_2_risultato: 'Risultato',
+    caso_2_risultato_testo: 'k = <b data-v="ksoglia"></b>: una formica lunga <b data-v="lsoglia"></b> — il palmo della tua mano — e pesante <b data-v="msoglia"></b>.',
+    caso_2_controllo: 'Controllo',
+    caso_2_controllo_testo: '9,78/k = 1 → k = 9,78 → <span data-v="lsogliamm"></span>; massa 9,3 mg × 9,78³ = <span data-v="msoglia"></span>. Ed è una soglia sul solo margine di stare in piedi: il <b>carico</b> trasportabile si è già dimezzato molto prima, a k = 9,78/5,39 = <span data-v="kmeta"></span>, cioè in una formica lunga <span data-v="lmeta"></span>. A k = <span data-v="k489"></span> (<span data-v="l489"></span>) la capacità totale è scesa a <span data-v="cap489"></span> pesi corporei, quindi il carico è passato da 8,78 a <span data-v="car489"></span>: si è diviso per 8,78, non dimezzato.',
+
+    caso_3_titolo: 'L\'osso di Galileo, il caso che disegnò lui',
+    caso_3_ingressi: 'Ingressi',
+    caso_3_ingressi_testo: 'Femore umano: 450 mm di lunghezza, 26 mm di diametro; gigante alto tre volte te, 5,25 m (k = 3).',
+    caso_3_risultato: 'Risultato',
+    caso_3_risultato_testo: 'A proporzioni esatte l\'osso sarebbe spesso <b data-v="dIso"></b>; per reggere lo stesso sforzo deve essere spesso <b data-v="dGal"></b>: √3 = <b data-v="rad3"></b> volte più tozzo. Non sembra più un femore, sembra una colonna.',
+    caso_3_controllo: 'Controllo',
+    caso_3_controllo_testo: 'Isometrico: 26 × 3 = <span data-v="dIsomm"></span>. A sforzo costante: 3^(3/2) = <span data-v="tre15"></span> → <span data-v="dGalmm"></span>. Verifica: <span data-v="verSnell"></span>; e (135,1/78)² = <span data-v="verQuad"></span> = k, il fattore che mancava.',
+
+    caso_4_titolo: 'Quanto sono lontane le tue ossa dal rompersi, stando ferme in piedi',
+    caso_4_ingressi: 'Ingressi',
+    caso_4_ingressi_testo: '70 kg su due gambe; femore 26 mm esterni e 14 mm di canale (assunzione dichiarata); rottura dell\'osso corticale 170 MPa (misure fra 130 e 190).',
+    caso_4_risultato: 'Risultato',
+    caso_4_risultato_testo: 'Sforzo <b data-v="sigma0due"></b>: <b data-v="margine"></b> volte meno di quanto serve a romperle. Il puro schiacciamento arriverebbe a k = <b data-v="margine"></b>, cioè <b data-v="hRott"></b> di altezza e <b data-v="mRott"></b>. <b>Il limite alla taglia non è lì.</b>',
+    caso_4_controllo: 'Controllo',
+    caso_4_controllo_testo: 'Sezione a tubo: (π/4)(26²−14²) = <span data-v="sez1"></span>, due femori <span data-v="sez2"></span>. Peso <span data-v="pesoN"></span> → <span data-v="sigma0"></span>. Margine 170/0,911 = <span data-v="margineEsatto"></span>. Un gigante alto tre volte te avrebbe <span data-v="sigma3"></span>, ancora <span data-v="marg3"></span> volte sotto.',
+
+    caso_5_titolo: 'L\'elefante non è un uomo ingrandito',
+    caso_5_ingressi: 'Ingressi',
+    caso_5_ingressi_testo: 'Uomo 1,75 m e 70 kg; elefante africano ≈ 3,2 m al garrese e ≈ 6000 kg.',
+    caso_5_risultato: 'Risultato',
+    caso_5_risultato_testo: 'Un uomo ingrandito a 3,2 m peserebbe <b data-v="mEle"></b>; l\'elefante ne pesa 6000, <b data-v="volteEle"></b> volte di più.',
+    caso_5_controllo: 'Controllo',
+    caso_5_controllo_testo: 'k = <span data-v="kEle"></span>, k³ = <span data-v="kEle3"></span> → <span data-v="mEle"></span>. Al contrario: per arrivare a 6000 kg un uomo isometrico dovrebbe essere alto <span data-v="hEle"></span>. L\'elefante ha risolto cambiando forma, non taglia: zampe dritte come colonne, nessun salto, nessun galoppo.',
+
+    caso_6_titolo: 'Che cosa cambia se usi il numero sbagliato',
+    caso_6_ingressi: 'Ingressi',
+    caso_6_ingressi_testo: '50 volte il proprio peso (il dato che si legge quasi ovunque) invece di 8,78 (misurato).',
+    caso_6_risultato: 'Risultato',
+    caso_6_risultato_testo: 'La soglia del crollo si sposta da 7,3 cm a <b data-v="l50"></b>: un fattore <b data-v="fatt50"></b>.',
+    caso_6_controllo: 'Controllo',
+    caso_6_controllo_testo: 'Con 50 le zampe reggono 51 pesi corporei, e 51/k = 1 → k = 51 → <span data-v="l50mm"></span>. La conclusione qualitativa non cambia — nessuna formica gigante, perché anche così alla tua taglia la forza relativa sarebbe 51/196 = <span data-v="fr50"></span> — ma il numero che dai cambia di cinque volte.',
+
+    /* ---- sezione 8: PARAGONE ---- */
+    tit_corpo: 'Il paragone corporeo',
+    testo_paragone: 'Prendi in mano una borsa della spesa piena: tre bottiglie d\'acqua da un litro e mezzo, tre chili e mezzo. Quella è <span class="evidenza">tutta la forza che resta alle zampe della formica ingrandita fino a pesare quanto te</span> — e sopra ci deve stare un corpo di settanta chili. Tu, che pesi lo stesso, ti alzi in piedi senza pensarci. E se fossi tu ad avere la forza relativa della formica vera, usciresti dal supermercato con seicentoquindici chili in braccio: un\'utilitaria.',
+    testo_paragone_2: 'Sull\'osso funziona allo stesso modo. Il tuo femore è spesso più o meno come il tuo pollice, ventisei millimetri. Il femore di un gigante alto cinque metri e venticinque, per non schiacciarsi più del tuo, dovrebbe essere spesso tredici centimetri e mezzo: quanto il tuo braccio all\'altezza del bicipite, su un osso lungo un metro e mezzo. Galileo lo ha disegnato nel 1638 e ha commentato che a guardarlo non sembra più un osso.',
+
+    /* ---- sezione 9: SORPRESA ---- */
+    tit_sor: 'La sorpresa',
+    sorpresa_intro: 'Ce ne sono due, e la seconda vale più della prima.',
+    sorpresa_prima_titolo: 'La prima.',
+    sorpresa_prima: 'La formica ingrandita non diventa un mostro, diventa un invalido, e non serve nemmeno arrivare alla taglia di un uomo. Bastano 7,3 centimetri — il palmo della tua mano. A quella lunghezza la forza che resta alle zampe è appena il peso del corpo e niente più: 9,78 diviso 9,78 fa 1, e da lì in poi non c\'è più margine per muoversi, arrampicarsi, trasportare. Alla tua taglia la forza relativa è 0,050. Il fattore è esattamente il fattore di ingrandimento, 196, perché la forza va come il quadrato e il peso come il cubo.',
+    sorpresa_seconda_titolo: 'La seconda',
+    sorpresa_seconda: 'è sul numero stesso. Il "cinquanta volte il proprio peso" che si legge in ogni pagina sulle formiche non è una misura: circola senza uno studio alle spalle. L\'unica misura pubblicata su formiche tagliafoglie — novanta individui da nove colonie, con carichi aggiunti a poco a poco fino al cedimento — dà 8,78 volte, con un\'incertezza di 0,26. Il numero vero è quasi sei volte più piccolo della leggenda. La conclusione dell\'esperimento non cambia, ma la soglia si sposta da 38 centimetri a 7,3. È il motivo per cui vale la pena chiedere sempre da dove viene una cifra, anche quando la cifra sta scritta dappertutto.',
+
+    /* ---- sezione 10: ONESTÀ ---- */
+    tit_non: 'Che cosa questo modello non dice',
+
+    punto_1_titolo: 'La legge vale solo se la forma resta identica, e nessun animale vero fa così.',
+    punto_1: 'Nello stesso studio del 2019 le formiche misurate andavano da 1,2 a 36,8 milligrammi, cioè un fattore 3 in lunghezza, e la legge prevede che su quel salto la forza relativa cali di tre volte. Misurata, non cala per niente: resta 8,78, con una pendenza di 1,04, indistinguibile da 1. Una spiegazione plausibile è che le operaie grandi di <i>Atta</i> abbiano teste e muscoli proporzionalmente più grossi delle piccole — cambierebbero forma, e appena la forma cambia la formula non si applica più. Va detto però che questa è un\'interpretazione, non un risultato dello studio, che misura la capacità e non la sua causa. La legge non è sbagliata: è un\'ipotesi che l\'animale vero rifiuta, ed è per questo che serve, come termine di paragone per capire di quanto la natura se ne allontana.',
+
+    punto_2_titolo: 'Esistono artropodi terrestri molto oltre i 7,3 centimetri.',
+    punto_2: 'Il granchio del cocco arriva a 4,1 chili e a un metro da zampa a zampa. Non è una formica ingrandita: corpo, zampe, esoscheletro e andatura sono costruiti in un altro modo.',
+
+    punto_3_titolo: 'La forza che un muscolo fa per centimetro quadrato non è una costante di natura.',
+    punto_3_p1: 'I 25 newton per cm² che si citano sono il valore d\'uso; le misure sull\'uomo vivo vanno da 2 a 73 a seconda del metodo, e una revisione sistematica del 2024 propone 26,8. Attenzione a come è costruita questa pagina: <b>tutti i numeri partono dal dato misurato di 8,78 pesi corporei</b>, non dalla tensione specifica. La cifra dei 25 N/cm² compare solo come ordine di grandezza illustrativo dentro la formula, e non entra in nessun conto.',
+    punto_3_p2: 'Per lo stesso motivo, la capacità di carico assoluta la sappiamo dire solo per la formica. Per il topolino, il gatto e te non esiste una misura pubblicata equivalente: quando scegli una di queste tre creature la barra della forza relativa dice di quante volte diventi più debole di te stesso, e non a che taglia crolli. Quella riga rossa compare solo per la formica, perché solo lì c\'è un numero misurato dietro.',
+
+    punto_4_grave_titolo: 'Ed è il punto più debole di questa pagina.',
+    punto_4_grave: 'Il conto delle ossa considera solo la compressione dritta, peso diviso sezione, e viene un margine di 187. Nella realtà le ossa lavorano soprattutto a flessione, perché i muscoli e la spinta del terreno le piegano di lato, e i margini misurati su animali in movimento stanno fra 2 e 5, non 187. Il numero dei 327 metri non è una previsione di quanto grande può diventare un animale: è la dimostrazione che lo schiacciamento non è il limite. Il limite vero arriva molto prima, e nessuno sa dire esattamente dove: ci entrano i picchi di carico quando si corre e si salta, l\'instabilità delle ossa lunghe che si inflettono di lato, la cartilagine, i tendini, il cuore, il calore da smaltire.',
+
+    punto_5_titolo: 'Quale regola seguano davvero le ossa è una domanda aperta.',
+    punto_5: 'Alexander e colleghi nel 1979 hanno misurato le ossa degli arti dei mammiferi dal toporagno all\'elefante: non seguono né la regola di Galileo (diametro come k^1,5) né l\'isometria pura, stanno in mezzo, più vicine all\'isometria, e gli animali grandi compensano soprattutto con la postura. Perché gli esponenti misurati stiano proprio lì, una derivazione accettata da tutti non esiste. E sulla massa massima dei sauropodi le stime pubblicate per lo stesso identico fossile arrivano a differire di un fattore due.',
+
+    punto_6_titolo: 'Esiste un\'altra regola di scala famosissima',
+    punto_6: 'quella di Kleiber sul metabolismo, con esponente 3/4. Non compare in questo esperimento e non ne parliamo, perché quell\'esponente è ancora oggetto di discussione fra i biologi e non ha nulla della certezza dei nostri 2 e 3.',
+
+    punto_7_titolo: 'Le assunzioni numeriche.',
+    punto_7: 'g = 9,81 m/s², densità del corpo circa quella dell\'acqua, femore 26 mm esterni e 14 mm di canale. Per la formica e per i quadrupedi la "lunghezza" è quella testa-corpo, per te è l\'altezza: sono grandezze diverse, e i confronti fra creature vanno letti sapendolo. Se cambi questi valori cambiano tutti i numeri della pagina; non cambiano gli esponenti, che sono geometria pura — ed è una delle poche leggi in cui gli esponenti sono esatti: 2 per le aree, 3 per i volumi, non c\'è niente da misurare e niente da discutere.',
+
+    /* ---- footer ---- */
+    footer_costanti: 'Costanti usate.',
+    footer_testo_1: 'g = 9,81 m/s² · rottura dell\'osso corticale 170 MPa (misure fra 130 e 190) · capacità di carico misurata della formica tagliafoglie 8,78 ± 0,26 pesi corporei (90 individui, 9 colonie) · cifra diffusa senza misura nota 50 · formica 9,3 mg e 7,5 mm · femore 450 mm, 26 mm esterni, 14 mm di canale · persona di riferimento 1,75 m e 70 kg · moneta da due euro 25,75 mm di diametro · tensione specifica del muscolo 25 N/cm², citata solo come ordine di grandezza e mai usata nei conti.',
+    footer_testo_2: 'Legge del quadrato-cubo: Galileo Galilei, <i>Discorsi e dimostrazioni matematiche intorno a due nuove scienze</i>, Giornata seconda, 1638. Ripresa da J. B. S. Haldane, <i>On Being the Right Size</i>, 1926. Pagina senza connessione a nessun servizio esterno: tutti i conti girano qui, davanti a te.'
+  }
+};
+
+/* COPIE per le altre lingue: PENDING — TESTI.en/fr/es/de sono copie dell'italiano in attesa della traduzione  */
+TESTI.en = JSON.parse(JSON.stringify(TESTI.it));
+/* English: reviewed translation merged from the lab translation pass. Keys not listed here fall back to the Italian text. */
+Object.assign(TESTI.en, {"hero_sotto": "Enlarge a real creature keeping its proportions exact. Areas grow as the square of the length, volumes as the cube. Everything you will see happen depends on this difference alone.", "tit_chi": "Choose who to enlarge", "creatura_formica_dettaglio": "Average worker: 7.5 mm and 9.3 mg. It is the only creature on this page for which a measured load capacity exists — 8.78 body weights, across 90 individuals from 9 colonies — so it is the only one where we can say at what size it collapses.", "tit_man": "Turn the knob", "nota_confronto": "In the strip below the person is 1.75 m tall and the creature is drawn at its true scale next to them. Below a certain size the creature becomes a two-pixel dot: that is not its size, it is the limit of the screen.", "tit_bar": "Four quantities, four speeds", "nota_log": "The bars are on a logarithmic scale: each mark is a factor of ten. The plain value is written on the right.", "nota_loglog": "On two logarithmic axes the four quantities are four straight lines, and the slope of each is exactly its exponent: 3, 2, 1, −1. There is nothing to measure: it is geometry.", "tit_num": "Where the starting number comes from", "testo_num_intro": "All the calculations on this page start from a single measurement: how many body weights the legs of a leaf-cutter ant can push. Try changing it and see what happens to the threshold.", "tit_osso": "Galileo’s bone", "testo_osso": "If you want the stress inside the bone <b>not to change<\/b> as you enlarge, the area of the bone must grow as k³ and not as k². The area goes with the square of the diameter, so the diameter must grow as k·√k. Compared with the rest of the body, the bone becomes √k times stouter. This is the drawing that Galileo published in 1638.", "nota_ossa": "The two bones are drawn <b>at the same length on screen<\/b>: the only visible difference is the thickness, and that is the point of the 1638 plate.", "label_gigante": "Giant <span id=\"ossoAlt\">3<\/span> times your height — <span id=\"ossoM\">5.25 m<\/span>", "nota_femore": "Starting femur: 450 mm long, 26 mm external diameter. Galilei, <i>Discorsi<\/i>, Second Day, 1638.", "tit_for": "The formulas, to redo the calculations by hand", "tit_casi": "The cases, with the calculations in plain sight", "caso_1_titolo": "The leaf-cutter ant enlarged until it weighs as much as you", "caso_2_titolo": "The exact threshold: when it stops holding itself up", "caso_3_titolo": "Galileo’s bone, the case he drew", "caso_4_titolo": "How far your bones are from breaking, standing still", "caso_5_titolo": "The elephant is not an enlarged man", "caso_6_titolo": "What changes if you use the wrong number", "tit_corpo": "The body comparison", "testo_paragone": "Pick up a full shopping bag: three one-and-a-half-litre bottles of water, three and a half kilos. That is <span class=\"evidenza\">all the strength the legs of the ant enlarged to weigh as much as you have left<\/span> — and on top of it there has to be a seventy-kilo body. You, who weigh the same, stand up without thinking. And if you had the relative strength of the real ant, you would walk out of the supermarket with six hundred and fifteen kilos in your arms: a small car.", "testo_paragone_2": "It works the same way with the bone. Your femur is about as thick as your thumb, twenty-six millimetres. The femur of a giant five metres and twenty-five tall, to avoid being crushed more than yours, would have to be thirteen and a half centimetres thick: as wide as your arm at the biceps, on a bone one and a half metres long. Galileo drew it in 1638 and remarked that, looking at it, it no longer seems like a bone.", "tit_sor": "The surprise", "sorpresa_intro": "There are two, and the second is worth more than the first.", "tit_non": "What this model does not say", "punto_3_p2": "For the same reason, we can state the absolute load capacity only for the ant. For the mouse, the cat and you there is no equivalent published measurement: when you choose one of these three creatures, the relative-strength bar tells you how many times weaker than yourself it becomes, not at what size it collapses. That red line appears only for the ant, because only there is there a measured number behind it.", "eyebrow_exp": "Experiment 5 · Biomechanics", "h1_line1": "How big can", "h1_line2": "an animal get", "cred_1": "The square-cube law", "cred_2": "<b>Galileo Galilei<\/b>, <i>Discourses<\/i>, Second Day, 1638", "cred_3": "taken up by <b>J. B. S. Haldane<\/b>, <i>On Being the Right Size<\/i>, 1926", "aria_creatures": "Choice of creature", "creatura_formica_nome": "Leafcutter ant", "creatura_formica_specie": "Atta cephalotes", "creatura_topo_nome": "House mouse", "creatura_topo_specie": "Mus musculus", "creatura_gatto_nome": "House cat", "creatura_gatto_specie": "Felis catus", "creatura_te_nome": "Yourself", "creatura_te_specie": "Homo sapiens", "ancora_moneta": "like a two-euro coin", "ancora_palmo": "like the palm of your hand", "ancora_ratto": "like a rat", "ancora_tasso": "like a badger", "ancora_peso_te": "as heavy as you", "ancora_orso": "like a polar bear standing up", "ancora_gigante": "a giant three times your height", "ancora_elefante": "as heavy as an African elephant", "etichetta_k": "scale-up factor k", "etichetta_L": "true length", "etichetta_m": "mass", "aria_manopola": "Scale-up factor", "aria_scatti": "Notable sizes", "badge_formica_vera": "the real ant", "canvas_scena_label": "Drawing of the scaled-up creature, with a ruler for the true length", "canvas_confronto_label": "Real-scale comparison with a person 1.75 metres tall", "altezza": "of height", "lunghezza": "of length", "non_si_regge": "cannot stand up", "testo_confronto_puntino": "a dot: it would be thinner than a pixel", "testo_confronto_esce": "falls outside the frame", "barra_massa_nome": "Body mass", "barra_forza_nome": "Leg strength", "barra_sforzo_nome": "Crushing in the bone", "barra_sforzo_nota_uomo": "on two femurs, standing still", "barra_sforzo_nota_altro": "compared with the real animal", "barra_rel_nome": "Relative strength", "barra_rel_exp": "÷ k · goes backwards", "barra_rel_nota_formica": "body weights that the legs can hold", "barra_rel_nota_altro": "compared with the real animal (1 = the real one)", "sottoriga_non_regge": "below this line it cannot stand up", "sottoriga_non_misurato": "the line is the real animal; for this creature nobody has measured at what size it collapses", "crollo_sta_in_piedi": "It stands up.", "crollo_soglia_esatta": "Exactly at the threshold: ", "crollo_non_regge_2": " stopped holding itself up. Now it is ", "crollo_msg_invalido": "It is not a monster, it is an invalid — and the load it could carry ran out long before.", "crollo_msg_soglia": "The legs hold 1.00 times the body weight and not a gram more: ", "crollo_msg_soglia_2": " divided by ", "crollo_msg_ok": "Beyond its own weight the legs can still push ", "crollo_msg_ok_2": " times the body, that is ", "crollo_msg_ok_3": ". It collapses at k = ", "crollo_msg_ok_4": ", when it will be ", "crollo_nessuna_soglia": "There is no measured threshold here.", "crollo_msg_nessuna": "The law says only this, and it is already a lot: compared with ", "crollo_msg_nessuna_2": " you are ", "crollo_msg_nessuna_3": " times weaker relative to your weight. Where you really collapse nobody knows, and the page does not make it up.", "grafico_loglog_label": "Logarithmic graph with four lines of slope 3, 2, 1 and minus 1", "num_tag_misurato": "measured, 90 individuals", "num_spiega_misurato": "8.78 ± 0.26 body weights, leafcutter ants, 9 colonies", "num_tag_diffuso": "widespread, no known measurement", "num_spiega_diffuso": "the figure you read almost everywhere, with no study behind it", "num_soglia": "collapse threshold: ", "nota_due_3": ", a factor of ", "nota_due_4": ". The switch acts on the ant, the only creature with a measured carrying capacity.", "canvas_ossa_label": "Two femurs compared, drawn at the same length on the screen", "aria_kOsso": "Scale-up factor of the giant", "dato_iso_label": "with exact proportions", "dato_gal_label": "to bear the same stress", "dato_rad_label": "stockier, that is √k", "dato_lung_label": "femur length", "caso_1_ingressi": "Inputs", "caso_1_risultato": "Result", "caso_1_controllo": "Check", "caso_2_ingressi": "Inputs", "caso_2_ingressi_testo": "We look for the k at which the relative strength equals 1.", "caso_2_risultato": "Result", "caso_2_controllo": "Check", "caso_3_ingressi": "Inputs", "caso_3_ingressi_testo": "Human femur: 450 mm long, 26 mm in diameter; a giant three times your height, 5.25 m (k = 3).", "caso_3_risultato": "Result", "caso_3_controllo": "Check", "caso_4_ingressi": "Inputs", "caso_4_risultato": "Result", "caso_4_controllo": "Check", "caso_5_ingressi": "Inputs", "caso_5_ingressi_testo": "Man 1.75 m and 70 kg; African elephant ≈ 3.2 m at the shoulder and ≈ 6000 kg.", "caso_5_risultato": "Result", "caso_5_controllo": "Check", "caso_6_ingressi": "Inputs", "caso_6_ingressi_testo": "50 times its own weight (the figure you read almost everywhere) instead of 8.78 (measured).", "caso_6_risultato": "Result", "caso_6_risultato_testo": "The collapse threshold moves from 7.3 cm to <b data-v=\"l50\"><\/b>: a factor of <b data-v=\"fatt50\"><\/b>.", "caso_6_controllo": "Check", "sorpresa_prima_titolo": "The first.", "sorpresa_seconda_titolo": "The second", "punto_1_titolo": "The law holds only if the shape stays identical, and no real animal does that.", "punto_2_titolo": "There are land arthropods well beyond 7.3 centimetres.", "punto_3_titolo": "The force a muscle makes per square centimetre is not a constant of nature.", "punto_4_grave_titolo": "And it is the weakest point of this page.", "punto_5_titolo": "Which rule bones really follow is an open question.", "punto_6_titolo": "There is another very famous scaling rule", "punto_7_titolo": "The numerical assumptions.", "footer_costanti": "Constants used.", "testo_confronto_tu": "you, 1.75 m"});
+TESTI.fr = JSON.parse(JSON.stringify(TESTI.it));
+TESTI.es = JSON.parse(JSON.stringify(TESTI.it));
+TESTI.de = JSON.parse(JSON.stringify(TESTI.it));
+
+/* =========================================================================
+   COSTANTI  —  ognuna con la sua provenienza
+   ========================================================================= */
+const G = 9.81;                          // m/s^2, accelerazione di gravità al suolo
+const DENSITA_CORPO = 1000;              // kg/m^3, densità del corpo ~ quella dell'acqua (dichiarata, non usata nei conti)
+const SIGMA_MUSCOLO = 25;                // N/cm^2, valore d'uso: SOLO illustrativo, non entra in nessun calcolo
+const SIGMA_OSSO_ROTTURA = 170;          // MPa, rottura a compressione dell'osso corticale (misure fra 130 e 190)
+const CAPACITA_FORMICA_MISURATA = 8.78;  // pesi corporei portati, misura su 90 individui di 9 colonie (2019)
+const CAPACITA_FORMICA_LEGGENDA = 50;    // pesi corporei, cifra diffusa senza misura nota
+const FORMICA_MASSA_MG = 9.3;            // mg, operaia media di Atta cephalotes
+const FORMICA_LUNGHEZZA_MM = 7.5;        // mm, lunghezza del corpo della stessa operaia
+const FEMORE_D_EST_MM = 26;              // mm, diametro esterno del femore umano
+const FEMORE_D_INT_MM = 14;              // mm, diametro del canale midollare
+const FEMORE_L_MM = 450;                 // mm, lunghezza del femore umano
+const UOMO_MASSA_KG = 70;                // kg, persona di riferimento
+const UOMO_ALTEZZA_MM = 1750;            // mm, la stessa persona
+const MONETA_2EURO_MM = 25.75;           // mm, diametro della moneta da due euro: si controlla col righello
+const ELEFANTE_ALTEZZA_MM = 3200;        // mm, elefante africano al garrese
+const ELEFANTE_MASSA_KG = 6000;          // kg, lo stesso elefante
+
+/* =========================================================================
+   NUCLEO DI CALCOLO
+   ========================================================================= */
+const capacitaTotale = c => 1 + c;                        // 1 peso proprio + il carico portato
+const kDaMassa       = (mTarget, m0) => Math.pow(mTarget / m0, 1/3);
+const massaKg        = (m0, k) => m0 * Math.pow(k, 3);    //  ∝ k³
+const forzaN         = (F0, k) => F0 * k * k;             //  ∝ k²
+const forzaRelativa  = (cTot, k) => cTot / k;             //  ∝ 1/k
+const sforzoMPa      = (s0, k) => s0 * k;                 //  ∝ k
+const kSoglia        = cTot => cTot;                      // cTot/k = 1  →  k = cTot
+const sezioneTubo    = (de, di) => Math.PI/4 * (de*de - di*di);
+const dIsometrico    = (d0, k) => d0 * k;                 // diametro a proporzioni esatte
+const dGalileo       = (d0, k) => d0 * Math.pow(k, 1.5);  // diametro a sforzo costante
+
+const SEZIONE_UN_FEMORE  = sezioneTubo(FEMORE_D_EST_MM, FEMORE_D_INT_MM);
+const SEZIONE_DUE_FEMORI = 2 * SEZIONE_UN_FEMORE;
+const PESO_UOMO_N        = UOMO_MASSA_KG * G;
+const SIGMA0_UOMO        = PESO_UOMO_N / SEZIONE_DUE_FEMORI;         // MPa = N/mm²
+const MARGINE_OSSO       = SIGMA_OSSO_ROTTURA / SIGMA0_UOMO;
+
+/* =========================================================================
+   FORMATTAZIONE  (italiano)
+   ========================================================================= */
+function nf(x, max, min){
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: (min === undefined ? 0 : min),
+    maximumFractionDigits: max
+  }).format(x);
+}
+function fmtLunghezza(mm){
+  if (mm < 10)     return nf(mm, 1) + ' mm';
+  if (mm < 1000)   return nf(mm/10, 1) + ' cm';
+  if (mm < 100000) return nf(mm/1000, 2) + ' m';
+  return nf(mm/1000, 0) + ' m';
+}
+function fmtMassa(kg){
+  if (kg < 1e-3) return nf(kg*1e6, 1) + ' mg';
+  if (kg < 1)    return nf(kg*1e3, 2, 2) + ' g';
+  if (kg < 100)  return nf(kg, 2, 2) + ' kg';
+  if (kg < 1000) return nf(kg, 0) + ' kg';
+  const t = kg/1000;
+  if (t < 1000)  return nf(t, 1) + ' t';
+  return nf(Number(t.toPrecision(3)), 0) + ' t';
+}
+function fmtForza(N){
+  if (N < 0.5)  return nf(N*1000, 2) + ' mN';
+  if (N < 1000) return nf(N, 2) + ' N';
+  if (N < 1e6)  return nf(N/1000, 1) + ' kN';
+  return nf(N/1e6, 1) + ' MN';
+}
+function fmtRel(v){
+  if (v >= 1)    return nf(v, 2, 2);
+  if (v >= 0.01) return nf(v, 3, 3);
+  return nf(v, 4, 4);
+}
+function fmtFattore(k){
+  if (k < 10)  return nf(k, 2);
+  if (k < 100) return nf(k, 1);
+  return nf(k, 0);
+}
+function aLettere(mm){ // per aria-valuetext
+  if (mm < 10)   return nf(mm,1) + ' millimetri';
+  if (mm < 1000) return nf(mm/10,1) + ' centimetri';
+  return nf(mm/1000,2) + ' metri';
+}
+
+/* =========================================================================
+   LE CREATURE  (dati veri, con la provenienza scritta a schermo)
+   ========================================================================= */
+const CREATURE = [
+  { id:'formica', nome:'Formica tagliafoglie', specie:'Atta cephalotes',
+    L0: FORMICA_LUNGHEZZA_MM, m0: FORMICA_MASSA_MG * 1e-6,
+    orientamento:'orizzontale', misura:'lunghezza del corpo',
+    dettaglio:'Operaia media: 7,5 mm e 9,3 mg. È la sola creatura di questa pagina per cui esiste una capacità di carico misurata — 8,78 pesi corporei, su 90 individui di 9 colonie — quindi è la sola in cui sappiamo dire a che taglia crolla.',
+    haCapacita:true, haOssa:false },
+
+  { id:'topo', nome:'Topolino domestico', specie:'Mus musculus',
+    L0: 85, m0: 0.020,
+    orientamento:'orizzontale', misura:'lunghezza testa-corpo',
+    dettaglio:'8,5 cm testa-corpo e 20 g: valore d’uso, gli individui veri vanno da 12 a 30 g e da 6,5 a 9,5 cm. Per il topo non esiste una misura di capacità di carico come quella sulle formiche: la barra della forza relativa dirà di quante volte diventa più debole di se stesso, non dove crolla.',
+    haCapacita:false, haOssa:false },
+
+  { id:'gatto', nome:'Gatto di casa', specie:'Felis catus',
+    L0: 460, m0: 4.5,
+    orientamento:'orizzontale', misura:'lunghezza testa-corpo',
+    dettaglio:'46 cm testa-corpo e 4,5 kg: valore d’uso per un adulto. Anche qui nessuna misura di capacità di carico: niente riga rossa, solo il confronto con il gatto vero.',
+    haCapacita:false, haOssa:false },
+
+  { id:'te', nome:'Te stesso', specie:'Homo sapiens',
+    L0: UOMO_ALTEZZA_MM, m0: UOMO_MASSA_KG,
+    orientamento:'verticale', misura:'altezza',
+    dettaglio:'1,75 m e 70 kg. Qui la “lunghezza” è l’altezza, non la misura testa-corpo dei quadrupedi. Per te il conto delle ossa è in newton e megapascal veri, perché del femore umano conosciamo le misure: 26 mm esterni, 14 mm di canale, 450 mm di lunghezza.',
+    haCapacita:false, haOssa:true }
+];
+
+/* Ancore di taglia: lunghezze vere, riconoscibili, che un ragazzo può controllare */
+const ANCORE = [
+  { L: MONETA_2EURO_MM, testo:'like a two-euro coin' },
+  { L: 73.35,           testo:'like the palm of your hand' },
+  { L: 200,             testo:'like a rat' },
+  { L: 750,             testo:'like a badger' },
+  { M: UOMO_MASSA_KG,   testo:'as heavy as you' },
+  { L: ELEFANTE_ALTEZZA_MM, testo:'like a polar bear standing up' },
+  { L: 5250,            testo:'a giant three times your height', soloUmano:true },
+  { M: ELEFANTE_MASSA_KG,   testo:'as heavy as an African elephant' }
+];
+
+const SLIDER_MAX = 265;                              // k = 10^(slider/100)
+const K_MAX = Math.pow(10, SLIDER_MAX/100);
+const kDaSlider = s => Math.pow(10, s/100);
+const sliderDaK = k => Math.log10(k) * 100;
+
+/* =========================================================================
+   STATO
+   ========================================================================= */
+/* la manopola è a scatti interi, ma k viene tenuto esatto:
+   sugli scatti notevoli vale il valore vero, non quello arrotondato dallo slider */
+let stato = {
+  creatura: CREATURE[0],
+  k: 1,
+  capacita: CAPACITA_FORMICA_MISURATA
+};
+let scatti = [];
+
+/* =========================================================================
+   SCATTI DI TAGLIA
+   ========================================================================= */
+function costruisciScatti(){
+  const c = stato.creatura;
+  const cTot = capacitaTotale(stato.capacita);
+  const lista = [{ k:1, testo:'the real animal' }];
+
+  // per la formica lo scatto della soglia è dinamico: segue il numero scelto
+  if (c.haCapacita){
+    const kS = kSoglia(cTot);
+    lista.push({ k:kS, testo: (kS < 20 ? 'like the palm of your hand' : 'like your forearm') });
+  }
+  if (c.haOssa){
+    lista.push({ k: Math.round(MARGINE_OSSO), testo:'here the bone is crushed' });
+  }
+  ANCORE.forEach(a => {
+    if (c.haCapacita && a.L === 73.35) return;      // rimpiazzata dalla soglia dinamica
+    if (a.soloUmano && !c.haOssa) return;           // "tre volte te" ha senso solo su di te
+    const k = (a.L !== undefined) ? a.L / c.L0 : kDaMassa(a.M, c.m0);
+    if (k > 1.02 && k <= K_MAX) lista.push({ k:k, testo:a.testo });
+  });
+
+  lista.sort((x,y) => x.k - y.k);
+  // via i doppioni troppo vicini
+  scatti = lista.filter((v,i) => i === 0 || Math.abs(sliderDaK(v.k) - sliderDaK(lista[i-1].k)) > 6);
+}
+
+function etichettaScatto(s){
+  return s.testo + ', ' + fmtLunghezza(stato.creatura.L0 * s.k);
+}
+
+function disegnaScatti(){
+  const box = document.getElementById('scatti');
+  const tac = document.getElementById('tacche');
+  box.innerHTML = ''; tac.innerHTML = '';
+  scatti.forEach(s => {
+    const pos = sliderDaK(s.k) / SLIDER_MAX;
+    const t = document.createElement('div');
+    t.className = 'tacca';
+    t.style.left = 'calc(15px + ' + (pos*100).toFixed(3) + '% - ' + (pos*30).toFixed(2) + 'px)';
+    tac.appendChild(t);
+
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'scatto';
+    b.textContent = etichettaScatto(s);
+    b.addEventListener('click', () => {
+      stato.k = s.k;
+      document.getElementById('manopola').value = Math.max(0, Math.min(SLIDER_MAX, Math.round(sliderDaK(s.k))));
+      aggiorna(true);
+    });
+    box.appendChild(b);
+  });
+}
+
+function scattoAttivo(k){
+  let best = null, bestD = 1e9;
+  scatti.forEach(s => {
+    const d = Math.abs(sliderDaK(s.k) - sliderDaK(k));
+    if (d < bestD){ bestD = d; best = s; }
+  });
+  return bestD <= 1.6 ? best : null;
+}
+
+/* =========================================================================
+   INTERFACCIA: creature e interruttore del numero
+   ========================================================================= */
+function disegnaCreature(){
+  const box = document.getElementById('creature');
+  box.innerHTML = '';
+  const creatureIds = ['formica', 'topo', 'gatto', 'te'];
+  creatureIds.forEach((cid, idx) => {
+    const c = CREATURE[idx];
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'creatura';
+    b.setAttribute('aria-pressed', c.id === stato.creatura.id ? 'true' : 'false');
+    b.innerHTML = '<span class="n"></span><span class="s"></span>';
+    const nomeKey = 'creatura_' + cid + '_nome';
+    const mesKey = 'creatura_' + cid + '_dettaglio';
+    b.querySelector('.n').textContent = TESTI[LANG][nomeKey] || c.nome;
+    b.querySelector('.s').textContent = fmtLunghezza(c.L0) + ' · ' + fmtMassa(c.m0);
+    b.addEventListener('click', () => {
+      stato.creatura = c;
+      stato.k = 1;
+      document.getElementById('manopola').value = 0;
+      costruisciScatti(); disegnaScatti(); disegnaCreature();
+      aggiorna(true);
+    });
+    box.appendChild(b);
+  });
+  const mesKey = 'creatura_' + stato.creatura.id + '_dettaglio';
+  document.getElementById('notaCreatura').textContent = TESTI[LANG][mesKey] || stato.creatura.dettaglio;
+}
+
+function disegnaDueNumeri(){
+  const box = document.getElementById('duenumeri');
+  box.innerHTML = '';
+  [
+    { v: CAPACITA_FORMICA_MISURATA, tag_key:'num_tag_misurato', spiega_key:'num_spiega_misurato' },
+    { v: CAPACITA_FORMICA_LEGGENDA, tag_key:'num_tag_diffuso', spiega_key:'num_spiega_diffuso' }
+  ].forEach(o => {
+    const cTot = capacitaTotale(o.v);
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'numOpz';
+    b.setAttribute('aria-pressed', Math.abs(o.v - stato.capacita) < 1e-9 ? 'true' : 'false');
+    b.innerHTML = '<span class="big"></span><span class="tag"></span><span class="soglia2"></span>';
+    b.querySelector('.big').textContent = nf(o.v, 2) + ' ×';
+    b.querySelector('.tag').textContent = TESTI[LANG][o.tag_key] || '';
+    const soglia_text = TESTI[LANG]['num_soglia'] || 'soglia del crollo: ';
+    b.querySelector('.soglia2').textContent =
+      soglia_text + fmtLunghezza(FORMICA_LUNGHEZZA_MM * kSoglia(cTot)) + '  (k = ' + fmtFattore(kSoglia(cTot)) + ')';
+    b.title = TESTI[LANG][o.spiega_key] || '';
+    b.addEventListener('click', () => {
+      stato.capacita = o.v;
+      costruisciScatti(); disegnaScatti(); disegnaDueNumeri();
+      aggiorna(true);
+    });
+    box.appendChild(b);
+  });
+  const s1 = FORMICA_LUNGHEZZA_MM * kSoglia(capacitaTotale(CAPACITA_FORMICA_MISURATA));
+  const s2 = FORMICA_LUNGHEZZA_MM * kSoglia(capacitaTotale(CAPACITA_FORMICA_LEGGENDA));
+  const nota = (TESTI[LANG]['nota_due_1'] || 'La conclusione non cambia — nessuna formica gigante in nessuno dei due casi — ma il numero che dai sì: la soglia passa da ')
+    + fmtLunghezza(s1) + (TESTI[LANG]['nota_due_2'] || ' a ') + fmtLunghezza(s2) + (TESTI[LANG]['nota_due_3'] || ', un fattore ')
+    + nf(s2/s1, 1) + (TESTI[LANG]['nota_due_4'] || '. L\'interruttore agisce sulla formica, l\'unica creatura con una capacità di carico misurata.');
+  document.getElementById('notaDue').textContent = nota;
+}
+
+/* =========================================================================
+   CANVAS: utilità
+   ========================================================================= */
+function prepara(cv, hCss){
+  const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+  const w = cv.clientWidth || cv.parentNode.clientWidth || 340;
+  cv.width  = Math.round(w * dpr);
+  cv.height = Math.round(hCss * dpr);
+  cv.style.height = hCss + 'px';
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, hCss);
+  return { ctx: ctx, w: w, h: hCss };
+}
+const INK = '#33302B', ATT = '#7E7768', ORO = '#E5A50A', VIO = '#7C5CFF', ACQ = '#2DD4BF', ROS = '#D6455B';
+
+/* --- sagome, tinta piatta --- */
+function sagomaFormica(ctx, L, accasciata){
+  // L = lunghezza del corpo in pixel, corpo appoggiato su y = 0, cresce verso l'alto
+  const alt = accasciata ? 0.055*L : 0.20*L;
+  ctx.save(); ctx.translate(0, -alt);
+  ctx.beginPath();
+  ctx.ellipse(0.735*L, -0.135*L, 0.245*L, 0.150*L, 0, 0, 7);      // gastro
+  ctx.moveTo(0.44*L, -0.12*L);
+  ctx.ellipse(0.40*L, -0.12*L, 0.115*L, 0.088*L, 0, 0, 7);        // torace
+  ctx.moveTo(0.17*L, -0.14*L);
+  ctx.ellipse(0.125*L, -0.14*L, 0.115*L, 0.105*L, 0, 0, 7);       // testa
+  ctx.fill();
+  ctx.lineCap = 'round'; ctx.lineWidth = Math.max(1.1, 0.030*L);
+  // mandibole
+  ctx.beginPath();
+  ctx.moveTo(0.03*L, -0.16*L); ctx.lineTo(-0.06*L, -0.20*L);
+  ctx.moveTo(0.03*L, -0.11*L); ctx.lineTo(-0.06*L, -0.07*L);
+  ctx.stroke();
+  // antenne
+  ctx.lineWidth = Math.max(0.9, 0.022*L);
+  ctx.beginPath();
+  ctx.moveTo(0.10*L, -0.24*L); ctx.quadraticCurveTo(-0.02*L, -0.42*L, -0.17*L, -0.38*L);
+  ctx.moveTo(0.16*L, -0.24*L); ctx.quadraticCurveTo(0.06*L, -0.46*L, -0.08*L, -0.47*L);
+  ctx.stroke();
+  // zampe
+  ctx.lineWidth = Math.max(1.1, 0.030*L);
+  const ancore = [0.32, 0.40, 0.48];
+  ancore.forEach((a, i) => {
+    const sp = accasciata ? (0.44 + i*0.20) : (0.20 + i*0.10);
+    const gin = accasciata ? -0.075*L : -0.30*L;
+    ctx.beginPath();
+    ctx.moveTo(a*L, -0.14*L);
+    ctx.quadraticCurveTo((a - sp*0.55)*L, gin, (a - sp)*L, alt);
+    ctx.moveTo(a*L, -0.14*L);
+    ctx.quadraticCurveTo((a + sp*0.55)*L, gin, (a + sp*0.92)*L, alt);
+    ctx.stroke();
+  });
+  ctx.restore();
+}
+function sagomaTopo(ctx, L){
+  ctx.save(); ctx.translate(0, -0.30*L);
+  ctx.beginPath();
+  ctx.ellipse(0.50*L, -0.20*L, 0.34*L, 0.20*L, 0, 0, 7);        // corpo
+  ctx.moveTo(0.24*L, -0.26*L);
+  ctx.ellipse(0.155*L, -0.26*L, 0.145*L, 0.135*L, 0, 0, 7);     // testa
+  ctx.moveTo(0.16*L, -0.46*L);
+  ctx.ellipse(0.135*L, -0.46*L, 0.095*L, 0.100*L, 0, 0, 7);     // orecchio
+  ctx.moveTo(0.30*L, -0.46*L);
+  ctx.ellipse(0.275*L, -0.46*L, 0.085*L, 0.092*L, 0, 0, 7);
+  ctx.fill();
+  ctx.lineCap='round'; ctx.lineWidth = Math.max(1.2, 0.045*L);
+  ctx.beginPath();                                              // zampe
+  ctx.moveTo(0.30*L, -0.10*L); ctx.lineTo(0.28*L, 0.30*L);
+  ctx.moveTo(0.42*L, -0.08*L); ctx.lineTo(0.44*L, 0.30*L);
+  ctx.moveTo(0.66*L, -0.10*L); ctx.lineTo(0.64*L, 0.30*L);
+  ctx.moveTo(0.78*L, -0.09*L); ctx.lineTo(0.80*L, 0.30*L);
+  ctx.stroke();
+  ctx.lineWidth = Math.max(1.0, 0.030*L);
+  ctx.beginPath();                                              // coda
+  ctx.moveTo(0.84*L, -0.22*L);
+  ctx.bezierCurveTo(1.06*L, -0.30*L, 1.14*L, 0.04*L, 0.98*L, 0.16*L);
+  ctx.stroke();
+  ctx.beginPath();                                              // baffi
+  ctx.moveTo(0.04*L,-0.24*L); ctx.lineTo(-0.10*L,-0.30*L);
+  ctx.moveTo(0.04*L,-0.21*L); ctx.lineTo(-0.10*L,-0.18*L);
+  ctx.stroke();
+  ctx.restore();
+}
+function sagomaGatto(ctx, L){
+  ctx.save(); ctx.translate(0, -0.42*L);
+  ctx.beginPath();
+  ctx.ellipse(0.52*L, -0.16*L, 0.335*L, 0.155*L, 0, 0, 7);      // corpo
+  ctx.moveTo(0.26*L, -0.30*L);
+  ctx.ellipse(0.165*L, -0.30*L, 0.125*L, 0.118*L, 0, 0, 7);     // testa
+  ctx.fill();
+  ctx.beginPath();                                              // orecchie
+  ctx.moveTo(0.07*L,-0.40*L); ctx.lineTo(0.10*L,-0.55*L); ctx.lineTo(0.185*L,-0.42*L); ctx.closePath();
+  ctx.moveTo(0.22*L,-0.42*L); ctx.lineTo(0.265*L,-0.55*L); ctx.lineTo(0.285*L,-0.40*L); ctx.closePath();
+  ctx.fill();
+  ctx.lineCap='round'; ctx.lineWidth = Math.max(1.4, 0.055*L);
+  ctx.beginPath();                                              // zampe
+  ctx.moveTo(0.30*L,-0.08*L); ctx.lineTo(0.285*L,0.42*L);
+  ctx.moveTo(0.40*L,-0.06*L); ctx.lineTo(0.425*L,0.42*L);
+  ctx.moveTo(0.66*L,-0.08*L); ctx.lineTo(0.645*L,0.42*L);
+  ctx.moveTo(0.77*L,-0.07*L); ctx.lineTo(0.795*L,0.42*L);
+  ctx.stroke();
+  ctx.lineWidth = Math.max(1.4, 0.050*L);
+  ctx.beginPath();                                              // coda
+  ctx.moveTo(0.85*L,-0.20*L);
+  ctx.bezierCurveTo(1.02*L,-0.30*L, 1.02*L,-0.62*L, 0.90*L,-0.66*L);
+  ctx.stroke();
+  ctx.restore();
+}
+function sagomaUmano(ctx, H){
+  // H = altezza in pixel, piedi su y = 0
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(0, -0.915*H, 0.072*H, 0, 7);                          // testa
+  ctx.fill();
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.lineWidth = Math.max(1.6, 0.085*H);
+  ctx.beginPath(); ctx.moveTo(0,-0.845*H); ctx.lineTo(0,-0.50*H); ctx.stroke();   // tronco
+  ctx.lineWidth = Math.max(1.2, 0.045*H);
+  ctx.beginPath();                                              // braccia
+  ctx.moveTo(0,-0.775*H); ctx.quadraticCurveTo(-0.13*H,-0.65*H,-0.115*H,-0.47*H);
+  ctx.moveTo(0,-0.775*H); ctx.quadraticCurveTo( 0.13*H,-0.65*H, 0.115*H,-0.47*H);
+  ctx.stroke();
+  ctx.lineWidth = Math.max(1.4, 0.058*H);
+  ctx.beginPath();                                              // gambe
+  ctx.moveTo(0,-0.50*H); ctx.quadraticCurveTo(-0.075*H,-0.26*H,-0.072*H,0);
+  ctx.moveTo(0,-0.50*H); ctx.quadraticCurveTo( 0.075*H,-0.26*H, 0.072*H,0);
+  ctx.stroke();
+  ctx.restore();
+}
+function disegnaSagoma(ctx, c, dim, accasciata){
+  if (c.id === 'formica') sagomaFormica(ctx, dim, accasciata);
+  else if (c.id === 'topo') sagomaTopo(ctx, dim);
+  else if (c.id === 'gatto') sagomaGatto(ctx, dim);
+  else sagomaUmano(ctx, dim);
+}
+
+/* --- scena principale --- */
+function disegnaScena(d){
+  const cv = document.getElementById('scena');
+  const alt = Math.max(240, Math.min(400, (cv.parentNode.clientWidth || 340) * 0.52));
+  const p = prepara(cv, alt);
+  const ctx = p.ctx, W = p.w, H = p.h;
+  const suolo = H - 56;
+
+  // suolo
+  ctx.strokeStyle = '#E7E1D3'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(14, suolo + .5); ctx.lineTo(W-14, suolo + .5); ctx.stroke();
+
+  const c = stato.creatura;
+  const vert = (c.orientamento === 'verticale');
+  const dispW = W * (vert ? 0.30 : 0.62);
+  const dispH = (suolo - 34);
+  const dim = vert ? Math.min(dispH, dispW*2.6) : Math.min(dispW, dispH*1.9);
+  const x0 = vert ? W/2 : (W - dim)/2;
+
+  ctx.fillStyle = d.crollato ? '#B24E5E' : INK;
+  ctx.strokeStyle = d.crollato ? '#B24E5E' : INK;
+  ctx.save(); ctx.translate(x0, suolo);
+  disegnaSagoma(ctx, c, dim, d.crollato);
+  ctx.restore();
+
+  // righello sotto: la lunghezza vera
+  const rx1 = vert ? (W/2 - dim*0.30) : x0;
+  const rx2 = vert ? (W/2 + dim*0.30) : (x0 + dim);
+  const ry = suolo + 24;
+  ctx.strokeStyle = ORO; ctx.lineWidth = 2; ctx.lineCap = 'butt';
+  ctx.beginPath();
+  ctx.moveTo(rx1, ry-6); ctx.lineTo(rx1, ry+6);
+  ctx.moveTo(rx2, ry-6); ctx.lineTo(rx2, ry+6);
+  ctx.moveTo(rx1, ry); ctx.lineTo(rx2, ry);
+  ctx.stroke();
+  ctx.fillStyle = '#9A6E00';
+  ctx.font = '600 13px "DM Mono", monospace';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText(fmtLunghezza(d.L) + (vert ? (TESTI[LANG]['altezza'] || ' di altezza') : (TESTI[LANG]['lunghezza'] || ' di lunghezza')), (rx1+rx2)/2, ry + 10);
+
+  // etichetta in alto
+  ctx.textAlign = 'left'; ctx.fillStyle = ATT;
+  ctx.font = '500 12px "DM Mono", monospace';
+  ctx.fillText('k = ' + fmtFattore(d.k) + '  ·  ' + fmtMassa(d.m), 16, 14);
+  if (d.crollato){
+    ctx.fillStyle = ROS;
+    ctx.font = '500 13px "DM Mono", monospace';
+    ctx.textAlign = 'right';
+    ctx.fillText('non si regge in piedi', W - 16, 14);
+  }
+}
+
+/* --- striscia di confronto a scala reale --- */
+function disegnaConfronto(d){
+  const cv = document.getElementById('confronto');
+  const p = prepara(cv, 150);
+  const ctx = p.ctx, W = p.w, H = p.h;
+  const suolo = H - 30;
+  const Hpx = 74;                                   // la persona è sempre alta 74 px
+  const scala = Hpx / UOMO_ALTEZZA_MM;              // px per mm
+
+  ctx.strokeStyle = '#E7E1D3'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(14, suolo+.5); ctx.lineTo(W-14, suolo+.5); ctx.stroke();
+
+  // persona di riferimento a destra
+  ctx.fillStyle = '#C9C1AE'; ctx.strokeStyle = '#C9C1AE';
+  ctx.save(); ctx.translate(W - 46, suolo); sagomaUmano(ctx, Hpx); ctx.restore();
+  ctx.fillStyle = ATT; ctx.font = '500 10.5px "DM Mono", monospace';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText(TESTI[LANG]['testo_confronto_tu'] || 'tu, 1,75 m', W - 46, suolo + 7);
+
+  // creatura alla sua scala vera
+  const vert = (stato.creatura.orientamento === 'verticale');
+  const grezzo = d.L * scala;
+  const dim = Math.max(2, Math.min(grezzo, vert ? 118 : 168));
+  const tagliato = grezzo > dim + 0.5;
+  const puntino = grezzo < 2;
+  const x0 = 30;
+  ctx.fillStyle = d.crollato ? '#B24E5E' : INK;
+  ctx.strokeStyle = d.crollato ? '#B24E5E' : INK;
+  ctx.save(); ctx.translate(x0, suolo);
+  if (puntino){ ctx.beginPath(); ctx.arc(3, -3, 2.4, 0, 7); ctx.fill(); }
+  else disegnaSagoma(ctx, stato.creatura, dim, d.crollato);
+  ctx.restore();
+
+  ctx.fillStyle = ATT; ctx.textAlign = 'left';
+  let sotto = fmtLunghezza(d.L);
+  if (puntino) sotto += ' — ' + (TESTI[LANG]['testo_confronto_puntino'] || 'un puntino: sarebbe più sottile di un pixel');
+  else if (tagliato) sotto += ' — ' + (TESTI[LANG]['testo_confronto_esce'] || 'esce dal riquadro');
+  ctx.fillText(sotto, x0, suolo + 7);
+
+  const rapp = d.L / UOMO_ALTEZZA_MM;
+  let conf;
+  if (rapp >= 1)        conf = nf(rapp, 2) + ' volte te';
+  else if (rapp >= 0.1) conf = nf(rapp*100, 0) + '% of your height';
+  else                  conf = nf(1/rapp, 0) + ' volte più corta di te';
+  ctx.textAlign = 'right'; ctx.textBaseline = 'top';
+  ctx.fillStyle = '#9A9282';
+  ctx.fillText(conf, W - 16, 10);
+}
+
+/* --- mini grafico log-log --- */
+function disegnaLogLog(d){
+  const cv = document.getElementById('loglog');
+  const alt = (cv.parentNode.clientWidth < 460) ? 260 : 320;
+  const p = prepara(cv, alt);
+  const ctx = p.ctx, W = p.w, H = p.h;
+  const mL = 40, mR = 14, mT = 16, mB = 34;
+  const x0 = mL, x1 = W - mR, y0 = H - mB, y1 = mT;
+  const XMAX = SLIDER_MAX/100;                 // decadi di k
+  const YMIN = -3, YMAX = 8;                   // decadi del valore
+  const px = lk => x0 + (lk / XMAX) * (x1 - x0);
+  const py = ly => y0 - ((ly - YMIN) / (YMAX - YMIN)) * (y0 - y1);
+
+  // griglia
+  ctx.strokeStyle = '#F0EADB'; ctx.lineWidth = 1;
+  for (let y = YMIN; y <= YMAX; y++){ ctx.beginPath(); ctx.moveTo(x0, py(y)); ctx.lineTo(x1, py(y)); ctx.stroke(); }
+  for (let x = 0; x <= XMAX; x++){ ctx.beginPath(); ctx.moveTo(px(x), y1); ctx.lineTo(px(x), y0); ctx.stroke(); }
+  ctx.strokeStyle = '#DCD4C1'; ctx.lineWidth = 1.4;
+  ctx.beginPath(); ctx.moveTo(x0, py(0)); ctx.lineTo(x1, py(0)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x0, y1); ctx.lineTo(x0, y0); ctx.stroke();
+
+  ctx.font = '500 10px "DM Mono", monospace'; ctx.fillStyle = ATT;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ['k = 1','k = 10','k = 100'].forEach((t,i) => { if (i <= XMAX) ctx.fillText(t, px(i), y0 + 7); });
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  [[0,'×1'],[3,'×10³'],[6,'×10⁶'],[-3,'÷10³']].forEach(v => ctx.fillText(v[1], x0 - 6, py(v[0])));
+
+  const rette = [
+    { m: 3, col: VIO, et:'mass · 3' },
+    { m: 2, col: ACQ, et:'strength · 2' },
+    { m: 1, col: ORO, et:'stress · 1' },
+    { m:-1, col: ROS, et:'relative strength · −1' }
+  ];
+  ctx.lineWidth = 2.4; ctx.lineCap = 'round';
+  rette.forEach(r => {
+    ctx.strokeStyle = r.col;
+    ctx.beginPath(); ctx.moveTo(px(0), py(0)); ctx.lineTo(px(XMAX), py(r.m * XMAX)); ctx.stroke();
+  });
+
+  // cursore sulla k corrente
+  const lk = Math.log10(d.k);
+  ctx.strokeStyle = '#B9B0A0'; ctx.lineWidth = 1.4; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(px(lk), y1); ctx.lineTo(px(lk), y0); ctx.stroke();
+  ctx.setLineDash([]);
+  rette.forEach(r => {
+    ctx.fillStyle = r.col;
+    ctx.beginPath(); ctx.arc(px(lk), py(r.m*lk), 4, 0, 7); ctx.fill();
+  });
+
+  // etichette delle rette, con un alone dietro perché non si confondano con le linee
+  ctx.font = '500 11px "DM Mono", monospace'; ctx.textBaseline = 'middle'; ctx.textAlign = 'right';
+  rette.forEach(r => {
+    const yy = Math.max(y1 + 10, Math.min(y0 - 10, py(r.m * XMAX)))
+             + (r.m === 3 ? 11 : (r.m === -1 ? -11 : 0));
+    const w = ctx.measureText(r.et).width;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(x1 - 8 - w - 4, yy - 8, w + 8, 16, 5);
+    else ctx.rect(x1 - 8 - w - 4, yy - 8, w + 8, 16);
+    ctx.fill();
+    ctx.fillStyle = r.col;
+    ctx.fillText(r.et, x1 - 8, yy);
+  });
+}
+
+/* --- pannello dei due ossi --- */
+function disegnaOssa(){
+  const k = Number(document.getElementById('kOsso').value) / 10;
+  const cv = document.getElementById('ossa');
+  const largh = cv.parentNode.clientWidth || 340;
+  const p = prepara(cv, Math.max(300, Math.min(420, largh * 0.62)));
+  const ctx = p.ctx, W = p.w, H = p.h;
+
+  const dIso = dIsometrico(FEMORE_D_EST_MM, k);
+  const dGal = dGalileo(FEMORE_D_EST_MM, k);
+  const Lgig = FEMORE_L_MM * k;
+
+  // disegnati alla STESSA lunghezza a schermo: solo lo spessore differisce
+  const Lpx = H - 96;
+  const wIso = Lpx * (dIso / Lgig);
+  const wGal = Lpx * (dGal / Lgig);
+
+  function osso(cx, wpx, colore, titolo, sotto){
+    const top = 44, bot = top + Lpx;
+    ctx.fillStyle = colore;
+    ctx.beginPath();
+    ctx.rect(cx - wpx/2, top + wpx*0.55, wpx, Lpx - wpx*1.10);
+    ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx - wpx*0.30, top + wpx*0.62, wpx*0.62, wpx*0.62, 0, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx + wpx*0.30, top + wpx*0.62, wpx*0.62, wpx*0.62, 0, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx - wpx*0.34, bot - wpx*0.60, wpx*0.66, wpx*0.60, 0, 0, 7); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(cx + wpx*0.34, bot - wpx*0.60, wpx*0.66, wpx*0.60, 0, 0, 7); ctx.fill();
+    ctx.textAlign = 'center';
+    ctx.fillStyle = INK; ctx.font = '500 15px "Bebas Neue","Avenir Next Condensed",sans-serif';
+    ctx.textBaseline = 'alphabetic';
+    ctx.font = '500 12px "DM Mono", monospace';
+    ctx.fillText(titolo, cx, 20);
+    ctx.fillStyle = ATT; ctx.font = '500 11px "DM Mono", monospace';
+    ctx.textBaseline = 'top';
+    ctx.fillText(sotto, cx, bot + 14);
+  }
+
+  osso(W*0.29, wIso, '#C9C1AE', 'a proporzioni esatte', nf(dIso,1) + ' mm di diametro');
+  osso(W*0.72, wGal, ORO,       'a sforzo costante',    nf(dGal,1) + ' mm di diametro');
+
+  ctx.fillStyle = ATT; ctx.font = '500 10.5px "DM Mono", monospace';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  ctx.fillText('entrambi lunghi ' + fmtLunghezza(Lgig) + ' — disegnati alla stessa lunghezza', W/2, H - 20);
+
+  document.getElementById('ossoAlt').textContent = nf(k, 1);
+  document.getElementById('ossoM').textContent = fmtLunghezza(UOMO_ALTEZZA_MM * k);
+  document.getElementById('dIso').textContent = fmtLunghezza(dIso);
+  document.getElementById('dGal').textContent = fmtLunghezza(dGal);
+  document.getElementById('dRad').textContent = nf(Math.sqrt(k), 2) + ' ×';
+  document.getElementById('dLung').textContent = fmtLunghezza(Lgig);
+  document.getElementById('kOsso').setAttribute('aria-valuetext',
+    nf(k,1) + ' volte, gigante alto ' + aLettere(UOMO_ALTEZZA_MM * k) + ', femore spesso ' + nf(dGal,1) + ' millimetri');
+}
+
+/* =========================================================================
+   AGGIORNAMENTO
+   ========================================================================= */
+function aggiorna(annuncia){
+  const c = stato.creatura;
+  const k = stato.k;
+  const cTot = capacitaTotale(stato.capacita);
+  const L = c.L0 * k;
+  const m = massaKg(c.m0, k);
+
+  // forza relativa: assoluta solo per la formica (unico dato misurato)
+  const rel = c.haCapacita ? forzaRelativa(cTot, k) : forzaRelativa(1, k);
+  const crollato = c.haCapacita && (rel < 1);
+  const d = { k:k, L:L, m:m, rel:rel, crollato:crollato };
+
+  document.getElementById('vK').innerHTML = fmtFattore(k) + (k >= 1.005 ? ' <small>×</small>' : '');
+  document.getElementById('vL').textContent = fmtLunghezza(L);
+  document.getElementById('vM').textContent = fmtMassa(m);
+
+  // ---- barra 1: massa
+  document.getElementById('nMassa').firstChild.nodeValue = fmtMassa(m);
+  document.getElementById('iMassa').textContent = '× ' + nf(Math.pow(k,3), Math.pow(k,3) < 100 ? 2 : 0) + ' compared with the real animal';
+  document.getElementById('bMassa').style.width = pct(3 * Math.log10(k) / 8);
+
+  // ---- barra 2: forza delle zampe
+  const nForza = document.getElementById('nForza');
+  if (c.haCapacita){
+    const F0 = cTot * c.m0 * G;                       // dal dato misurato, non dalla tensione del muscolo
+    nForza.firstChild.nodeValue = fmtForza(forzaN(F0, k));
+    document.getElementById('iForza').textContent = 'da 8,78 pesi corporei misurati';
+  } else {
+    nForza.firstChild.nodeValue = '× ' + nf(k*k, k*k < 100 ? 2 : 0);
+    document.getElementById('iForza').textContent = 'compared with the real animal — no absolute measure';
+  }
+  document.getElementById('bForza').style.width = pct(2 * Math.log10(k) / 8);
+
+  // ---- barra 3: schiacciamento nell’osso
+  const nSf = document.getElementById('nSforzo'), sSf = document.getElementById('sSforzo'), tSf = document.getElementById('txtSforzo');
+  if (c.haOssa){
+    const s = sforzoMPa(SIGMA0_UOMO, k);
+    nSf.firstChild.nodeValue = nf(s, s < 100 ? 2 : 0) + ' MPa';
+    document.getElementById('iSforzo').textContent = TESTI[LANG]['barra_sforzo_nota_uomo'] || 'su due femori, in piedi e fermo';
+    sSf.style.display = 'block';
+    sSf.style.left = pct(Math.log10(MARGINE_OSSO) / 8);
+    tSf.textContent = 'l’osso corticale si rompe a 170 MPa: succederebbe a k = ' + nf(MARGINE_OSSO,0)
+      + ', cioè ' + fmtLunghezza(UOMO_ALTEZZA_MM * Math.round(MARGINE_OSSO))
+      + ' e ' + fmtMassa(massaKg(UOMO_MASSA_KG, Math.round(MARGINE_OSSO)))
+      + '. Adesso sei ' + nf(SIGMA_OSSO_ROTTURA/s, 0) + ' volte sotto.';
+  } else {
+    nSf.firstChild.nodeValue = '× ' + nf(k, k < 100 ? 2 : 0);
+    document.getElementById('iSforzo').textContent = TESTI[LANG]['barra_sforzo_nota_altro'] || 'compared with the real animal';
+    sSf.style.display = 'none';
+    tSf.textContent = 'della sezione dell’esoscheletro o delle zampe di questa creatura non abbiamo le misure: qui la barra dice solo di quante volte aumenta.';
+  }
+  document.getElementById('bSforzo').style.width = pct(Math.log10(k) / 8);
+
+  // ---- barra 4: forza relativa  (asse da 10⁻³ a 10^1,02)
+  const nRel = document.getElementById('nRel');
+  nRel.firstChild.nodeValue = fmtRel(rel);
+  document.getElementById('iRel').textContent = c.haCapacita
+    ? (TESTI[LANG]['barra_rel_nota_formica'] || 'pesi corporei che le zampe reggono')
+    : (TESTI[LANG]['barra_rel_nota_altro'] || 'rispetto all’animale vero (1 = il vero)');
+  document.getElementById('bRel').style.width = pct((Math.log10(rel) + 3) / 4.02);
+  const sRel = document.getElementById('sRel'), tRel = document.getElementById('txtRel');
+  sRel.className = 'soglia ' + (c.haCapacita ? 'rossa' : 'grigia');
+  tRel.className = 'sogliaTxt ' + (c.haCapacita ? 'rossa' : 'grigia');
+  tRel.textContent = c.haCapacita
+    ? (TESTI[LANG]['sottoriga_non_regge'] || 'sotto questa riga non si regge in piedi')
+    : (TESTI[LANG]['sottoriga_non_misurato'] || 'la riga è l’animale vero; per questa creatura nessuno ha misurato a che taglia crolla');
+
+  // ---- messaggio del crollo
+  const box = document.getElementById('crollo');
+  const bk = document.getElementById('crolloK'), bp = document.getElementById('crolloP');
+  if (c.haCapacita){
+    const kS = kSoglia(cTot);
+    if (crollato){
+      box.className = 'crollo no';
+      bk.textContent = (TESTI[LANG]['crollo_non_regge'] || 'A ') + fmtLunghezza(c.L0 * kS) + (TESTI[LANG]['crollo_non_regge_2'] || ' ha smesso di reggersi. Adesso è lunga ') + fmtLunghezza(L) + '.';
+      bp.textContent = 'Le zampe reggono ' + fmtRel(rel) + ' volte il peso del corpo: '
+        + fmtMassa(rel * m) + ' sotto un corpo di ' + fmtMassa(m)
+        + '. ' + (TESTI[LANG]['crollo_msg_invalido'] || 'Non è un mostro, è un invalido — e il carico trasportabile era finito molto prima.');
+    } else if (Math.abs(rel - 1) < 5e-4){
+      box.className = 'crollo no';
+      bk.textContent = (TESTI[LANG]['crollo_soglia_esatta'] || 'Esattamente sulla soglia: ') + fmtLunghezza(L) + '.';
+      bp.textContent = (TESTI[LANG]['crollo_msg_soglia'] || 'Le zampe reggono 1,00 volte il peso del corpo e non un grammo di più: ')
+        + fmtRel(cTot) + (TESTI[LANG]['crollo_msg_soglia_2'] || ' diviso ') + fmtFattore(kS) + (TESTI[LANG]['crollo_msg_soglia_3'] || ' fa 1. Da qui in poi non c\'è più margine per muoversi, arrampicarsi, trasportare. Il carico utile era finito molto prima.');
+    } else {
+      box.className = 'crollo ok';
+      bk.textContent = TESTI[LANG]['crollo_sta_in_piedi'] || 'Sta in piedi, e le resta margine.';
+      bp.textContent = (TESTI[LANG]['crollo_msg_ok'] || 'Oltre al proprio peso le zampe possono ancora spingere ') + fmtRel(rel - 1)
+        + (TESTI[LANG]['crollo_msg_ok_2'] || ' volte il corpo, cioè ') + fmtMassa((rel - 1) * m) + (TESTI[LANG]['crollo_msg_ok_3'] || '. Crolla a k = ') + fmtFattore(kS)
+        + (TESTI[LANG]['crollo_msg_ok_4'] || ', quando sarà lunga ') + fmtLunghezza(c.L0 * kS) + '.';
+    }
+  } else {
+    box.className = 'crollo ok';
+    bk.textContent = TESTI[LANG]['crollo_nessuna_soglia'] || 'Qui non esiste una soglia misurata.';
+    const nomeBasso = TESTI[LANG]['creatura_' + c.id + '_nome'] ? TESTI[LANG]['creatura_' + c.id + '_nome'].toLowerCase() : c.nome.toLowerCase();
+    bp.textContent = (TESTI[LANG]['crollo_msg_nessuna'] || 'La legge dice solo questo, ed è già molto: rispetto a ') + nomeBasso
+      + (TESTI[LANG]['crollo_msg_nessuna_2'] || ' vero sei ') + nf(k, k<100?2:0) + (TESTI[LANG]['crollo_msg_nessuna_3'] || ' volte più debole in rapporto al tuo peso. Dove crolli davvero non lo sa nessuno, e la pagina non lo inventa.');
+  }
+
+  // ---- badge della taglia
+  const s = scattoAttivo(k);
+  const badge = document.getElementById('badge');
+  badge.style.opacity = s ? '1' : '0.42';
+  document.getElementById('badgeP').textContent = s ? s.testo : 'fra due taglie note';
+  document.getElementById('badgeQ').textContent = fmtLunghezza(L) + '  ·  k = ' + fmtFattore(k);
+  Array.prototype.forEach.call(document.querySelectorAll('#scatti .scatto'), (b, i) => {
+    b.dataset.attivo = (s && scatti[i] === s) ? '1' : '0';
+  });
+
+  // ---- accessibilità
+  const man = document.getElementById('manopola');
+  man.setAttribute('aria-valuetext', s ? (s.testo + ', ' + aLettere(L)) : ('k uguale a ' + fmtFattore(k) + ', ' + aLettere(L)));
+  if (annuncia){
+    document.getElementById('annuncio').textContent =
+      c.nome + ', k ' + fmtFattore(k) + ', ' + aLettere(L) + ', ' + fmtMassa(m) + '. '
+      + (c.haCapacita ? ('Forza relativa ' + fmtRel(rel) + (crollato ? ': non si regge in piedi.' : ': sta in piedi.')) : '');
+  }
+
+  disegnaScena(d);
+  disegnaConfronto(d);
+  disegnaLogLog(d);
+}
+function pct(x){ return (Math.max(0, Math.min(1, x)) * 100).toFixed(2) + '%'; }
+
+/* =========================================================================
+   TABELLA DEI CASI: i numeri escono dallo stesso nucleo
+   ========================================================================= */
+function riempiCasi(){
+  const m0F = FORMICA_MASSA_MG * 1e-6;
+  const cTot = capacitaTotale(CAPACITA_FORMICA_MISURATA);
+  const cTot50 = capacitaTotale(CAPACITA_FORMICA_LEGGENDA);
+
+  const k70esatto = kDaMassa(UOMO_MASSA_KG, m0F);
+  const k70 = Math.round(k70esatto);
+  const massa70 = massaKg(m0F, k70);
+  const rel70 = forzaRelativa(cTot, k70);
+
+  const kS = kSoglia(cTot);
+  const kMezzoCarico = cTot / (1 + CAPACITA_FORMICA_MISURATA/2);
+  const kMeta = kS / 2;
+  const capMeta = forzaRelativa(cTot, kMeta);
+
+  const kG = 3;
+  const dI = dIsometrico(FEMORE_D_EST_MM, kG);
+  const dG = dGalileo(FEMORE_D_EST_MM, kG);
+  const Lg = FEMORE_L_MM * kG;
+
+  const kRott = Math.round(MARGINE_OSSO);
+  const kEle = ELEFANTE_ALTEZZA_MM / UOMO_ALTEZZA_MM;
+  const mEle = massaKg(UOMO_MASSA_KG, kEle);
+  const kEle6000 = kDaMassa(ELEFANTE_MASSA_KG, UOMO_MASSA_KG);
+
+  const kS50 = kSoglia(cTot50);
+
+  const V = {
+    k70:        fmtFattore(k70),
+    k70esatto:  nf(k70esatto, 2),
+    k70cubo:    nf(Math.pow(k70,3), 0),
+    massa70:    fmtMassa(massa70),
+    lung70:     fmtLunghezza(FORMICA_LUNGHEZZA_MM * k70),
+    fr70:       fmtRel(rel70),
+    fr70lungo:  nf(rel70, 4, 4),
+    kg70:       nf(rel70 * massa70, 1) + ' kg',
+    kg70lungo:  nf(rel70 * massa70, 2) + ' kg',
+    porti:      nf(CAPACITA_FORMICA_MISURATA * UOMO_MASSA_KG, 0) + ' kg',
+
+    ksoglia:    fmtFattore(kS),
+    lsoglia:    fmtLunghezza(FORMICA_LUNGHEZZA_MM * kS),
+    lsogliamm:  nf(FORMICA_LUNGHEZZA_MM * kS, 2) + ' mm',
+    msoglia:    fmtMassa(massaKg(m0F, kS)),
+    kmeta:      nf(kMezzoCarico, 2),
+    lmeta:      nf(FORMICA_LUNGHEZZA_MM * kMezzoCarico / 10, 2) + ' cm',
+    k489:       nf(kMeta, 2),
+    l489:       fmtLunghezza(FORMICA_LUNGHEZZA_MM * kMeta),
+    cap489:     nf(capMeta, 2, 2),
+    car489:     nf(capMeta - 1, 2, 2),
+
+    dIso:       fmtLunghezza(dI),
+    dGal:       fmtLunghezza(dG),
+    dIsomm:     nf(dI, 0) + ' mm',
+    dGalmm:     nf(dG, 1) + ' mm',
+    tre15:      nf(Math.pow(3, 1.5), 3),
+    rad3:       nf(Math.sqrt(3), 2),
+    verSnell:   nf(dG, 1) + '/' + nf(Lg, 0) + ' diviso 26/450 = ' + nf((dG/Lg)/(FEMORE_D_EST_MM/FEMORE_L_MM), 3) + ' = √3',
+    verQuad:    nf(Math.pow(dG/dI, 2), 2, 2),
+
+    sez1:       nf(SEZIONE_UN_FEMORE, 0) + ' mm²',
+    sez2:       nf(SEZIONE_DUE_FEMORI, 0) + ' mm²',
+    pesoN:      nf(PESO_UOMO_N, 1) + ' N',
+    sigma0due:  nf(SIGMA0_UOMO, 2, 2) + ' MPa',
+    sigma0:     nf(SIGMA0_UOMO, 3, 3) + ' MPa',
+    margine:    nf(MARGINE_OSSO, 0),
+    margineEsatto: nf(MARGINE_OSSO, 0),
+    hRott:      fmtLunghezza(UOMO_ALTEZZA_MM * kRott),
+    mRott:      fmtMassa(massaKg(UOMO_MASSA_KG, kRott)),
+    sigma3:     nf(sforzoMPa(SIGMA0_UOMO, 3), 2) + ' MPa',
+    marg3:      nf(SIGMA_OSSO_ROTTURA / sforzoMPa(SIGMA0_UOMO, 3), 0),
+
+    kEle:       nf(kEle, 3),
+    kEle3:      nf(Math.pow(kEle, 3), 3),
+    mEle:       fmtMassa(mEle),
+    volteEle:   nf(ELEFANTE_MASSA_KG / mEle, 0),
+    hEle:       nf(UOMO_ALTEZZA_MM * kEle6000 / 1000, 1) + ' m',
+
+    l50:        fmtLunghezza(FORMICA_LUNGHEZZA_MM * kS50),
+    l50mm:      nf(FORMICA_LUNGHEZZA_MM * kS50, 1) + ' mm',
+    fatt50:     nf(kS50 / kS, 1),
+    fr50:       nf(forzaRelativa(cTot50, k70), 2)
+  };
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-v]'), el => {
+    const key = el.getAttribute('data-v');
+    if (V[key] !== undefined) el.textContent = V[key];
+  });
+}
+
+/* =========================================================================
+   AVVIO
+   ========================================================================= */
+document.getElementById('manopola').addEventListener('input', function(){
+  let v = Math.max(0, Math.min(SLIDER_MAX, Number(this.value)));
+  // aggancio agli scatti notevoli: lì k prende il valore esatto, non quello dello slider
+  let ag = null, best = 3.2;
+  scatti.forEach(s => {
+    const d = Math.abs(sliderDaK(s.k) - v);
+    if (d < best){ best = d; ag = s; }
+  });
+  if (ag){ stato.k = ag.k; this.value = Math.max(0, Math.min(SLIDER_MAX, Math.round(sliderDaK(ag.k)))); }
+  else   { stato.k = kDaSlider(v); this.value = v; }
+  aggiorna(false);
+});
+document.getElementById('manopola').addEventListener('change', function(){ aggiorna(true); });
+document.getElementById('kOsso').addEventListener('input', disegnaOssa);
+
+let attesa = null;
+window.addEventListener('resize', function(){
+  clearTimeout(attesa);
+  attesa = setTimeout(function(){ aggiorna(false); disegnaOssa(); }, 120);
+});
+
+costruisciScatti();
+disegnaScatti();
+disegnaCreature();
+disegnaDueNumeri();
+riempiCasi();
+aggiorna(false);
+disegnaOssa();
+
+/* ------------------------------------------------------------
+   AUTOCOLLAUDO — gira in console, non tocca la pagina.
+   ------------------------------------------------------------ */
+(function collaudo(){
+  var esiti = [];
+  function ok(nome, avuto, atteso, toll){
+    var passa = Math.abs(avuto-atteso)/Math.abs(atteso) < (toll||0.01);
+    esiti.push((passa?'OK  ':'NO  ') + nome + '  = ' + avuto.toPrecision(6) +
+               (passa ? '' : '   atteso ' + atteso));
+    return passa;
+  }
+  var k = ELEFANTE_ALTEZZA_MM / FORMICA_LUNGHEZZA_MM;
+  ok('fattore di scala formica->elefante', k, 426.667, 0.002);
+  ok('massa formica scalata (kg)', massaKg(FORMICA_MASSA_MG*1e-6, k), 722.35, 0.01);
+  var capTot = capacitaTotale(CAPACITA_FORMICA_MISURATA);
+  ok('capacita totale a k=1', capTot, 9.78, 0.005);
+  ok('k soglia (capacita relativa = 1)', kSoglia(capTot), 9.78, 0.005);
+  ok('sezione due femori (mm2)', SEZIONE_DUE_FEMORI, 753.98, 0.005);
+  ok('sforzo femore uomo (MPa)', SIGMA0_UOMO, 0.9108, 0.01);
+  ok('margine rottura osso (volte)', MARGINE_OSSO, 186.7, 0.01);
+  /* invariante di scala: la forza relativa deve scendere esattamente come 1/k */
+  ok('forza relativa a k=10 contro k=1 / 10', forzaRelativa(capTot,10), forzaRelativa(capTot,1)/10, 1e-9);
+  var falliti = esiti.filter(function(e){ return e.indexOf('NO') === 0; }).length;
+  console.log('%cAutocollaudo esperimento 5 — ' + (falliti ? falliti + ' CONTROLLI FALLITI' : 'tutti i controlli passati'),
+              'font-weight:bold;color:' + (falliti ? '#c00' : '#0a0'));
+  esiti.forEach(function(e){ console.log('  ' + e); });
+})();
+
+try{ if(typeof setLang==='function') setLang('en'); }catch(e){}
+</script>
+</body>
+</html>

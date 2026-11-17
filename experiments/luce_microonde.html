@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The speed of light, with a ruler</title>
+<style>
+
+:root{
+  --dark1:#16224A; --dark2:#0D1120; --dark3:#04060E;
+  --bg:#FAF7F1; --ink:#33302B; --muted:#7E7768;
+  --gold:#E5A50A; --gold-lt:#FFD86E; --viola:#7C5CFF; --acqua:#2DD4BF;
+  --card:#FFFFFF; --card2:#FCFAF6; --bordo:#E7E1D3;
+  --ombra:0 1px 2px rgba(51,48,43,.05), 0 8px 24px rgba(51,48,43,.05);
+  --t-tit:'Bebas Neue','Avenir Next Condensed','Haettenschweiler','Impact',sans-serif;
+  --t-txt:'DM Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --t-num:'DM Mono','SFMono-Regular',Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0F131C; --ink:#F1ECE1; --muted:#A49B89;
+    --card:#171C27; --card2:#141924; --bordo:#2B3140;
+    --ombra:0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:var(--t-txt); font-size:17px; line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:760px; margin:0 auto; padding:0 18px}
+
+/* ---------- fascia alta scura ---------- */
+header{
+  position:relative; overflow:hidden; color:#F3F0E8;
+  background:
+    radial-gradient(120% 90% at 18% 0%, rgba(124,92,255,.22), rgba(124,92,255,0) 60%),
+    radial-gradient(110% 90% at 88% 12%, rgba(63,106,245,.16), rgba(63,106,245,0) 62%),
+    radial-gradient(140% 120% at 50% 0%, #16224A 0%, #0D1120 52%, #04060E 100%);
+  padding:44px 0 40px;
+}
+header .kicker{
+  font-family:var(--t-num); font-size:12px; letter-spacing:.22em;
+  text-transform:uppercase; color:var(--gold-lt); margin:0 0 12px;
+}
+header h1{
+  font-family:var(--t-tit); font-weight:500; letter-spacing:.012em;
+  font-size:clamp(38px,10.5vw,66px); line-height:.94; margin:0;
+  color:#FFF9EC;
+}
+header h1 .riga2{display:block; color:var(--gold-lt)}
+header .occhiello{
+  margin:16px 0 0; font-size:17px; color:#C9C6BC; max-width:48ch;
+}
+header .meta{
+  margin-top:22px; padding-top:16px; border-top:1px solid rgba(255,255,255,.13);
+  font-family:var(--t-num); font-size:12.5px; letter-spacing:.06em; color:#9BA3B8;
+}
+header .meta b{color:#D9DEEC; font-weight:400}
+
+/* ---------- struttura ---------- */
+section{padding:34px 0 6px}
+h2{
+  font-family:var(--t-tit); font-weight:500; letter-spacing:.02em;
+  font-size:clamp(27px,6.4vw,36px); line-height:1.02; margin:0 0 6px;
+}
+h2 .n{color:var(--gold); margin-right:.4em}
+h3{
+  font-family:var(--t-tit); font-weight:500; letter-spacing:.02em;
+  font-size:23px; line-height:1.06; margin:26px 0 6px;
+}
+.sotto{color:var(--muted); font-size:15.5px; margin:0 0 18px}
+p{margin:0 0 14px}
+.card{
+  background:var(--card); border:1px solid var(--bordo); border-radius:20px;
+  padding:20px; box-shadow:var(--ombra); margin:0 0 16px;
+}
+.card.soft{background:var(--card2)}
+.lab{
+  font-family:var(--t-num); font-size:11.5px; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--muted); display:block; margin:0 0 8px;
+}
+ol.passi{margin:0; padding-left:22px}
+ol.passi li{margin:0 0 10px}
+.avviso{
+  border:1px solid #D4392B; border-radius:16px; background:rgba(212,57,43,.07);
+  padding:14px 16px; margin:16px 0 0; font-size:16px;
+}
+.avviso b{color:#D4392B}
+
+/* ---------- cartellini protocollo ---------- */
+.cartellini{display:flex; flex-wrap:wrap; gap:10px; margin:0 0 16px}
+.cart{
+  flex:1 1 46%; min-height:48px; cursor:pointer; text-align:left;
+  font-family:var(--t-txt); font-size:16px; color:var(--ink);
+  background:var(--card2); border:1px solid var(--bordo); border-radius:16px;
+  padding:12px 14px; line-height:1.25;
+}
+.cart .em{display:block; font-family:var(--t-num); font-size:11px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-top:5px}
+.cart[aria-pressed="true"]{
+  border-color:var(--gold); background:rgba(229,165,10,.10);
+  box-shadow:inset 0 0 0 1px var(--gold);
+}
+.cart[aria-pressed="true"] .em{color:#9a7205}
+@media (prefers-color-scheme: dark){ .cart[aria-pressed="true"] .em{color:var(--gold-lt)} }
+.cart:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{
+  outline:3px solid var(--viola); outline-offset:2px;
+}
+#protoTesto{margin:0}
+#protoTesto .tempo{font-family:var(--t-num); color:var(--gold); letter-spacing:.03em}
+
+/* ---------- input ---------- */
+.due{display:flex; flex-wrap:wrap; gap:14px}
+.campo{flex:1 1 210px; min-width:180px}
+.campo label{display:block; font-size:15px; margin:0 0 6px; font-weight:500}
+.campo .aiuto{display:block; color:var(--muted); font-size:14px; margin:0 0 8px}
+.campo .rigainput{display:flex; align-items:center; gap:8px}
+input[type=number]{
+  width:100%; min-height:52px; font-family:var(--t-num); font-size:22px;
+  color:var(--ink); background:var(--card2);
+  border:1px solid var(--bordo); border-radius:14px; padding:8px 12px;
+}
+.unita{font-family:var(--t-num); font-size:15px; color:var(--muted); letter-spacing:.08em}
+.nota-morbida{
+  margin:12px 0 0; font-size:15px; color:var(--ink);
+  border-left:3px solid var(--gold); padding:2px 0 2px 12px;
+}
+.nota-morbida:empty{display:none}
+.btn{
+  font-family:var(--t-txt); font-size:17px; font-weight:500; cursor:pointer;
+  min-height:52px; padding:12px 22px; border-radius:14px; border:1px solid transparent;
+}
+.btn-primario{
+  background:var(--gold); color:#1B1500; border-color:#c78d05;
+  font-family:var(--t-tit); font-size:26px; letter-spacing:.06em; font-weight:500;
+  width:100%; margin-top:18px;
+}
+.btn-sec{
+  background:transparent; color:var(--ink); border-color:var(--bordo);
+  margin-top:12px; width:100%;
+}
+.esempi{margin:14px 0 0; display:none}
+.esempi.on{display:block}
+.esempi .etich{
+  font-family:var(--t-num); font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+  color:#8a4b12; background:rgba(229,165,10,.14); border:1px solid rgba(229,165,10,.5);
+  border-radius:999px; padding:6px 12px; display:inline-block; margin:0 0 10px;
+}
+@media (prefers-color-scheme: dark){ .esempi .etich{color:var(--gold-lt)} }
+.chips{display:flex; gap:10px; flex-wrap:wrap}
+.chip{
+  flex:1 1 90px; min-height:48px; cursor:pointer;
+  font-family:var(--t-num); font-size:17px; letter-spacing:.03em;
+  background:var(--card2); border:1px dashed var(--bordo); border-radius:14px; padding:12px 8px;
+  color:var(--ink);
+}
+
+/* ---------- risultato ---------- */
+.risultato{text-align:center; padding:26px 18px}
+.cgrande{
+  font-family:var(--t-tit); font-weight:500; letter-spacing:.01em;
+  font-size:clamp(50px,15vw,86px); line-height:.9; margin:6px 0 2px;
+}
+.cgrande sup{font-size:.46em; vertical-align:super; line-height:0}
+.cgrande .u{font-size:.3em; color:var(--muted); letter-spacing:.06em; margin-left:.25em}
+.csotto{font-family:var(--t-num); font-size:16px; letter-spacing:.04em; color:var(--ink); margin:8px 0 2px}
+.ckms{font-family:var(--t-num); font-size:14.5px; letter-spacing:.08em; color:var(--muted)}
+
+.barra-box{margin:22px 0 0; text-align:left}
+.barra{
+  position:relative; height:58px; border:1px solid var(--bordo); border-radius:16px;
+  background:var(--card2); overflow:hidden;
+}
+.fascia-onesta{
+  position:absolute; top:0; bottom:0; background:rgba(126,119,104,.18);
+  border-left:1px solid rgba(126,119,104,.45); border-right:1px solid rgba(126,119,104,.45);
+}
+.zero{position:absolute; top:0; bottom:0; width:2px; background:var(--ink); opacity:.55; left:50%}
+.marker{
+  position:absolute; top:6px; bottom:6px; width:4px; border-radius:3px;
+  background:var(--viola); transform:translateX(-2px); transition:left .35s ease;
+}
+.marker.fuori{background:#D4392B}
+.barra-scala{
+  display:flex; justify-content:space-between; font-family:var(--t-num);
+  font-size:12px; letter-spacing:.08em; color:var(--muted); margin-top:6px;
+}
+.legenda{font-size:14.5px; color:var(--muted); margin:10px 0 0}
+.legenda .sw{display:inline-block; width:12px; height:12px; border-radius:3px;
+  background:rgba(126,119,104,.35); border:1px solid rgba(126,119,104,.6);
+  vertical-align:-1px; margin-right:6px}
+.scarto-num{font-family:var(--t-num); font-size:20px; letter-spacing:.02em; margin:14px 0 0}
+.scarto-txt{font-size:15.5px; color:var(--muted); margin:4px 0 0}
+
+/* ---------- canvas ---------- */
+.canvas-box{padding:14px 14px 10px}
+canvas{width:100%; height:auto; display:block; border-radius:14px}
+.didascalia{
+  font-family:var(--t-num); font-size:12.5px; line-height:1.55; letter-spacing:.02em;
+  color:var(--muted); margin:10px 2px 2px;
+}
+
+/* ---------- conto a mano ---------- */
+pre.conto{
+  font-family:var(--t-num); font-size:14px; line-height:1.75; margin:0;
+  white-space:pre-wrap; word-break:break-word; color:var(--ink);
+}
+pre.conto .k{color:var(--muted)}
+pre.conto .ok{color:#0f7a68}
+@media (prefers-color-scheme: dark){ pre.conto .ok{color:var(--acqua)} }
+
+/* ---------- sezione onesta ---------- */
+.onesta{border-top:3px solid var(--ink); margin-top:14px; padding-top:8px}
+.punto{margin:22px 0 0}
+.punto .tit{font-weight:600; display:block; margin-bottom:2px}
+.punto .nn{font-family:var(--t-num); color:var(--gold); margin-right:.5em}
+
+/* ---------- details ---------- */
+details{
+  border:1px solid var(--bordo); border-radius:18px; background:var(--card2);
+  padding:0; margin:0 0 12px; overflow:hidden;
+}
+summary{
+  cursor:pointer; list-style:none; padding:16px 18px; min-height:52px;
+  font-family:var(--t-tit); font-size:23px; letter-spacing:.02em; font-weight:500;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+}
+summary::-webkit-details-marker{display:none}
+summary .piu{font-family:var(--t-num); font-size:20px; color:var(--gold)}
+details[open] summary .piu{transform:rotate(45deg)}
+.det-corpo{padding:0 18px 18px}
+.icone{display:flex; gap:14px; flex-wrap:wrap; align-items:center; justify-content:center; margin:6px 0 4px}
+.icona{flex:1 1 150px; max-width:210px; text-align:center}
+.icona svg{width:100%; height:auto}
+.icona .cap{font-family:var(--t-num); font-size:11.5px; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--muted); margin-top:4px; display:block}
+.freccia-giu{text-align:center; color:var(--gold); font-size:22px; line-height:1; margin:6px 0}
+.storiche{display:flex; gap:12px; flex-wrap:wrap; margin:14px 0 0}
+.storica{flex:1 1 190px; border:1px solid var(--bordo); border-radius:16px; background:var(--card); padding:14px}
+.storica .v{font-family:var(--t-tit); font-size:30px; line-height:1; letter-spacing:.01em}
+.storica .v sup{font-size:.5em; vertical-align:super; line-height:0}
+.storica .q{font-family:var(--t-num); font-size:11.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted); margin-top:6px}
+.storica .d{font-size:14.5px; margin-top:8px; color:var(--ink)}
+
+/* spettro */
+.spettro{margin:8px 0 0}
+.spettro .rail{
+  position:relative; height:26px; border-radius:8px;
+  background:linear-gradient(90deg,#7C5CFF,#3F6AF5,#2DD4BF,#E5A50A,#D4392B);
+  border:1px solid var(--bordo);
+}
+.spettro .tick{position:absolute; top:-6px; bottom:-6px; width:2px; background:var(--ink)}
+.spettro .tag{
+  position:absolute; font-family:var(--t-num); font-size:11.5px; letter-spacing:.06em;
+  color:var(--ink); white-space:nowrap; transform:translateX(-50%);
+}
+.spettro .assex{display:flex; justify-content:space-between; font-family:var(--t-num);
+  font-size:11px; letter-spacing:.08em; color:var(--muted); margin-top:34px}
+.fattore{
+  font-family:var(--t-tit); font-size:32px; letter-spacing:.02em; text-align:center;
+  margin:22px 0 0;
+}
+.fattore .u{display:block; font-family:var(--t-num); font-size:11.5px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--muted)}
+table.mini{width:100%; border-collapse:collapse; margin:14px 0 0; font-size:14.5px}
+table.mini th,table.mini td{
+  border-bottom:1px solid var(--bordo); padding:9px 6px; text-align:left; vertical-align:top;
+}
+table.mini th{font-family:var(--t-num); font-size:11.5px; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--muted); font-weight:400}
+table.mini td.num{font-family:var(--t-num); white-space:nowrap}
+.scroll-x{overflow-x:auto; -webkit-overflow-scrolling:touch}
+
+footer{
+  margin-top:40px; padding:26px 0 46px; border-top:1px solid var(--bordo);
+  font-size:14.5px; color:var(--muted);
+}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+@media (max-width:420px){
+  .cart{flex:1 1 100%}
+  body{font-size:16.5px}
+}
+
+</style>
+</head>
+<body>
+<a href="../index.html" style="display:inline-block;margin:14px;font:12px monospace;color:inherit">&larr; All experiments</a>
+
+
+<header>
+  <div class="wrap">
+<div class="lab-hero-ico" style="width:52px;height:52px;color:#8A6A07;margin:0 0 10px"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="6" width="16" height="7" rx="1"/><path d="M8 9.5h.01M13 9.5h.01"/><path d="M4 18h16"/><path d="M4 16.5v3M9 16.5v3M14 16.5v3M20 16.5v3"/></svg></div>
+    <p class="kicker" data-i18n="hero_kicker">Esperimento 3 · laboratorio</p>
+    <h1><span data-i18n="hero_titolo">La velocità della luce</span><span class="riga2" data-i18n="hero_titolo_riga2">con un righello</span></h1>
+    <p class="occhiello" data-i18n="hero_occhiello">Serve un microonde, una tavoletta di cioccolato e un righello. Non serve un cronometro: è questa la parte strana.</p>
+    <p class="meta" data-i18n="hero_firme">
+      <b>Teoria:</b> elettromagnetismo di Maxwell e onde stazionarie in una cavità metallica ·
+      <b>Autore:</b> James Clerk Maxwell, 1865 (il conto già nel 1862) ·
+      <b>Conferma:</b> Heinrich Hertz, 1887-1888
+    </p>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ============ 1. PROTOCOLLO ============ -->
+<section>
+  <h2><span class="n">1</span><span data-i18n="sez1_titolo">Che cosa metti dentro</span></h2>
+  <p class="sotto" data-i18n="sez1_sotto">È l'unico esperimento della serie in cui il numero di ingresso non lo dà un cursore: lo dà un righello, in cucina.</p>
+
+  <div class="card">
+    <span class="lab" data-i18n="sez1_lab">quattro cose vere — scegli</span>
+    <div class="cartellini" role="group" data-i18n-aria="sez1_aria_gruppo" aria-label="Che cosa metti nel forno">
+      <button class="cart" type="button" data-food="cioccolato" aria-pressed="true"><span data-i18n="cart_cioccolato_titolo">Cioccolato al latte</span><span class="em" data-i18n="cart_cioccolato_em">20-30 s · mezza potenza</span></button>
+      <button class="cart" type="button" data-food="marshmallow" aria-pressed="false"><span data-i18n="cart_marshmallow_titolo">Marshmallow</span><span class="em" data-i18n="cart_marshmallow_em">15-20 s</span></button>
+      <button class="cart" type="button" data-food="formaggio" aria-pressed="false"><span data-i18n="cart_formaggio_titolo">Formaggio da toast</span><span class="em" data-i18n="cart_formaggio_em">25-40 s</span></button>
+      <button class="cart" type="button" data-food="pane" aria-pressed="false"><span data-i18n="cart_pane_titolo">Pane e burro</span><span class="em" data-i18n="cart_pane_em">20-30 s</span></button>
+    </div>
+    <p id="protoTesto"></p>
+
+    <h3 data-i18n="sez1_h3">Il gesto, nell'ordine</h3>
+    <ol class="passi">
+      <li data-i18n="passo1">Togli il piatto rotante. Il piatto gira apposta per cancellare quello che vogliamo vedere.</li>
+      <li data-i18n="passo2">Metti dentro quello che hai scelto, appoggiato piatto, e fai partire il forno per il tempo indicato qui sopra.</li>
+      <li data-i18n="passo3">Ferma il forno alle <b>prime</b> chiazze, non quando è tutto sciolto. Le prime chiazze sono i ventri dell'onda: se aspetti si allargano, si toccano, e la misura è persa.</li>
+      <li data-i18n="passo4">Appoggia il righello e misura in centimetri la distanza fra i <b>centri</b> di due chiazze vicine.</li>
+      <li data-i18n="passo5">Leggi la frequenza sulla targhetta del forno — sul retro, o sul bordo interno dello sportello. Su quasi tutti c'è scritto 2450 MHz.</li>
+    </ol>
+
+    <p class="avviso" data-i18n="avviso1"><b>Prima di accendere:</b> ferma alle prime chiazze, il piatto scotta, niente metallo dentro.</p>
+  </div>
+</section>
+
+<!-- ============ 2. I DUE NUMERI ============ -->
+<section>
+  <h2><span class="n">2</span><span data-i18n="sez2_titolo">I tuoi due numeri</span></h2>
+  <p class="sotto" data-i18n="sez2_sotto">Uno lo misuri, uno lo leggi. Non ce ne sono altri.</p>
+
+  <div class="card">
+    <div class="due">
+      <div class="campo">
+        <label for="inD" data-i18n="campo_d_label">Distanza fra due chiazze vicine</label>
+        <span class="aiuto" data-i18n="campo_d_aiuto">dai centri, non dai bordi</span>
+        <div class="rigainput">
+          <input id="inD" type="number" inputmode="decimal" step="0.1" min="0" value="6.1" aria-describedby="notaD">
+          <span class="unita" data-i18n="unita_cm">cm</span>
+        </div>
+      </div>
+      <div class="campo">
+        <label for="inF" data-i18n="campo_f_label">Frequenza del forno</label>
+        <span class="aiuto" data-i18n="campo_f_aiuto">leggila sulla targhetta</span>
+        <div class="rigainput">
+          <input id="inF" type="number" inputmode="decimal" step="10" min="0" value="2450" aria-describedby="notaF">
+          <span class="unita" data-i18n="unita_mhz">MHz</span>
+        </div>
+      </div>
+    </div>
+    <p class="nota-morbida" id="notaD"></p>
+    <p class="nota-morbida" id="notaF"></p>
+
+    <button class="btn btn-primario" type="button" id="btnCalcola" data-i18n="btn_calcola">Calcola</button>
+    <button class="btn btn-sec" type="button" id="btnEsempi" aria-expanded="false" aria-controls="boxEsempi" data-i18n="btn_esempi">Non ho il forno adesso</button>
+
+    <div class="esempi" id="boxEsempi">
+      <span class="etich" data-i18n="esempi_etich">valori di esempio, non misure vere</span>
+      <div class="chips">
+        <button class="chip" type="button" data-d="5.9" data-i18n="chip_1">5,9 cm</button>
+        <button class="chip" type="button" data-d="6.1" data-i18n="chip_2">6,1 cm</button>
+        <button class="chip" type="button" data-d="6.3" data-i18n="chip_3">6,3 cm</button>
+      </div>
+      <p class="legenda" style="margin-top:10px" data-i18n="esempi_legenda">Tre righelli distanti due millimetri l'uno dall'altro. Servono a farti vedere quanto pesano due millimetri.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3. RISULTATO ============ -->
+<section>
+  <h2><span class="n">3</span><span data-i18n="sez3_titolo">Che cosa esce</span></h2>
+
+  <div class="card risultato" aria-live="polite">
+    <span class="lab" data-i18n="sez3_lab">velocità ricavata dai tuoi due numeri</span>
+    <div class="cgrande" id="cBig"></div>
+    <p class="csotto" id="cPieno"></p>
+    <p class="ckms" id="cKms"></p>
+
+    <div class="barra-box">
+      <span class="lab" data-i18n="barra_lab">scarto dal valore ufficiale</span>
+      <div class="barra" id="barra">
+        <div class="fascia-onesta" id="fasciaOnesta"></div>
+        <div class="zero"></div>
+        <div class="marker" id="marker"></div>
+      </div>
+      <div class="barra-scala"><span data-i18n="barra_scala_min">−10%</span><span data-i18n="barra_scala_zero">0</span><span data-i18n="barra_scala_max">+10%</span></div>
+      <p class="legenda" data-i18n="barra_legenda"><span class="sw"></span>la forbice onesta di questo esperimento: ±4%</p>
+      <p class="scarto-num" id="scartoNum"></p>
+      <p class="scarto-txt" id="scartoTxt"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4. IL DISEGNO ============ -->
+<section>
+  <h2><span class="n">4</span><span data-i18n="sez4_titolo">Che cosa succede dentro</span></h2>
+  <p class="sotto" data-i18n="sez4_sotto">La cavità vista dall'alto. L'onda non cammina: sta ferma e respira. I punti in cui non si muove mai sono i nodi, quelli in cui oscilla di più sono i ventri — ed è lì che il cioccolato fonde.</p>
+
+  <div class="card canvas-box">
+    <canvas id="cv" role="img" data-i18n-aria="canvas_aria_iniziale" aria-label="Onda stazionaria dentro la cavità del forno"></canvas>
+    <p class="didascalia" id="didascalia"></p>
+  </div>
+</section>
+
+<!-- ============ 5. CONTO A MANO ============ -->
+<section>
+  <h2><span class="n">5</span><span data-i18n="sez5_titolo">Rifai il conto a mano</span></h2>
+  <p class="sotto" data-i18n="sez5_sotto">Con i tuoi numeri, riga per riga. È il pezzo che rende questo un esperimento e non un giocattolo.</p>
+  <div class="card soft">
+    <pre class="conto" id="conto"></pre>
+  </div>
+
+  <div class="card">
+    <span class="lab" data-i18n="formule_lab">le formule, in chiaro</span>
+    <p data-i18n="formula_p1"><b>λ = 2 × d.</b> La distanza d fra due chiazze vicine è mezza onda, quindi l'onda intera è il doppio. Attenzione alle unità: i centimetri vanno divisi per 100 per avere metri.</p>
+    <p data-i18n="formula_p2"><b>c = λ × f.</b> Vale per qualunque onda, dal mare al suono alla luce: la velocità è la lunghezza di un'onda per quante ne passano in un secondo. f in hertz: 2450 MHz sono 2.450.000.000 Hz.</p>
+    <p data-i18n="formula_p3"><b>c = 2 × d × f.</b> Le due formule messe insieme. Questo è tutto l'esperimento: un numero misurato, un numero letto, una moltiplicazione.</p>
+    <p data-i18n="formula_p4"><b>Controllo delle unità:</b> metri × (1/secondi) = metri al secondo. Se quello che ti esce non ha le unità di una velocità, hai sbagliato il conto. Fallo sempre.</p>
+  </div>
+</section>
+
+<!-- ============ PARAGONE CORPOREO ============ -->
+<section>
+  <h2 data-i18n="corpo_titolo">Riportalo al corpo</h2>
+  <div class="card soft">
+    <p data-i18n="corpo_p1">L'onda che scioglie il cioccolato è lunga 12,2 centimetri. Apri la mano: è la distanza fra la punta del pollice e la punta del mignolo di una mano adulta. Le chiazze stanno a metà di quella distanza, 6,1 centimetri, la larghezza di tre dita affiancate. Non è una scala microscopica: sta nel palmo.</p>
+    <p data-i18n="corpo_p2">E il numero che ne esce, 2,99×10<sup>8</sup> metri al secondo, riportalo al petto. Il tuo cuore batte una volta ogni 0,857 secondi, e fra un battito e il successivo la luce percorre 256.965 chilometri: <b>6,4 volte il giro della Terra</b>, ovvero i due terzi della strada per la Luna. Quel numero è appena uscito da tre dita di cioccolato fuso.</p>
+    <div class="scroll-x">
+      <table class="mini">
+        <tr><th data-i18n="corpo_tab_th1">fra due battiti</th><td class="num">0,857 s</td><td data-i18n="corpo_tab_d1">60 secondi diviso 70 battiti</td></tr>
+        <tr><th data-i18n="corpo_tab_th2">strada della luce</th><td class="num">256.965 km</td><td data-i18n="corpo_tab_d2">c × 0,857 s</td></tr>
+        <tr><th data-i18n="corpo_tab_th3">giri della Terra</th><td class="num">6,41</td><td data-i18n="corpo_tab_d3">circonferenza equatoriale 40.075 km</td></tr>
+        <tr><th data-i18n="corpo_tab_th4">strada per la Luna</th><td class="num">67%</td><td data-i18n="corpo_tab_d4">distanza media 384.400 km</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ LA SORPRESA ============ -->
+<section>
+  <h2 data-i18n="sorpresa_titolo">La sorpresa</h2>
+  <p data-i18n="sorpresa_p1">Riguarda quello che hai fatto: in tutto l'esperimento <b>non hai mai misurato un tempo</b>. Non c'è un cronometro, non c'è un orologio, non c'è niente che scatti. Hai un righello e basta. Eppure il risultato è una velocità, metri al <i>secondo</i>. I secondi entrano da un numero stampato su una targhetta — e quel numero, a sua volta, è fissato soprattutto da una lunghezza: la dimensione delle cavità scavate nel blocco di rame del magnetron, che è quello che decide a che ritmo oscilla. Hai misurato una velocità con due lunghezze.</p>
+  <p data-i18n="sorpresa_p2">Seconda parte, ed è quella che conta. Nel forno non è entrata nessuna luce. L'onda che ha sciolto il cioccolato è lunga 12,24 cm contro i 550 nanometri della luce verde: è 222.480 volte più lunga, e ogni suo fotone porta 222.480 volte meno energia. È così diversa dalla luce che l'occhio non la registra affatto. Corre esattamente alla stessa velocità.</p>
+  <p data-i18n="sorpresa_p3">Questo è precisamente il passaggio che fece Maxwell. Prese due costanti misurate con condensatori, fili e magneti — senza mai accendere una candela — e ne ricavò 3,1074×10<sup>8</sup> m/s. Fizeau aveva misurato la velocità della luce con una ruota dentata e uno specchio lontano: 3,14858×10<sup>8</sup>. Distavano l'1,31%. Maxwell non concluse che la luce somiglia a un'onda elettromagnetica: concluse che <b>la luce è</b> un'onda elettromagnetica, la stessa cosa che scioglie il tuo cioccolato con l'onda accorciata di un fattore duecentomila. Ventidue anni dopo Hertz costruì in laboratorio onde lunghe qualche metro e mostrò che si riflettono, si rifrangono e si polarizzano come la luce. La previsione era arrivata prima dell'oggetto.</p>
+</section>
+
+<!-- ============ SEZIONE ONESTA ============ -->
+<section class="onesta">
+  <h2 data-i18n="onesta_titolo">Che cosa questo modello non dice</h2>
+  <p class="sotto" data-i18n="onesta_sotto">Sette punti. Non sono note a piè di pagina: sono parte dell'esperimento.</p>
+
+  <div class="punto">
+    <span class="tit"><span class="nn">1.</span><span data-i18n="punto1_titolo">Che cosa stai misurando davvero.</span></span>
+    <span data-i18n="punto1_corpo">Dal 1983 il metro è <b>definito</b> come la distanza che la luce percorre nel vuoto in 1/299.792.458 di secondo: quel numero non è più il risultato di una misura, è fissato per definizione. Fino al 1983 un conto come questo serviva a stabilire quanto vale c. Oggi c è fissato, e quel numero non lo stai più determinando: stai facendo due cose insieme. Stai controllando la tua catena di misura — righello, chiazza, frequenza vera del tuo magnetron — e stai verificando un fatto fisico che nessuna definizione ti regala, cioè che un'onda lunga dodici centimetri, che l'occhio non vede, corra alla stessa velocità della luce visibile. Se ti esce il 3 per cento di scarto, hai scoperto che qualcosa nella tua catena sbaglia del 3 per cento, non che la luce va più piano. Quello che è cambiato dal 1983 non è la fisica: è che oggi, in questa catena, l'anello conosciuto peggio non è la velocità della luce. Sei tu col righello.</span>
+  </div>
+
+  <div class="punto">
+    <span class="tit"><span class="nn">2.</span><span data-i18n="punto2_titolo">La frequenza sulla targhetta è nominale, non misurata sul tuo forno.</span></span>
+    <span data-i18n="punto2_corpo">I forni domestici lavorano nella banda 2400-2500 MHz e la targhetta dichiara 2450 MHz per convenzione. Il magnetron si sposta con la temperatura e con quanto cibo c'è dentro. Se la frequenza vera fosse 2400, la mezza onda sarebbe 6,25 cm invece di 6,12: c'è già lì un paio di punti percentuali che non controlli.</span>
+  </div>
+
+  <div class="punto">
+    <span class="tit"><span class="nn">3.</span><span data-i18n="punto3_titolo">Il righello, e come si legge un risultato.</span></span>
+    <span data-i18n="punto3_corpo">Due millimetri su 6,1 cm sono il 3,3%, e alle chiazze si somma il fatto che hanno bordi sfumati e che il centro lo decidi a occhio. La forbice onesta di questo esperimento è di qualche punto percentuale. Se ti esce lo 0,3 per cento, non concluderne di aver misurato meglio di quanto il tuo righello permetta: con quel righello un singolo risultato molto vicino al valore vero ci sta comodamente dentro per caso. Rifai la misura tre volte e guarda quanto ballano i tre valori: quella dispersione è la tua vera incertezza, non lo scarto della singola misura andata bene. Un buon esperimento non è quello che azzecca il numero una volta: è quello che sa dire di quanto può sbagliare.</span>
+  </div>
+
+  <div class="punto">
+    <span class="tit"><span class="nn">4.</span><span data-i18n="punto4_titolo">«La distanza fra due chiazze è mezza lunghezza d'onda» è un'approssimazione di onda piana, e dentro un forno l'onda piana non c'è.</span></span>
+    <span data-i18n="punto4_corpo">C'è una scatola di metallo, e in una scatola i campi possibili sono modi con nodi imposti dalle pareti. In una cavità rettangolare perfetta e vuota, lungo un lato da 30 cm, il campo va come sin(mπx/a) e i ventri distano a/m, con m intero: la condizione (m/a)² + (n/b)² + (p/d)² = (2/λ₀)² impone m ≤ 4,90, cioè m ≤ 4, e il passo dei ventri <b>non può scendere sotto 7,5 cm</b> — il 22,6% in più di mezza onda libera, che darebbe c = 3,675×10<sup>8</sup> m/s. Il tuo forno però non è vuoto né perfetto: il cibo assorbe e smorza le risonanze, i modi eccitati sono molti e si sovrappongono, e nella sovrapposizione la periodicità che sopravvive è vicina a mezza onda libera. Detto senza girarci intorno: funziona meglio di quanto la derivazione a una riga meriterebbe. Una formula che restituisce il numero giusto non è la prova che il ragionamento dietro sia completo.</span>
+  </div>
+
+  <div class="punto">
+    <span class="tit"><span class="nn">5.</span><span data-i18n="punto5_titolo">Due miti da non ripetere.</span></span>
+    <span data-i18n="punto5_corpo">2,45 GHz non è «la frequenza di risonanza dell'acqua». Le molecole d'acqua sono piccole calamite elettriche e cercano di girarsi per seguire il campo che oscilla; ci mettono un certo tempo a farlo, e per questo assorbono un po' a tutte le frequenze invece che a una sola. Il massimo di questo assorbimento — il fenomeno si chiama rilassamento dielettrico — a temperatura ambiente cade intorno ai 19 GHz: quasi otto volte più in alto dei 2,45 GHz del forno. Non c'è nessuna nota di risonanza da colpire, c'è un intervallo largo, e la frequenza è stata scelta per motivi regolamentari e pratici, perché a 2,45 GHz le microonde entrano per qualche centimetro invece di scaldare solo la superficie.<br><br>
+    Secondo mito, l'etere. Maxwell ricavò le sue onde come vibrazioni di un mezzo meccanico che riempirebbe tutto lo spazio. Quel mezzo non esiste: Michelson e Morley nel 1887 non lo trovarono, la relatività ristretta nel 1905 lo tolse di mezzo. Le equazioni di Maxwell sono sopravvissute intatte; l'immagine mentale con cui erano state costruite no. Si può avere ragione sui conti e torto sul quadro.</span>
+  </div>
+
+  <div class="punto">
+    <span class="tit"><span class="nn">6.</span><span data-i18n="punto6_titolo">Anche Hertz sbagliò i numeri.</span></span>
+    <span data-i18n="punto6_corpo">Nel 1888 misurò le onde elettromagnetiche in aria, e i valori che ne ricavò erano dello stesso ordine della velocità della luce ma con incertezze grandi e con errori di parecchi punti percentuali; trovò inoltre che le onde lungo i fili sembravano andare più piano di quelle in aria, cosa che le equazioni di Maxwell non prevedevano e che fu chiarita solo dopo. La sua conferma è famosa per quello che dimostrò — che le onde esistono, si producono, si riflettono, si polarizzano — non per la precisione della cifra.</span>
+  </div>
+
+  <div class="punto">
+    <span class="tit"><span class="nn">7.</span><span data-i18n="punto7_titolo">E cosa resta aperto oggi.</span></span>
+    <span data-i18n="punto7_corpo">«Perché c vale proprio così tanto» non è più nemmeno una domanda ben posta, perché nel Sistema Internazionale attuale c è una definizione: cambiando unità cambi il numero, non la natura. La domanda seria si sposta sulle costanti senza unità di misura, quelle che restano le stesse qualunque righello usi. La più importante per l'elettromagnetismo è la costante di struttura fine, che vale circa 1/137,036 e dice quanto è forte l'interazione elettromagnetica. Nessuna teoria la deriva: non sappiamo perché valga quello e non altro. E non sappiamo con certezza se sia sempre stata la stessa: confronti fra orologi atomici pongono limiti dell'ordine di 10<sup>−18</sup> all'anno su una sua eventuale variazione. Finora non è stato visto nulla — ma un limite che non vede niente non è una dimostrazione che sia esattamente costante.</span>
+  </div>
+</section>
+
+<!-- ============ CODA ============ -->
+<section>
+  <details>
+    <summary><span data-i18n="coda_maxwell_summary">Maxwell, 1865</span> <span class="piu">+</span></summary>
+    <div class="det-corpo">
+      <p data-i18n="coda_maxwell_p1">Due misure che con la luce non c'entrano niente. Da una parte due lastre di metallo e una batteria: quanta carica ci sta sopra. Dall'altra due fili percorsi da corrente e una bilancia: quanto si attirano.</p>
+
+      <div class="icone">
+        <div class="icona">
+          <svg viewBox="0 0 200 120" aria-hidden="true">
+            <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+              <line x1="78" y1="24" x2="78" y2="96"/>
+              <line x1="112" y1="24" x2="112" y2="96"/>
+              <line x1="78" y1="60" x2="40" y2="60"/>
+              <line x1="112" y1="60" x2="150" y2="60"/>
+              <line x1="40" y1="60" x2="40" y2="104"/>
+              <line x1="150" y1="60" x2="150" y2="104"/>
+              <line x1="40" y1="104" x2="82" y2="104"/>
+              <line x1="108" y1="104" x2="150" y2="104"/>
+              <line x1="88" y1="94" x2="88" y2="114"/>
+              <line x1="102" y1="99" x2="102" y2="109"/>
+            </g>
+            <g stroke="#E5A50A" stroke-width="2.5" stroke-linecap="round" opacity=".9">
+              <line x1="84" y1="36" x2="106" y2="36"/>
+              <line x1="84" y1="48" x2="106" y2="48"/>
+              <line x1="84" y1="72" x2="106" y2="72"/>
+              <line x1="84" y1="84" x2="106" y2="84"/>
+            </g>
+          </svg>
+          <span class="cap" data-i18n="coda_icona1_cap">ε₀ · condensatore</span>
+        </div>
+        <div class="icona">
+          <svg viewBox="0 0 200 120" aria-hidden="true">
+            <g fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+              <line x1="66" y1="14" x2="66" y2="106"/>
+              <line x1="134" y1="14" x2="134" y2="106"/>
+              <path d="M66 26 l10 -8 M66 26 l-10 -8"/>
+              <path d="M134 94 l10 8 M134 94 l-10 8"/>
+            </g>
+            <g stroke="#7C5CFF" stroke-width="2.5" stroke-linecap="round">
+              <line x1="76" y1="60" x2="102" y2="60"/>
+              <path d="M102 60 l-8 -5 M102 60 l-8 5"/>
+              <line x1="124" y1="60" x2="98" y2="60"/>
+              <path d="M98 60 l8 -5 M98 60 l8 5"/>
+            </g>
+          </svg>
+          <span class="cap" data-i18n="coda_icona2_cap">μ₀ · due fili e una bilancia</span>
+        </div>
+      </div>
+      <div class="freccia-giu" aria-hidden="true">▼</div>
+
+      <div class="card" style="margin:0">
+        <span class="lab" data-i18n="coda_maxwell_formula_lab">la formula di Maxwell</span>
+        <pre class="conto" id="contoMaxwell"></pre>
+      </div>
+
+      <p style="margin-top:14px" data-i18n="coda_maxwell_p2">Oggi questo non è una sorpresa, e va detto perché: nel Sistema Internazionale ε₀ è <b>definita</b> come 1/(μ₀c²), quindi le due costanti e c sono legate per costruzione. La sorpresa era nel 1862, quando le tre cose erano misurate in modo indipendente.</p>
+
+      <div class="storiche">
+        <div class="storica">
+          <div class="v">3,1074×10<sup>8</sup></div>
+          <div class="q" data-i18n="coda_storica1_q">m/s · Maxwell 1862</div>
+          <div class="d" data-i18n="coda_storica1_d">dal rapporto delle unità elettriche misurato da Weber e Kohlrausch nel 1856. Nessuna luce coinvolta. Rispetto al valore di oggi sbaglia del +3,65%.</div>
+        </div>
+        <div class="storica">
+          <div class="v">3,14858×10<sup>8</sup></div>
+          <div class="q" data-i18n="coda_storica2_q">m/s · Fizeau 1849</div>
+          <div class="d" data-i18n="coda_storica2_d">ruota dentata e specchio lontano, misura puramente ottica. Rispetto al valore di oggi sbaglia del +5,03%.</div>
+        </div>
+      </div>
+      <p style="margin-top:14px" data-i18n="coda_maxwell_p3">Distano l'<b>1,31%</b>. Il punto non è che fossero precisi, non lo erano: è che due strade senza niente in comune — elettricità da una parte, ottica dall'altra — arrivano allo stesso numero entro l'1,3%.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span data-i18n="coda_spettro_summary">Quanto è diversa dalla luce</span> <span class="piu">+</span></summary>
+    <div class="det-corpo">
+      <p data-i18n="coda_spettro_p1">Scala logaritmica: ogni passo verso destra è un fattore dieci. A sinistra l'onda che vedi, a destra quella che ti ha sciolto il cioccolato.</p>
+      <div class="spettro">
+        <div class="rail" id="rail">
+          <div class="tick" id="tkVerde"></div>
+          <div class="tick" id="tkMicro"></div>
+          <div class="tag" id="tagVerde" style="top:-24px"></div>
+          <div class="tag" id="tagMicro" style="top:32px"></div>
+        </div>
+        <div class="assex"><span data-i18n="spettro_asse_nm">1 nm</span><span data-i18n="spettro_asse_um">1 µm</span><span data-i18n="spettro_asse_mm">1 mm</span><span data-i18n="spettro_asse_m">1 m</span></div>
+      </div>
+      <p class="fattore" id="fattore"></p>
+      <div class="scroll-x">
+        <table class="mini" id="tabFotoni"></table>
+      </div>
+      <p style="margin-top:14px" data-i18n="coda_spettro_p2">Il rapporto fra le energie dei due fotoni è lo stesso rapporto fra le lunghezze, perché l'energia di un fotone è E = h × f e f è inversamente proporzionale alla lunghezza d'onda. h = 6,62607015×10<sup>−34</sup> J·s.</p>
+    </div>
+  </details>
+</section>
+
+
+
+
+</main>
+<footer style="padding:24px;text-align:center;font:12px monospace;opacity:.7">physics-experiments-lab &middot; MIT License &middot; Copyright (c) 2026 Capitan AI</footer>
+<script>
+"use strict";
+
+/* ====================================================================
+   COSTANTI FISICHE TABULATE. Nessun'altra costante numerica entra nel
+   calcolo di c: c viene SOLO dai due numeri digitati dall'utente.
+   ==================================================================== */
+const C_UFFICIALE   = 299792458;          // m/s — valore fissato per definizione (SI, 1983)
+const EPSILON_ZERO  = 8.8541878128e-12;   // F/m
+const MI_ZERO       = 1.25663706212e-6;   // N/A^2
+const H_PLANCK      = 6.62607015e-34;     // J*s
+const LAMBDA_VERDE  = 550e-9;             // m
+const POTENZA_FORNO = 700;                // W
+const CIRCONF_TERRA = 40075;              // km
+const DIST_LUNA     = 384400;             // km
+const BATTITI_MIN   = 70;
+
+/* ====================================================================
+   TESTI — dizionario di tutte le stringhe italiane visibili.
+   TESTI.en/fr/es/de sono copie dell'italiano in attesa della
+   traduzione.
+   ==================================================================== */
+var TESTI = {
+  it: {
+    page_titolo: 'La velocità della luce, con un righello',
+    hero_kicker: 'Esperimento 3 · laboratorio',
+    hero_titolo: 'La velocità della luce',
+    hero_titolo_riga2: 'con un righello',
+    hero_occhiello: 'Serve un microonde, una tavoletta di cioccolato e un righello. Non serve un cronometro: è questa la parte strana.',
+    hero_firme: '<b>Teoria:</b> elettromagnetismo di Maxwell e onde stazionarie in una cavità metallica · <b>Autore:</b> James Clerk Maxwell, 1865 (il conto già nel 1862) · <b>Conferma:</b> Heinrich Hertz, 1887-1888',
+
+    sez1_titolo: 'Che cosa metti dentro',
+    sez1_sotto: 'È l\'unico esperimento della serie in cui il numero di ingresso non lo dà un cursore: lo dà un righello, in cucina.',
+    sez1_lab: 'quattro cose vere — scegli',
+    sez1_aria_gruppo: 'Che cosa metti nel forno',
+    cart_cioccolato_titolo: 'Cioccolato al latte',
+    cart_cioccolato_em: '20-30 s · mezza potenza',
+    cart_marshmallow_titolo: 'Marshmallow',
+    cart_marshmallow_em: '15-20 s',
+    cart_formaggio_titolo: 'Formaggio da toast',
+    cart_formaggio_em: '25-40 s',
+    cart_pane_titolo: 'Pane e burro',
+    cart_pane_em: '20-30 s',
+    sez1_h3: 'Il gesto, nell\'ordine',
+    passo1: 'Togli il piatto rotante. Il piatto gira apposta per cancellare quello che vogliamo vedere.',
+    passo2: 'Metti dentro quello che hai scelto, appoggiato piatto, e fai partire il forno per il tempo indicato qui sopra.',
+    passo3: 'Ferma il forno alle <b>prime</b> chiazze, non quando è tutto sciolto. Le prime chiazze sono i ventri dell\'onda: se aspetti si allargano, si toccano, e la misura è persa.',
+    passo4: 'Appoggia il righello e misura in centimetri la distanza fra i <b>centri</b> di due chiazze vicine.',
+    passo5: 'Leggi la frequenza sulla targhetta del forno — sul retro, o sul bordo interno dello sportello. Su quasi tutti c\'è scritto 2450 MHz.',
+    avviso1: '<b>Prima di accendere:</b> ferma alle prime chiazze, il piatto scotta, niente metallo dentro.',
+
+    sez2_titolo: 'I tuoi due numeri',
+    sez2_sotto: 'Uno lo misuri, uno lo leggi. Non ce ne sono altri.',
+    campo_d_label: 'Distanza fra due chiazze vicine',
+    campo_d_aiuto: 'dai centri, non dai bordi',
+    unita_cm: 'cm',
+    campo_f_label: 'Frequenza del forno',
+    campo_f_aiuto: 'leggila sulla targhetta',
+    unita_mhz: 'MHz',
+    btn_calcola: 'Calcola',
+    btn_esempi: 'Non ho il forno adesso',
+    esempi_etich: 'valori di esempio, non misure vere',
+    chip_1: '5,9 cm',
+    chip_2: '6,1 cm',
+    chip_3: '6,3 cm',
+    esempi_legenda: 'Tre righelli distanti due millimetri l\'uno dall\'altro. Servono a farti vedere quanto pesano due millimetri.',
+
+    sez3_titolo: 'Che cosa esce',
+    sez3_lab: 'velocità ricavata dai tuoi due numeri',
+    barra_lab: 'scarto dal valore ufficiale',
+    barra_scala_min: '−10%',
+    barra_scala_zero: '0',
+    barra_scala_max: '+10%',
+    barra_legenda: '<span class="sw"></span>la forbice onesta di questo esperimento: ±4%',
+
+    sez4_titolo: 'Che cosa succede dentro',
+    sez4_sotto: 'La cavità vista dall\'alto. L\'onda non cammina: sta ferma e respira. I punti in cui non si muove mai sono i nodi, quelli in cui oscilla di più sono i ventri — ed è lì che il cioccolato fonde.',
+    canvas_aria_iniziale: 'Onda stazionaria dentro la cavità del forno',
+
+    sez5_titolo: 'Rifai il conto a mano',
+    sez5_sotto: 'Con i tuoi numeri, riga per riga. È il pezzo che rende questo un esperimento e non un giocattolo.',
+    formule_lab: 'le formule, in chiaro',
+    formula_p1: '<b>λ = 2 × d.</b> La distanza d fra due chiazze vicine è mezza onda, quindi l\'onda intera è il doppio. Attenzione alle unità: i centimetri vanno divisi per 100 per avere metri.',
+    formula_p2: '<b>c = λ × f.</b> Vale per qualunque onda, dal mare al suono alla luce: la velocità è la lunghezza di un\'onda per quante ne passano in un secondo. f in hertz: 2450 MHz sono 2.450.000.000 Hz.',
+    formula_p3: '<b>c = 2 × d × f.</b> Le due formule messe insieme. Questo è tutto l\'esperimento: un numero misurato, un numero letto, una moltiplicazione.',
+    formula_p4: '<b>Controllo delle unità:</b> metri × (1/secondi) = metri al secondo. Se quello che ti esce non ha le unità di una velocità, hai sbagliato il conto. Fallo sempre.',
+
+    corpo_titolo: 'Riportalo al corpo',
+    corpo_p1: 'L\'onda che scioglie il cioccolato è lunga 12,2 centimetri. Apri la mano: è la distanza fra la punta del pollice e la punta del mignolo di una mano adulta. Le chiazze stanno a metà di quella distanza, 6,1 centimetri, la larghezza di tre dita affiancate. Non è una scala microscopica: sta nel palmo.',
+    corpo_p2: 'E il numero che ne esce, 2,99×10<sup>8</sup> metri al secondo, riportalo al petto. Il tuo cuore batte una volta ogni 0,857 secondi, e fra un battito e il successivo la luce percorre 256.965 chilometri: <b>6,4 volte il giro della Terra</b>, ovvero i due terzi della strada per la Luna. Quel numero è appena uscito da tre dita di cioccolato fuso.',
+    corpo_tab_th1: 'fra due battiti',
+    corpo_tab_d1: '60 secondi diviso 70 battiti',
+    corpo_tab_th2: 'strada della luce',
+    corpo_tab_d2: 'c × 0,857 s',
+    corpo_tab_th3: 'giri della Terra',
+    corpo_tab_d3: 'circonferenza equatoriale 40.075 km',
+    corpo_tab_th4: 'strada per la Luna',
+    corpo_tab_d4: 'distanza media 384.400 km',
+
+    sorpresa_titolo: 'La sorpresa',
+    sorpresa_p1: 'Riguarda quello che hai fatto: in tutto l\'esperimento <b>non hai mai misurato un tempo</b>. Non c\'è un cronometro, non c\'è un orologio, non c\'è niente che scatti. Hai un righello e basta. Eppure il risultato è una velocità, metri al <i>secondo</i>. I secondi entrano da un numero stampato su una targhetta — e quel numero, a sua volta, è fissato soprattutto da una lunghezza: la dimensione delle cavità scavate nel blocco di rame del magnetron, che è quello che decide a che ritmo oscilla. Hai misurato una velocità con due lunghezze.',
+    sorpresa_p2: 'Seconda parte, ed è quella che conta. Nel forno non è entrata nessuna luce. L\'onda che ha sciolto il cioccolato è lunga 12,24 cm contro i 550 nanometri della luce verde: è 222.480 volte più lunga, e ogni suo fotone porta 222.480 volte meno energia. È così diversa dalla luce che l\'occhio non la registra affatto. Corre esattamente alla stessa velocità.',
+    sorpresa_p3: 'Questo è precisamente il passaggio che fece Maxwell. Prese due costanti misurate con condensatori, fili e magneti — senza mai accendere una candela — e ne ricavò 3,1074×10<sup>8</sup> m/s. Fizeau aveva misurato la velocità della luce con una ruota dentata e uno specchio lontano: 3,14858×10<sup>8</sup>. Distavano l\'1,31%. Maxwell non concluse che la luce somiglia a un\'onda elettromagnetica: concluse che <b>la luce è</b> un\'onda elettromagnetica, la stessa cosa che scioglie il tuo cioccolato con l\'onda accorciata di un fattore duecentomila. Ventidue anni dopo Hertz costruì in laboratorio onde lunghe qualche metro e mostrò che si riflettono, si rifrangono e si polarizzano come la luce. La previsione era arrivata prima dell\'oggetto.',
+
+    onesta_titolo: 'Che cosa questo modello non dice',
+    onesta_sotto: 'Sette punti. Non sono note a piè di pagina: sono parte dell\'esperimento.',
+
+    punto1_titolo: 'Che cosa stai misurando davvero.',
+    punto1_corpo: 'Dal 1983 il metro è <b>definito</b> come la distanza che la luce percorre nel vuoto in 1/299.792.458 di secondo: quel numero non è più il risultato di una misura, è fissato per definizione. Fino al 1983 un conto come questo serviva a stabilire quanto vale c. Oggi c è fissato, e quel numero non lo stai più determinando: stai facendo due cose insieme. Stai controllando la tua catena di misura — righello, chiazza, frequenza vera del tuo magnetron — e stai verificando un fatto fisico che nessuna definizione ti regala, cioè che un\'onda lunga dodici centimetri, che l\'occhio non vede, corra alla stessa velocità della luce visibile. Se ti esce il 3 per cento di scarto, hai scoperto che qualcosa nella tua catena sbaglia del 3 per cento, non che la luce va più piano. Quello che è cambiato dal 1983 non è la fisica: è che oggi, in questa catena, l\'anello conosciuto peggio non è la velocità della luce. Sei tu col righello.',
+
+    punto2_titolo: 'La frequenza sulla targhetta è nominale, non misurata sul tuo forno.',
+    punto2_corpo: 'I forni domestici lavorano nella banda 2400-2500 MHz e la targhetta dichiara 2450 MHz per convenzione. Il magnetron si sposta con la temperatura e con quanto cibo c\'è dentro. Se la frequenza vera fosse 2400, la mezza onda sarebbe 6,25 cm invece di 6,12: c\'è già lì un paio di punti percentuali che non controlli.',
+
+    punto3_titolo: 'Il righello, e come si legge un risultato.',
+    punto3_corpo: 'Due millimetri su 6,1 cm sono il 3,3%, e alle chiazze si somma il fatto che hanno bordi sfumati e che il centro lo decidi a occhio. La forbice onesta di questo esperimento è di qualche punto percentuale. Se ti esce lo 0,3 per cento, non concluderne di aver misurato meglio di quanto il tuo righello permetta: con quel righello un singolo risultato molto vicino al valore vero ci sta comodamente dentro per caso. Rifai la misura tre volte e guarda quanto ballano i tre valori: quella dispersione è la tua vera incertezza, non lo scarto della singola misura andata bene. Un buon esperimento non è quello che azzecca il numero una volta: è quello che sa dire di quanto può sbagliare.',
+
+    punto4_titolo: '«La distanza fra due chiazze è mezza lunghezza d\'onda» è un\'approssimazione di onda piana, e dentro un forno l\'onda piana non c\'è.',
+    punto4_corpo: 'C\'è una scatola di metallo, e in una scatola i campi possibili sono modi con nodi imposti dalle pareti. In una cavità rettangolare perfetta e vuota, lungo un lato da 30 cm, il campo va come sin(mπx/a) e i ventri distano a/m, con m intero: la condizione (m/a)² + (n/b)² + (p/d)² = (2/λ₀)² impone m ≤ 4,90, cioè m ≤ 4, e il passo dei ventri <b>non può scendere sotto 7,5 cm</b> — il 22,6% in più di mezza onda libera, che darebbe c = 3,675×10<sup>8</sup> m/s. Il tuo forno però non è vuoto né perfetto: il cibo assorbe e smorza le risonanze, i modi eccitati sono molti e si sovrappongono, e nella sovrapposizione la periodicità che sopravvive è vicina a mezza onda libera. Detto senza girarci intorno: funziona meglio di quanto la derivazione a una riga meriterebbe. Una formula che restituisce il numero giusto non è la prova che il ragionamento dietro sia completo.',
+
+    punto5_titolo: 'Due miti da non ripetere.',
+    punto5_corpo: '2,45 GHz non è «la frequenza di risonanza dell\'acqua». Le molecole d\'acqua sono piccole calamite elettriche e cercano di girarsi per seguire il campo che oscilla; ci mettono un certo tempo a farlo, e per questo assorbono un po\' a tutte le frequenze invece che a una sola. Il massimo di questo assorbimento — il fenomeno si chiama rilassamento dielettrico — a temperatura ambiente cade intorno ai 19 GHz: quasi otto volte più in alto dei 2,45 GHz del forno. Non c\'è nessuna nota di risonanza da colpire, c\'è un intervallo largo, e la frequenza è stata scelta per motivi regolamentari e pratici, perché a 2,45 GHz le microonde entrano per qualche centimetro invece di scaldare solo la superficie.<br><br>Secondo mito, l\'etere. Maxwell ricavò le sue onde come vibrazioni di un mezzo meccanico che riempirebbe tutto lo spazio. Quel mezzo non esiste: Michelson e Morley nel 1887 non lo trovarono, la relatività ristretta nel 1905 lo tolse di mezzo. Le equazioni di Maxwell sono sopravvissute intatte; l\'immagine mentale con cui erano state costruite no. Si può avere ragione sui conti e torto sul quadro.',
+
+    punto6_titolo: 'Anche Hertz sbagliò i numeri.',
+    punto6_corpo: 'Nel 1888 misurò le onde elettromagnetiche in aria, e i valori che ne ricavò erano dello stesso ordine della velocità della luce ma con incertezze grandi e con errori di parecchi punti percentuali; trovò inoltre che le onde lungo i fili sembravano andare più piano di quelle in aria, cosa che le equazioni di Maxwell non prevedevano e che fu chiarita solo dopo. La sua conferma è famosa per quello che dimostrò — che le onde esistono, si producono, si riflettono, si polarizzano — non per la precisione della cifra.',
+
+    punto7_titolo: 'E cosa resta aperto oggi.',
+    punto7_corpo: '«Perché c vale proprio così tanto» non è più nemmeno una domanda ben posta, perché nel Sistema Internazionale attuale c è una definizione: cambiando unità cambi il numero, non la natura. La domanda seria si sposta sulle costanti senza unità di misura, quelle che restano le stesse qualunque righello usi. La più importante per l\'elettromagnetismo è la costante di struttura fine, che vale circa 1/137,036 e dice quanto è forte l\'interazione elettromagnetica. Nessuna teoria la deriva: non sappiamo perché valga quello e non altro. E non sappiamo con certezza se sia sempre stata la stessa: confronti fra orologi atomici pongono limiti dell\'ordine di 10<sup>−18</sup> all\'anno su una sua eventuale variazione. Finora non è stato visto nulla — ma un limite che non vede niente non è una dimostrazione che sia esattamente costante.',
+
+    coda_maxwell_summary: 'Maxwell, 1865',
+    coda_maxwell_p1: 'Due misure che con la luce non c\'entrano niente. Da una parte due lastre di metallo e una batteria: quanta carica ci sta sopra. Dall\'altra due fili percorsi da corrente e una bilancia: quanto si attirano.',
+    coda_icona1_cap: 'ε₀ · condensatore',
+    coda_icona2_cap: 'μ₀ · due fili e una bilancia',
+    coda_maxwell_formula_lab: 'la formula di Maxwell',
+    coda_maxwell_p2: 'Oggi questo non è una sorpresa, e va detto perché: nel Sistema Internazionale ε₀ è <b>definita</b> come 1/(μ₀c²), quindi le due costanti e c sono legate per costruzione. La sorpresa era nel 1862, quando le tre cose erano misurate in modo indipendente.',
+    coda_storica1_q: 'm/s · Maxwell 1862',
+    coda_storica1_d: 'dal rapporto delle unità elettriche misurato da Weber e Kohlrausch nel 1856. Nessuna luce coinvolta. Rispetto al valore di oggi sbaglia del +3,65%.',
+    coda_storica2_q: 'm/s · Fizeau 1849',
+    coda_storica2_d: 'ruota dentata e specchio lontano, misura puramente ottica. Rispetto al valore di oggi sbaglia del +5,03%.',
+    coda_maxwell_p3: 'Distano l\'<b>1,31%</b>. Il punto non è che fossero precisi, non lo erano: è che due strade senza niente in comune — elettricità da una parte, ottica dall\'altra — arrivano allo stesso numero entro l\'1,3%.',
+
+    coda_spettro_summary: 'Quanto è diversa dalla luce',
+    coda_spettro_p1: 'Scala logaritmica: ogni passo verso destra è un fattore dieci. A sinistra l\'onda che vedi, a destra quella che ti ha sciolto il cioccolato.',
+    spettro_asse_nm: '1 nm',
+    spettro_asse_um: '1 µm',
+    spettro_asse_mm: '1 mm',
+    spettro_asse_m: '1 m',
+    coda_spettro_p2: 'Il rapporto fra le energie dei due fotoni è lo stesso rapporto fra le lunghezze, perché l\'energia di un fotone è E = h × f e f è inversamente proporzionale alla lunghezza d\'onda. h = 6,62607015×10<sup>−34</sup> J·s.',
+
+    footer_testo: 'Il titolo dice «con un righello», e non è una modestia: quello che questa pagina calcola è la tua catena di misura, non la velocità della luce. Il punto 1 della sezione onesta spiega la differenza, e sta in mezzo alla pagina apposta.',
+
+    /* ---- frammenti generati dinamicamente in JS ---- */
+    proto_cioccolato_tempo: '20-30 secondi a metà potenza',
+    proto_cioccolato_testo: 'Tavoletta di cioccolato al latte presa dal frigo, appoggiata piatta su un piatto freddo. Fonde a circa 34 gradi, quindi parte prima di tutto il resto.',
+    proto_marshmallow_tempo: '15-20 secondi',
+    proto_marshmallow_testo: 'Marshmallow accostati in un solo strato. Si gonfiano dove il campo è forte: la chiazza qui non è una macchia, è un rigonfiamento.',
+    proto_formaggio_tempo: '25-40 secondi',
+    proto_formaggio_testo: 'Tre fette di formaggio da toast accostate. Danno le chiazze più nette di tutte, ed è la scelta più facile da misurare.',
+    proto_pane_tempo: '20-30 secondi',
+    proto_pane_testo: 'Una fetta di pane in cassetta spalmata sottile di burro. Il burro fonde per primo e disegna la mappa del campo.',
+    proto_suffisso: 'Il pulsante cambia solo il protocollo scritto qui: il conto lo fanno i tuoi numeri.',
+
+    valida_d_template: 'Con {F} MHz aspettati circa {MEZZA} cm. Se hai 12 cm probabilmente hai saltato una chiazza, se hai 3 cm ne hai contata una in mezzo. Il conto lo faccio lo stesso: guarda cosa succede.',
+    valida_f_msg: 'Controlla la targhetta: quasi tutti i forni domestici stanno fra 2400 e 2500 MHz. Il conto procede comunque.',
+
+    risultato_serve_due_numeri: 'Servono due numeri positivi.',
+    conto_placeholder: 'Digita la distanza fra due chiazze e la frequenza del forno.',
+
+    scarto_fuori_scala: 'Fuori scala. Probabilmente hai saltato una chiazza o ne hai contata una in mezzo: riguarda il punto 4 qui sotto.',
+    scarto_fuori_forbice: 'Fuori dalla forbice onesta. Non è un disastro: è un\'informazione sulla tua catena di misura.',
+    scarto_dentro_forbice: 'Dentro la forbice onesta. È il risultato che questo esperimento sa dare.',
+    scarto_molto_vicino: 'Molto vicino, ma con un righello da cucina un colpo così ci sta dentro anche per caso. Rifai la misura tre volte e guarda quanto ballano i tre valori.',
+
+    conto_lbl_misurato: 'misurato da te',
+    conto_lbl_letto: 'letto sulla targhetta',
+    conto_lbl_onda_doppia: 'l\'onda intera è il doppio della distanza fra due chiazze',
+    conto_lbl_velocita: 'velocità = lunghezza d\'onda × frequenza',
+    conto_lbl_controllo_unita: 'controllo delle unità',
+    conto_ok_velocita: 'è una velocità, ok',
+    conto_lbl_confronto_template: 'confronto col valore ufficiale {C} m/s',
+
+    disegna_serve_numeri: 'servono due numeri per disegnare l\'onda',
+    onda_lbl_ventre: 'VENTRE',
+    onda_lbl_nodo: 'NODO',
+    onda_header_template: 'λ = {LAMBDA} cm  ·  campo visualizzato {SPAN} cm',
+    onda_d_label_template: 'd = {D} cm',
+    onda_aria_template: 'Onda stazionaria nella cavità: lunghezza d\'onda {LAMBDA} centimetri, chiazze ogni {D} centimetri nei ventri, nodi fermi in mezzo.',
+
+    didascalia_template: 'Questa animazione è rallentata {RALLENTATO} di volte: l\'onda vera compie un\'oscillazione in {NS} nanosecondi. I nodi non si spostano mai — è per questo che senza piatto rotante metà del cibo resta freddo.',
+
+    maxwell_lbl_costanti: 'le due costanti, misurate senza luce',
+    maxwell_lbl_formula: 'c = 1 / radice(ε₀ × μ₀)',
+    maxwell_lbl_valore_ufficiale: 'valore ufficiale',
+    maxwell_ok_coincide: 'coincide fino all\'ultima cifra',
+
+    spettro_tag_verde: 'luce verde 550 nm',
+    spettro_tag_forno_template: 'forno {CM} cm',
+    spettro_fattore_volte: 'volte',
+    spettro_fattore_suffisso: 'più lunga, e altrettante volte meno energetica per fotone',
+
+    tab_fotoni_th1: 'grandezza',
+    tab_fotoni_th2: 'microonda del forno',
+    tab_fotoni_th3: 'luce verde',
+    tab_fotoni_r1: 'lunghezza d\'onda',
+    tab_fotoni_r2: 'frequenza',
+    tab_fotoni_r3: 'energia di un fotone',
+    tab_fotoni_r4_template: 'fotoni al secondo per fare {POT} W',
+
+    unita_ms: 'm/s',
+    unita_kms: 'km/s',
+    unita_hz: 'Hz',
+    unita_m: 'm'
+  }
+};
+TESTI.en = JSON.parse(JSON.stringify(TESTI.it));  // PENDING: traduzione richiesta, non ancora arrivata
+/* English: reviewed translation merged from the lab translation pass. Keys not listed here fall back to the Italian text. */
+Object.assign(TESTI.en, {"hero_kicker": "Experiment 3 · laboratory", "hero_occhiello": "You need a microwave oven, a bar of chocolate and a ruler. You do not need a stopwatch: that is the strange part.", "hero_firme": "<b>Theory:<\/b> Maxwell’s electromagnetism and standing waves in a metal cavity · <b>Author:<\/b> James Clerk Maxwell, 1865 (the calculation already in 1862) · <b>Confirmation:<\/b> Heinrich Hertz, 1887-1888", "sez1_sotto": "This is the only experiment in the series where the input number is not given by a slider: it is given by a ruler, in the kitchen.", "sez1_h3": "The gesture, in order", "passo1": "Take out the turntable. The turntable turns on purpose to erase what we want to see.", "passo2": "Put in what you have chosen, lying flat, and start the oven for the time indicated above.", "passo3": "Stop the oven at the <b>first<\/b> patches, not when everything has melted. The first patches are the antinodes of the wave: if you wait, they spread out, they touch, and the measurement is lost.", "passo4": "Lay the ruler down and measure in centimetres the distance between the <b>centres<\/b> of two neighbouring patches.", "passo5": "Read the frequency on the oven’s label — on the back, or on the inside edge of the door. Almost all of them say 2450 MHz.", "avviso1": "<b>Before switching on:<\/b> stop at the first patches, the plate gets hot, nothing made of metal inside.", "sez2_sotto": "You measure one, you read the other. There are no others.", "campo_d_label": "Distance between two neighbouring patches", "campo_f_label": "Oven frequency", "btn_calcola": "Calculate", "btn_esempi": "I don’t have the oven now", "chip_1": "5.9 cm", "chip_2": "6.1 cm", "chip_3": "6.3 cm", "esempi_legenda": "Three rulers two millimetres apart from each other. They are there to show you how much two millimetres weigh.", "barra_legenda": "<span class=\"sw\"><\/span>the honest margin of this experiment: ±4%", "sez4_sotto": "The cavity seen from above. The wave does not travel: it stays still and breathes. The points where it never moves are the nodes; those where it oscillates the most are the antinodes — and that is where the chocolate melts.", "sez5_sotto": "With your numbers, line by line. This is the part that makes it an experiment and not a toy.", "formula_p1": "<b>λ = 2 × d.<\/b> The distance d between two neighbouring patches is half a wave, so the whole wave is twice that. Mind the units: centimetres must be divided by 100 to get metres.", "formula_p2": "<b>c = λ × f.<\/b> It holds for any wave, from the sea to sound to light: the speed is the length of one wave times how many pass in a second. f in hertz: 2450 MHz is 2,450,000,000 Hz.", "formula_p3": "<b>c = 2 × d × f.<\/b> The two formulas put together. This is the whole experiment: one measured number, one read number, one multiplication.", "formula_p4": "<b>Unit check:<\/b> metres × (1/seconds) = metres per second. If what you get does not have the units of a speed, you have made a mistake. Always do this.", "corpo_titolo": "Bring it back to the body", "corpo_p1": "The wave that melts the chocolate is 12.2 centimetres long. Open your hand: that is the distance between the tip of the thumb and the tip of the little finger of an adult hand. The patches sit halfway along that distance, 6.1 centimetres, the width of three fingers side by side. It is not a microscopic scale: it fits in the palm.", "corpo_p2": "And the number that comes out, 2.99×10<sup>8<\/sup> metres per second, bring it back to the chest. Your heart beats once every 0.857 seconds, and between one beat and the next light travels 256,965 kilometres: <b>6.4 times around the Earth<\/b>, or two thirds of the way to the Moon. That number has just come out of three fingers of melted chocolate.", "corpo_tab_th1": "between two beats", "corpo_tab_d1": "60 seconds divided by 70 beats", "corpo_tab_th2": "distance travelled by light", "corpo_tab_d2": "c × 0.857 s", "corpo_tab_th3": "times around the Earth", "corpo_tab_d3": "equatorial circumference 40,075 km", "corpo_tab_th4": "way to the Moon", "corpo_tab_d4": "mean distance 384,400 km", "sorpresa_titolo": "The surprise", "sorpresa_p1": "It concerns what you did: in the whole experiment you <b>never measured a time<\/b>. There is no stopwatch, no clock, nothing that ticks. You have a ruler and that is all. Yet the result is a speed, metres per <i>second<\/i>. The seconds come in from a number printed on a label — and that number, in turn, is set mainly by a length: the size of the cavities carved into the copper block of the magnetron, which is what decides how fast it oscillates. You have measured a speed with two lengths.", "sorpresa_p2": "Second part, and it is the one that counts. No light went into the oven. The wave that melted the chocolate is 12.24 cm long against the 550 nanometres of green light: it is 222,480 times longer, and each of its photons carries 222,480 times less energy. It is so different from light that the eye does not register it at all. It travels at exactly the same speed.", "sorpresa_p3": "This is precisely the step Maxwell took. He took two constants measured with capacitors, wires and magnets — without ever lighting a candle — and derived 3.1074×10<sup>8<\/sup> m/s. Fizeau had measured the speed of light with a toothed wheel and a distant mirror: 3.14858×10<sup>8<\/sup>. They were 1.31% apart. Maxwell did not conclude that light resembles an electromagnetic wave: he concluded that <b>light is<\/b> an electromagnetic wave, the same thing that melts your chocolate with the wave shortened by a factor of two hundred thousand. Twenty-two years later Hertz built, in the laboratory, waves a few metres long and showed that they reflect, refract and polarise like light. The prediction had arrived before the object.", "onesta_titolo": "What this model does not say", "onesta_sotto": "Seven points. They are not footnotes: they are part of the experiment.", "coda_maxwell_p1": "Two measurements that have nothing to do with light. On one side, two metal plates and a battery: how much charge fits on them. On the other, two wires carrying current and a balance: how strongly they attract each other.", "coda_maxwell_p2": "Today this is not a surprise, and it must be said: in the International System ε₀ is <b>defined<\/b> as 1/(μ₀c²), so the two constants and c are linked by construction. The surprise was in 1862, when the three things were measured independently.", "coda_maxwell_p3": "They are <b>1.31%<\/b> apart. The point is not that they were precise: they were not. It is that two roads with nothing in common — electricity on one side, optics on the other — reach the same number within 1.3%.", "coda_spettro_p1": "Logarithmic scale: each step to the right is a factor of ten. On the left the wave you see, on the right the one that melted your chocolate.", "coda_spettro_p2": "The ratio between the energies of the two photons is the same as the ratio between the lengths, because the energy of a photon is E = h × f and f is inversely proportional to the wavelength. h = 6.62607015×10<sup>−34<\/sup> J·s.", "scarto_molto_vicino": "Very close, but with a kitchen ruler a hit like that can happen by chance too. Repeat the measurement three times and see how much the three values wobble.", "tab_fotoni_th1": "magnitude", "tab_fotoni_th2": "microwave oven", "tab_fotoni_th3": "green light", "tab_fotoni_r1": "wavelength", "tab_fotoni_r2": "frequency", "tab_fotoni_r3": "energy of a photon", "page_titolo": "The speed of light, with a ruler", "hero_titolo": "The speed of light", "hero_titolo_riga2": "with a ruler", "sez1_titolo": "What you put inside", "sez1_lab": "four real things — choose", "sez1_aria_gruppo": "What you put in the oven", "cart_cioccolato_titolo": "Milk chocolate", "cart_cioccolato_em": "20-30 s · half power", "cart_marshmallow_titolo": "Marshmallow", "cart_formaggio_titolo": "Sandwich cheese", "cart_pane_titolo": "Bread and butter", "sez2_titolo": "Your two numbers", "campo_d_aiuto": "from the centres, not the edges", "campo_f_aiuto": "read it from the rating plate", "unita_mhz": "MHz", "esempi_etich": "example values, not real measurements", "sez3_titolo": "What comes out", "sez3_lab": "speed derived from your two numbers", "barra_lab": "offset from the official value", "sez4_titolo": "What happens inside", "canvas_aria_iniziale": "Standing wave inside the oven cavity", "sez5_titolo": "Redo the calculation by hand", "formule_lab": "the formulas, in plain view", "punto1_titolo": "What you are really measuring.", "punto2_titolo": "The frequency on the plate is nominal, not measured on your oven.", "punto3_titolo": "The ruler, and how to read a result.", "punto5_titolo": "Two myths not to repeat.", "punto6_titolo": "Even Hertz got the numbers wrong.", "punto7_titolo": "And what is still open today.", "coda_maxwell_summary": "Maxwell, 1865", "coda_icona1_cap": "ε₀ · capacitor", "coda_icona2_cap": "μ₀ · two wires and a balance", "coda_maxwell_formula_lab": "Maxwell's formula", "coda_storica1_q": "m/s · Maxwell 1862", "coda_storica2_q": "m/s · Fizeau 1849", "coda_storica2_d": "toothed wheel and distant mirror, a purely optical measurement. Compared with today's value it is off by +5.03%.", "coda_spettro_summary": "How different it is from light", "proto_cioccolato_tempo": "20-30 seconds at half power", "proto_marshmallow_tempo": "15-20 seconds", "proto_formaggio_tempo": "25-40 seconds", "proto_formaggio_testo": "Three slices of sandwich cheese side by side. They give the sharpest spots of all, and it is the easiest choice to measure.", "proto_pane_tempo": "20-30 seconds", "proto_pane_testo": "A slice of sandwich bread thinly spread with butter. The butter melts first and draws the map of the field.", "proto_suffisso": "The button only changes the protocol written here: the calculation is done by your numbers.", "valida_f_msg": "Check the rating plate: almost all home ovens are between 2400 and 2500 MHz. The calculation goes ahead anyway.", "risultato_serve_due_numeri": "Two positive numbers are needed.", "conto_placeholder": "Type the distance between two spots and the oven frequency.", "scarto_fuori_scala": "Off the scale. You probably skipped a spot or counted one in between: look again at point 4 below.", "scarto_fuori_forbice": "Outside the honest range. It is not a disaster: it is information about your chain of measurement.", "scarto_dentro_forbice": "Inside the honest range. This is the result this experiment can give.", "conto_lbl_misurato": "measured by you", "conto_lbl_letto": "read from the plate", "conto_lbl_onda_doppia": "the full wave is twice the distance between two spots", "conto_lbl_velocita": "speed = wavelength × frequency", "conto_lbl_controllo_unita": "unit check", "conto_ok_velocita": "it is a speed, ok", "conto_lbl_confronto_template": "comparison with the official value {C} m/s", "disegna_serve_numeri": "two numbers are needed to draw the wave", "onda_lbl_ventre": "ANTINODE", "onda_lbl_nodo": "NODE", "onda_header_template": "λ = {LAMBDA} cm  ·  field shown {SPAN} cm", "maxwell_lbl_costanti": "the two constants, measured without light", "maxwell_lbl_formula": "c = 1 / sqrt(ε₀ × μ₀)", "maxwell_lbl_valore_ufficiale": "official value", "maxwell_ok_coincide": "matches down to the last digit", "spettro_tag_verde": "green light 550 nm", "spettro_tag_forno_template": "oven {CM} cm", "spettro_fattore_volte": "times", "spettro_fattore_suffisso": "longer, and just as many times less energy per photon", "tab_fotoni_r4_template": "photons per second to make {POT} W", "onda_aria_template": "Standing wave in the cavity: wavelength {LAMBDA} centimetres, spots every {D} centimetres at the antinodes, nodes fixed in between."});
+TESTI.fr = JSON.parse(JSON.stringify(TESTI.it));  // PENDING
+TESTI.es = JSON.parse(JSON.stringify(TESTI.it));  // PENDING
+TESTI.de = JSON.parse(JSON.stringify(TESTI.it));  // PENDING
+
+/* ====================================================================
+   INFRASTRUTTURA LINGUE — struttura per le lingue: oggi solo l'italiano ha testi propri.
+   window.__LINGUE e setLang() sono pronti per aggiungere altre lingue.
+   ==================================================================== */
+window.__LINGUE = ['it','en','fr','es','de'];
+var LANG = 'en';
+
+function applyI18n(){
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var key = el.getAttribute('data-i18n');
+    var dict = TESTI[LANG] || TESTI.it;
+    if (dict[key] !== undefined) el.innerHTML = dict[key];
+  });
+  document.querySelectorAll('[data-i18n-aria]').forEach(function(el){
+    var key = el.getAttribute('data-i18n-aria');
+    var dict = TESTI[LANG] || TESTI.it;
+    if (dict[key] !== undefined) el.setAttribute('aria-label', dict[key]);
+  });
+}
+
+function setLang(l){
+  if (window.__LINGUE.indexOf(l) === -1) return;
+  LANG = l;
+  document.documentElement.lang = l;
+  applyI18n();
+  if (typeof aggiornaProtocollo === 'function') aggiornaProtocollo();
+  if (typeof aggiorna === 'function') aggiorna(false);
+  if (typeof aggiornaDidascalia === 'function') aggiornaDidascalia();
+  if (typeof renderMaxwell === 'function') renderMaxwell();
+  if (typeof disegna === 'function') disegna();
+}
+
+/* ---------- nucleo di calcolo ---------- */
+function calcola(d_cm, f_MHz){
+  const lambda_m = 2 * (d_cm / 100);
+  const f_Hz     = f_MHz * 1e6;
+  const c        = 2 * (d_cm / 100) * (f_MHz * 1e6);
+  const scarto   = (c - C_UFFICIALE) / C_UFFICIALE * 100;
+  return { lambda_m, f_Hz, c, scarto };
+}
+
+/* ---------- formattazione numeri, formato italiano ---------- */
+function nf(n, dec){
+  return n.toLocaleString('en-US', {minimumFractionDigits:dec, maximumFractionDigits:dec});
+}
+function gruppi(n){
+  return Math.round(n).toLocaleString('en-US');
+}
+function sciParti(v, sig){
+  if (!isFinite(v) || v === 0) return {m:'0', e:0};
+  let e = Math.floor(Math.log10(Math.abs(v)));
+  let m = v / Math.pow(10, e);
+  let s = m.toPrecision(sig);
+  if (Math.abs(parseFloat(s)) >= 10){ e += 1; m = v / Math.pow(10, e); s = m.toPrecision(sig); }
+  return {m: s, e: e};
+}
+function sciHTML(v, sig){
+  const p = sciParti(v, sig);
+  return p.m + '×10<sup>' + String(p.e).replace('-', '−') + '</sup>';
+}
+function segno(x, dec){
+  return (x >= 0 ? '+' : '−') + nf(Math.abs(x), dec);
+}
+
+/* ====================================================================
+   PROTOCOLLO — i cartellini cambiano solo il testo, mai il conto
+   ==================================================================== */
+const PROTOCOLLI = {
+  cioccolato: {
+    tempoKey: 'proto_cioccolato_tempo',
+    testoKey: 'proto_cioccolato_testo',
+    colore: '#6B4423'
+  },
+  marshmallow: {
+    tempoKey: 'proto_marshmallow_tempo',
+    testoKey: 'proto_marshmallow_testo',
+    colore: '#D98FA6'
+  },
+  formaggio: {
+    tempoKey: 'proto_formaggio_tempo',
+    testoKey: 'proto_formaggio_testo',
+    colore: '#E5A50A'
+  },
+  pane: {
+    tempoKey: 'proto_pane_tempo',
+    testoKey: 'proto_pane_testo',
+    colore: '#C08A3E'
+  }
+};
+let foodCorrente = 'cioccolato';
+
+const protoTesto = document.getElementById('protoTesto');
+function aggiornaProtocollo(){
+  const dict = TESTI[LANG] || TESTI.it;
+  const p = PROTOCOLLI[foodCorrente];
+  protoTesto.innerHTML = dict[p.testoKey] + ' <span class="tempo">' + dict[p.tempoKey] + '</span>. ' +
+    dict.proto_suffisso;
+}
+document.querySelectorAll('.cart').forEach(function(b){
+  b.addEventListener('click', function(){
+    document.querySelectorAll('.cart').forEach(function(x){ x.setAttribute('aria-pressed','false'); });
+    b.setAttribute('aria-pressed','true');
+    foodCorrente = b.dataset.food;
+    aggiornaProtocollo();
+    disegna();
+  });
+});
+
+/* ====================================================================
+   INPUT, VALIDAZIONE MORBIDA (mai bloccante)
+   ==================================================================== */
+const inD = document.getElementById('inD');
+const inF = document.getElementById('inF');
+const notaD = document.getElementById('notaD');
+const notaF = document.getElementById('notaF');
+
+function leggiD(){ const v = parseFloat(String(inD.value).replace(',', '.')); return isFinite(v) && v > 0 ? v : 0; }
+function leggiF(){ const v = parseFloat(String(inF.value).replace(',', '.')); return isFinite(v) && v > 0 ? v : 0; }
+
+function validaMorbida(){
+  const dict = TESTI[LANG] || TESTI.it;
+  const d = leggiD(), f = leggiF();
+  let msgD = '';
+  if (d > 0 && (d < 4 || d > 9)){
+    const mezzaAttesa = f > 0 ? (C_UFFICIALE / (f * 1e6)) * 50 : 6.118213428571428;
+    msgD = dict.valida_d_template
+      .replace('{F}', nf(f, 0))
+      .replace('{MEZZA}', nf(mezzaAttesa, 1));
+  }
+  notaD.textContent = msgD;
+  notaF.textContent = (f > 0 && (f < 800 || f > 3000))
+    ? dict.valida_f_msg
+    : '';
+}
+
+/* esempi */
+const boxEsempi = document.getElementById('boxEsempi');
+const btnEsempi = document.getElementById('btnEsempi');
+btnEsempi.addEventListener('click', function(){
+  const on = boxEsempi.classList.toggle('on');
+  btnEsempi.setAttribute('aria-expanded', on ? 'true' : 'false');
+});
+document.querySelectorAll('.chip').forEach(function(c){
+  c.addEventListener('click', function(){
+    inD.value = c.dataset.d;
+    aggiorna(true);
+  });
+});
+document.getElementById('btnCalcola').addEventListener('click', function(){ aggiorna(true); });
+inD.addEventListener('input', function(){ aggiorna(false); });
+inF.addEventListener('input', function(){ aggiorna(false); });
+
+/* ====================================================================
+   RISULTATO
+   ==================================================================== */
+const cBig = document.getElementById('cBig');
+const cPieno = document.getElementById('cPieno');
+const cKms = document.getElementById('cKms');
+const marker = document.getElementById('marker');
+const fasciaOnesta = document.getElementById('fasciaOnesta');
+const scartoNum = document.getElementById('scartoNum');
+const scartoTxt = document.getElementById('scartoTxt');
+const conto = document.getElementById('conto');
+const didascalia = document.getElementById('didascalia');
+
+const menoMoto = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+fasciaOnesta.style.left  = (50 - 4 * 5) + '%';   /* fondo scala ±10% -> 5% di barra per punto */
+fasciaOnesta.style.width = (2 * 4 * 5) + '%';
+
+let animId = null;
+function mostraC(c){
+  const p = sciParti(c, 3);
+  const esp = String(p.e).replace('-', '−');
+  if (menoMoto.matches || !isFinite(c) || c <= 0){
+    cBig.innerHTML = p.m + '×10<sup>' + esp + '</sup><span class="u">' + (TESTI[LANG]||TESTI.it).unita_ms + '</span>';
+    return;
+  }
+  const mFin = parseFloat(p.m.replace(',', '.'));
+  const t0 = performance.now();
+  if (animId) cancelAnimationFrame(animId);
+  (function step(t){
+    const q = Math.min(1, (t - t0) / 600);
+    const e = 1 - Math.pow(1 - q, 3);
+    cBig.innerHTML = nf(mFin * e, 2) + '×10<sup>' + esp + '</sup><span class="u">' + (TESTI[LANG]||TESTI.it).unita_ms + '</span>';
+    if (q < 1) animId = requestAnimationFrame(step);
+  })(t0);
+}
+
+function aggiorna(animato){
+  const dict = TESTI[LANG] || TESTI.it;
+  validaMorbida();
+  const d = leggiD(), f = leggiF();
+  const r = calcola(d, f);
+
+  if (!(d > 0 && f > 0)){
+    cBig.innerHTML = '—<span class="u">' + dict.unita_ms + '</span>';
+    cPieno.textContent = dict.risultato_serve_due_numeri;
+    cKms.textContent = '';
+    scartoNum.textContent = '';
+    scartoTxt.textContent = '';
+    conto.textContent = dict.conto_placeholder;
+    disegna();
+    return;
+  }
+
+  if (animato) mostraC(r.c);
+  else {
+    const p = sciParti(r.c, 3);
+    cBig.innerHTML = p.m + '×10<sup>' + String(p.e).replace('-', '−') + '</sup><span class="u">' + dict.unita_ms + '</span>';
+  }
+  cPieno.textContent = gruppi(r.c) + ' ' + dict.unita_ms;
+  cKms.textContent = gruppi(r.c / 1000) + ' ' + dict.unita_kms;
+
+  /* barra: fondo scala ±10% */
+  const clamp = Math.max(-10, Math.min(10, r.scarto));
+  marker.style.left = (50 + clamp * 5) + '%';
+  marker.classList.toggle('fuori', Math.abs(r.scarto) > 10);
+
+  scartoNum.textContent = 'offset ' + segno(r.scarto, 2) + '%';
+  let t;
+  const a = Math.abs(r.scarto);
+  if (a > 10) t = dict.scarto_fuori_scala;
+  else if (a > 4) t = dict.scarto_fuori_forbice;
+  else if (a > 1) t = dict.scarto_dentro_forbice;
+  else t = dict.scarto_molto_vicino;
+  scartoTxt.textContent = t;
+
+  /* conto a mano, generato dai numeri dell'utente */
+  const dTxt = nf(d, 1);
+  const righe = [
+    '<span class="k">' + dict.conto_lbl_misurato + '</span>',
+    'd  = ' + dTxt + ' ' + dict.unita_cm,
+    '',
+    '<span class="k">' + dict.conto_lbl_letto + '</span>',
+    'f  = ' + nf(f, 0) + ' ' + dict.unita_mhz + ' = ' + gruppi(r.f_Hz) + ' ' + dict.unita_hz,
+    '',
+    '<span class="k">' + dict.conto_lbl_onda_doppia + '</span>',
+    'λ  = 2 × ' + dTxt + ' ' + dict.unita_cm + ' = ' + nf(2 * d, 1) + ' ' + dict.unita_cm + ' = ' + nf(r.lambda_m, 4) + ' ' + dict.unita_m,
+    '',
+    '<span class="k">' + dict.conto_lbl_velocita + '</span>',
+    'c  = ' + nf(r.lambda_m, 4) + ' × ' + gruppi(r.f_Hz),
+    'c  = ' + gruppi(r.c) + ' ' + dict.unita_ms,
+    '',
+    '<span class="k">' + dict.conto_lbl_controllo_unita + '</span>',
+    'm × 1/s = m/s   <span class="ok">' + dict.conto_ok_velocita + '</span>',
+    '',
+    '<span class="k">' + dict.conto_lbl_confronto_template.replace('{C}', gruppi(C_UFFICIALE)) + '</span>',
+    'offset = (' + gruppi(r.c) + ' − ' + gruppi(C_UFFICIALE) + ') / ' + gruppi(C_UFFICIALE) + ' × 100',
+    'offset = ' + segno(r.scarto, 2) + ' %'
+  ];
+  conto.innerHTML = righe.join('\n');
+
+  aggiornaSpettro(f);
+  disegna();
+}
+
+/* ====================================================================
+   CANVAS — onda stazionaria A*sin(2πx/λ)*cos(2πt/T), T = 1 s
+   ==================================================================== */
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+let W = 700, H = 340, dpr = 1;
+
+const scuro = window.matchMedia('(prefers-color-scheme: dark)');
+function pal(){
+  return scuro.matches
+    ? {muro:'#8A93A8', dentro:'#1C2231', linea:'#E5A50A', nodo:'#F1ECE1', testo:'#C7C1B4', piatto:'#252C3C', righello:'#F1ECE1', tratteg:'rgba(241,236,225,.28)'}
+    : {muro:'#33302B', dentro:'#EFEADD', linea:'#E5A50A', nodo:'#33302B', testo:'#7E7768', piatto:'#FCFAF6', righello:'#33302B', tratteg:'rgba(51,48,43,.25)'};
+}
+
+function larghezzaDisponibile(){
+  const r = cv.getBoundingClientRect().width;
+  if (r > 1) return r;
+  const p = cv.parentElement, cs = getComputedStyle(p);
+  return p.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+}
+function ridimensiona(){
+  const w = larghezzaDisponibile();
+  dpr = Math.min(2, window.devicePixelRatio || 1);
+  W = Math.max(260, w);
+  H = 336;
+  cv.width = Math.round(W * dpr);
+  cv.height = Math.round(H * dpr);
+  cv.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  disegna();
+}
+if (window.ResizeObserver){
+  new ResizeObserver(function(){ ridimensiona(); }).observe(cv.parentElement);
+}
+window.addEventListener('resize', ridimensiona);
+window.addEventListener('orientationchange', function(){ setTimeout(ridimensiona, 120); });
+
+let t0 = performance.now();
+function fase(){
+  if (menoMoto.matches) return 1;           /* statica al massimo */
+  const t = (performance.now() - t0) / 1000; /* periodo animato = 1 s */
+  return Math.cos(2 * Math.PI * t);
+}
+
+function disegna(){
+  const dict = TESTI[LANG] || TESTI.it;
+  const P = pal();
+  const d = leggiD(), f = leggiF();
+  ctx.clearRect(0, 0, W, H);
+
+  if (!(d > 0 && f > 0)){
+    ctx.fillStyle = P.testo;
+    ctx.font = "14px monospace";
+    ctx.textAlign = 'center';
+    ctx.fillText(dict.disegna_serve_numeri, W / 2, H / 2);
+    return;
+  }
+
+  /* scala dei pixel derivata dalla d dell'utente: cinque mezze onde in larghezza */
+  const margine = 16;
+  const larghezzaUtile = W - 2 * margine;
+  const spanCm = 5 * d;
+  const pxCm = larghezzaUtile / spanCm;
+  const lambdaCm = 2 * d;
+  const lambdaPx = lambdaCm * pxCm;
+
+  const yMuroTop = 12, yMuroBot = H - 12;
+  const yAsse = 120;
+  const A = 46;
+  const yPiatto = H - 126;
+  const yRighello = H - 74;
+  const ph = fase();
+
+  /* cavità */
+  ctx.fillStyle = P.dentro;
+  ctx.strokeStyle = P.muro;
+  ctx.lineWidth = 3;
+  const r = 14;
+  ctx.beginPath();
+  ctx.moveTo(margine + r, yMuroTop);
+  ctx.arcTo(W - margine, yMuroTop, W - margine, yMuroBot, r);
+  ctx.arcTo(W - margine, yMuroBot, margine, yMuroBot, r);
+  ctx.arcTo(margine, yMuroBot, margine, yMuroTop, r);
+  ctx.arcTo(margine, yMuroTop, W - margine, yMuroTop, r);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(margine + 2, yMuroTop + 2, W - 2 * margine - 4, yMuroBot - yMuroTop - 4);
+  ctx.clip();
+
+  /* inviluppo */
+  ctx.strokeStyle = P.tratteg;
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 5]);
+  [-1, 1].forEach(function(s){
+    ctx.beginPath();
+    for (let px = 0; px <= larghezzaUtile; px++){
+      const x = margine + px;
+      const y = yAsse + s * A * Math.sin(2 * Math.PI * (px / lambdaPx));
+      if (px === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  });
+  ctx.setLineDash([]);
+
+  /* asse */
+  ctx.strokeStyle = P.tratteg;
+  ctx.beginPath(); ctx.moveTo(margine, yAsse); ctx.lineTo(W - margine, yAsse); ctx.stroke();
+
+  /* onda stazionaria */
+  ctx.strokeStyle = P.linea;
+  ctx.lineWidth = 3;
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  for (let px = 0; px <= larghezzaUtile; px++){
+    const x = margine + px;
+    const y = yAsse + A * Math.sin(2 * Math.PI * (px / lambdaPx)) * ph;
+    if (px === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  /* nodi: fermi, con puntini fissi */
+  const nodi = [], ventri = [];
+  for (let k = 0; margine + k * lambdaPx / 2 <= W - margine; k++){
+    nodi.push(margine + k * lambdaPx / 2);
+  }
+  for (let k = 0; margine + lambdaPx / 4 + k * lambdaPx / 2 <= W - margine; k++){
+    ventri.push(margine + lambdaPx / 4 + k * lambdaPx / 2);
+  }
+  ctx.fillStyle = P.nodo;
+  nodi.forEach(function(x){
+    ctx.beginPath(); ctx.arc(x, yAsse, 4, 0, 2 * Math.PI); ctx.fill();
+    ctx.strokeStyle = P.tratteg; ctx.lineWidth = 1; ctx.setLineDash([2, 6]);
+    ctx.beginPath(); ctx.moveTo(x, yAsse); ctx.lineTo(x, yPiatto + 22); ctx.stroke();
+    ctx.setLineDash([]);
+  });
+
+  /* piatto e chiazze */
+  ctx.fillStyle = P.piatto;
+  ctx.strokeStyle = P.tratteg;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.rect(margine + 6, yPiatto - 26, W - 2 * margine - 12, 52);
+  ctx.fill(); ctx.stroke();
+
+  const colore = PROTOCOLLI[foodCorrente].colore;
+  const rMax = Math.min(22, lambdaPx / 6);
+  const crescita = 0.55 + 0.45 * Math.abs(ph);
+  ventri.forEach(function(x){
+    ctx.beginPath();
+    ctx.ellipse(x, yPiatto, rMax * crescita, rMax * crescita * 0.72, 0, 0, 2 * Math.PI);
+    ctx.fillStyle = colore;
+    ctx.globalAlpha = 0.85;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+  });
+
+  /* righello fra due chiazze vicine, quelle al centro del disegno */
+  if (ventri.length >= 2){
+    const i0 = Math.max(0, Math.floor(ventri.length / 2) - 1);
+    const x1 = ventri[i0], x2 = ventri[i0 + 1];
+    const yR = yRighello;
+    ctx.strokeStyle = P.righello;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x1, yR); ctx.lineTo(x2, yR);
+    ctx.moveTo(x1, yR - 7); ctx.lineTo(x1, yR + 7);
+    ctx.moveTo(x2, yR - 7); ctx.lineTo(x2, yR + 7);
+    ctx.stroke();
+    ctx.lineWidth = 1;
+    for (let mm = 1; mm < Math.round(d * 10); mm++){
+      const x = x1 + (x2 - x1) * (mm / (d * 10));
+      const h = (mm % 5 === 0) ? 6 : 3;
+      ctx.beginPath(); ctx.moveTo(x, yR); ctx.lineTo(x, yR - h); ctx.stroke();
+    }
+    ctx.fillStyle = P.righello;
+    ctx.font = "bold 14px monospace";
+    ctx.textAlign = 'center';
+    ctx.fillText(dict.onda_d_label_template.replace('{D}', nf(d, 1)), (x1 + x2) / 2, yR + 24);
+  }
+
+  /* etichette nodo/ventre e intestazione */
+  ctx.font = "11px monospace";
+  ctx.fillStyle = P.testo;
+  ctx.textAlign = 'center';
+  const yEtich = yAsse - A - 14;
+  if (ventri.length) ctx.fillText(dict.onda_lbl_ventre, ventri[0], yEtich);
+  if (nodi.length > 2) ctx.fillText(dict.onda_lbl_nodo, nodi[2], yEtich);
+  ctx.textAlign = 'left';
+  ctx.fillText(dict.onda_header_template.replace('{LAMBDA}', nf(lambdaCm, 1)).replace('{SPAN}', nf(spanCm, 1)), margine + 10, yMuroTop + 22);
+
+  ctx.restore();
+
+  cv.setAttribute('aria-label',
+    dict.onda_aria_template.replace('{LAMBDA}', nf(lambdaCm, 1)).replace('{D}', nf(d, 1)));
+}
+
+function loop(){
+  if (!menoMoto.matches) disegna();
+  requestAnimationFrame(loop);
+}
+
+/* ====================================================================
+   DIDASCALIA SOTTO IL CANVAS — rallentamento e periodo veri
+   ==================================================================== */
+function aggiornaDidascalia(){
+  const dict = TESTI[LANG] || TESTI.it;
+  const f = leggiF();
+  if (!(f > 0)){ didascalia.textContent = ''; return; }
+  const fHz = f * 1e6;
+  const ns = 1e9 / fHz;
+  didascalia.textContent = dict.didascalia_template
+    .replace('{RALLENTATO}', gruppi(fHz))
+    .replace('{NS}', nf(ns, 2));
+}
+
+/* ====================================================================
+   CODA — Maxwell e spettro
+   ==================================================================== */
+function renderMaxwell(){
+  const dict = TESTI[LANG] || TESTI.it;
+  const prod = EPSILON_ZERO * MI_ZERO;
+  const rad  = Math.sqrt(prod);
+  const rec  = 1 / rad;
+  const righe = [
+    '<span class="k">' + dict.maxwell_lbl_costanti + '</span>',
+    'ε₀ = ' + sciParti(EPSILON_ZERO, 11).m + ' ×10^−12 F/m',
+    'μ₀ = ' + sciParti(MI_ZERO, 12).m + ' ×10^−6 N/A²',
+    '',
+    '<span class="k">' + dict.maxwell_lbl_formula + '</span>',
+    'prodotto = ' + sciParti(prod, 9).m + ' ×10^−17',
+    'radice   = ' + sciParti(rad, 9).m + ' ×10^−9',
+    'c        = ' + sciParti(rec, 9).m + ' ×10^8 m/s',
+    '',
+    '<span class="k">' + dict.maxwell_lbl_valore_ufficiale + '</span>',
+    'c        = ' + gruppi(C_UFFICIALE) + ' m/s   <span class="ok">' + dict.maxwell_ok_coincide + '</span>'
+  ];
+  document.getElementById('contoMaxwell').innerHTML = righe.join('\n');
+}
+renderMaxwell();
+
+function posLog(m){
+  /* scala da 1 nm (1e-9 m) a 1 m */
+  const p = (Math.log10(m) + 9) / 9;
+  return Math.max(0, Math.min(1, p)) * 100;
+}
+function aggiornaSpettro(f_MHz){
+  const dict = TESTI[LANG] || TESTI.it;
+  const f = f_MHz > 0 ? f_MHz : 2450;
+  const lambdaForno = C_UFFICIALE / (f * 1e6);
+  const rapporto = lambdaForno / LAMBDA_VERDE;
+  const eMicro = H_PLANCK * (f * 1e6);
+  const eVerde = H_PLANCK * (C_UFFICIALE / LAMBDA_VERDE);
+  const fotoniAlSec = POTENZA_FORNO / eMicro;
+
+  document.getElementById('tkVerde').style.left = posLog(LAMBDA_VERDE) + '%';
+  document.getElementById('tkMicro').style.left = posLog(lambdaForno) + '%';
+  const tv = document.getElementById('tagVerde');
+  const tm = document.getElementById('tagMicro');
+  tv.style.left = posLog(LAMBDA_VERDE) + '%';
+  tm.style.left = posLog(lambdaForno) + '%';
+  tv.textContent = dict.spettro_tag_verde;
+  tm.textContent = dict.spettro_tag_forno_template.replace('{CM}', nf(lambdaForno * 100, 2));
+
+  document.getElementById('fattore').innerHTML =
+    gruppi(rapporto) + ' ' + dict.spettro_fattore_volte + '<span class="u">' + dict.spettro_fattore_suffisso + '</span>';
+
+  document.getElementById('tabFotoni').innerHTML =
+    '<tr><th>' + dict.tab_fotoni_th1 + '</th><th>' + dict.tab_fotoni_th2 + '</th><th>' + dict.tab_fotoni_th3 + '</th></tr>' +
+    '<tr><td>' + dict.tab_fotoni_r1 + '</td><td class="num">' + nf(lambdaForno * 100, 2) + ' cm</td><td class="num">550 nm</td></tr>' +
+    '<tr><td>' + dict.tab_fotoni_r2 + '</td><td class="num">' + nf(f / 1000, 2) + ' GHz</td><td class="num">' + sciHTML(C_UFFICIALE / LAMBDA_VERDE, 4) + ' Hz</td></tr>' +
+    '<tr><td>' + dict.tab_fotoni_r3 + '</td><td class="num">' + sciHTML(eMicro, 5) + ' J</td><td class="num">' + sciHTML(eVerde, 5) + ' J</td></tr>' +
+    '<tr><td>' + dict.tab_fotoni_r4_template.replace('{POT}', POTENZA_FORNO) + '</td><td class="num">' + sciHTML(fotoniAlSec, 3) + '</td><td class="num">—</td></tr>';
+}
+
+/* ====================================================================
+   AVVIO
+   ==================================================================== */
+applyI18n();
+aggiornaProtocollo();
+ridimensiona();
+aggiorna(false);
+aggiornaDidascalia();
+inF.addEventListener('input', aggiornaDidascalia);
+scuro.addEventListener && scuro.addEventListener('change', disegna);
+menoMoto.addEventListener && menoMoto.addEventListener('change', function(){ t0 = performance.now(); disegna(); });
+requestAnimationFrame(loop);
+
+/* ------------------------------------------------------------
+   AUTOCOLLAUDO — gira in console, non tocca la pagina.
+   ------------------------------------------------------------ */
+(function collaudo(){
+  var esiti = [];
+  function ok(nome, avuto, atteso, toll){
+    var passa = Math.abs(avuto-atteso)/Math.abs(atteso) < (toll||0.01);
+    esiti.push((passa?'OK  ':'NO  ') + nome + '  = ' + avuto.toPrecision(6) +
+               (passa ? '' : '   atteso ' + atteso));
+    return passa;
+  }
+  ok('1/sqrt(e0*mu0) contro c ufficiale', 1/Math.sqrt(EPSILON_ZERO*MI_ZERO), C_UFFICIALE, 1e-6);
+  var r = calcola(6.12, 2450);
+  ok('c da d=6,12cm f=2450MHz (m/s)', r.c, 299880000, 0.001);
+  ok('scarto dal valore vero (%)', r.scarto, (r.c-C_UFFICIALE)/C_UFFICIALE*100, 0.001);
+  ok('luce Terra-Luna (s)', DIST_LUNA*1000/C_UFFICIALE, 1.282, 0.01);
+  ok('giri di Terra in un secondo', C_UFFICIALE/(CIRCONF_TERRA*1000), 7.48, 0.01);
+  ok('energia fotone verde (eV)', H_PLANCK*C_UFFICIALE/LAMBDA_VERDE/1.602176634e-19, 2.254, 0.01);
+  var falliti = esiti.filter(function(e){ return e.indexOf('NO') === 0; }).length;
+  console.log('%cAutocollaudo esperimento 3 — ' + (falliti ? falliti + ' CONTROLLI FALLITI' : 'tutti i controlli passati'),
+              'font-weight:bold;color:' + (falliti ? '#c00' : '#0a0'));
+  esiti.forEach(function(e){ console.log('  ' + e); });
+})();
+
+try{ if(typeof setLang==='function') setLang('en'); }catch(e){}
+</script>
+</body>
+</html>

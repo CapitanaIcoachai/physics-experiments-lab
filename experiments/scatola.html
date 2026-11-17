@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How fast something closed in a box moves</title>
+<style>
+
+:root{
+  --scuro-1:#16224A; --scuro-2:#0D1120; --scuro-3:#04060E;
+  --carta:#FAF7F1; --inchiostro:#33302B; --tenue:#7E7768;
+  --oro:#E5A50A; --oro-chiaro:#FFD86E; --viola:#7C5CFF; --acqua:#2DD4BF;
+  --bordo:#E7E1D3; --panna:#FCFAF6;
+  --tit:'Bebas Neue','Avenir Next Condensed','Oswald',sans-serif;
+  --testo:'DM Sans','Helvetica Neue',Helvetica,Arial,sans-serif;
+  --mono:'DM Mono','SF Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--carta); color:var(--inchiostro);
+  font-family:var(--testo); font-size:17px; line-height:1.62;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:760px;margin:0 auto;padding:0 18px 90px}
+
+/* ---- fascia alta ---- */
+.hero{
+  background:radial-gradient(120% 95% at 50% 30%,
+    var(--scuro-1) 0%, var(--scuro-2) 45%, var(--scuro-3) 78%, var(--carta) 100%);
+  color:#fff; padding:54px 0 62px; margin-bottom:34px;
+}
+.hero .wrap{padding-bottom:0}
+.occhiello{
+  font-family:var(--mono); font-size:12px; letter-spacing:.22em;
+  text-transform:uppercase; color:#8F97B8; margin:0 0 14px;
+}
+.hero h1{
+  font-family:var(--tit); font-weight:500; font-size:clamp(36px,7vw,58px);
+  line-height:.98; letter-spacing:.01em; margin:0 0 20px; max-width:16ch;
+}
+.kicker{color:#C9CEE2; font-size:17.5px; max-width:56ch; margin:0 0 22px}
+.firme{
+  font-family:var(--mono); font-size:12.5px; line-height:1.75;
+  color:#7F87A8; max-width:62ch; margin:0;
+}
+.firme b{color:#AEB6D4; font-weight:400}
+
+/* ---- struttura ---- */
+.passo{
+  font-family:var(--mono); font-size:12px; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--tenue); margin:38px 0 14px;
+}
+h2{font-family:var(--tit);font-weight:500;font-size:29px;letter-spacing:.01em;margin:34px 0 12px}
+h3{font-size:18px;margin:24px 0 8px}
+p{margin:0 0 15px}
+.tenue{color:var(--tenue);font-size:15.5px}
+
+/* ---- schede di scelta ---- */
+.schede{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin-bottom:10px}
+.scheda{
+  border:1.5px solid var(--bordo); border-radius:11px; background:var(--panna);
+  padding:13px 15px; cursor:pointer; text-align:left; font:inherit;
+  color:inherit; transition:border-color .16s, background .16s;
+  min-height:48px;
+}
+.scheda:hover{border-color:#C9C1AC}
+.scheda[aria-pressed="true"]{border-color:var(--oro);background:#FFFBEF}
+.scheda .n{display:block;font-size:16.5px;margin-bottom:2px}
+.scheda .d{
+  display:block;font-family:var(--mono);font-size:11.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--tenue);
+}
+.scheda[aria-pressed="true"] .d{color:#A08420}
+.nota-scelta{margin:6px 0 26px}
+
+/* ---- la scena: scatola con pareti trascinabili ---- */
+.scenaWrap{
+  position:relative; border:1px solid var(--bordo); border-radius:12px;
+  overflow:hidden; background:#0A0D18; margin:14px 0 8px;
+  touch-action:none;
+}
+.scenaWrap canvas{display:block;width:100%;height:200px}
+@media(max-width:420px){ .scenaWrap canvas{height:150px} }
+.scenaWrap:focus-visible{outline:3px solid var(--oro);outline-offset:2px}
+.scena-etichetta{
+  display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
+  font-family:var(--mono);font-size:12.5px;color:var(--tenue);margin:8px 0 4px;
+}
+.scena-etichetta b{color:var(--inchiostro);font-weight:400}
+.scena-confronto{font-size:14.5px;margin:2px 0 22px}
+.scena-confronto b{font-weight:600}
+
+/* ---- pannello delle due campane ---- */
+.campane{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:18px 0 0}
+@media(max-width:520px){.campane{grid-template-columns:1fr}}
+.campana-box{border:1px solid var(--bordo);border-radius:11px;background:var(--panna);padding:10px 12px 6px}
+.campana-box .et{margin:0 0 4px}
+.campana-box canvas{display:block;width:100%;height:96px}
+.spia{
+  font-family:var(--mono);font-size:13.5px;text-align:center;
+  background:var(--scuro-2);color:#D5D9E8;border-radius:10px;
+  padding:13px 15px;margin:14px 0 26px;line-height:1.7;
+}
+.spia b{color:var(--oro-chiaro);font-weight:400;font-size:15px}
+.spia .riga-min{
+  position:relative;height:8px;margin:8px auto 0;max-width:280px;
+  background:linear-gradient(90deg,#26304F,#26304F);border-radius:4px;
+}
+.spia .riga-min .soglia{
+  position:absolute;left:0;top:-4px;bottom:-4px;width:2px;background:#FF6B6B;
+}
+.spia .riga-min .punto{
+  position:absolute;top:-3px;width:10px;height:10px;margin-left:-5px;
+  border-radius:50%;background:var(--oro);
+}
+.spia .didascalia{font-size:11px;color:#7F87A8;margin-top:6px}
+
+/* ---- riquadro risultato ---- */
+.box{border:1px solid var(--bordo);border-radius:13px;background:var(--panna);padding:19px 21px;margin:14px 0}
+.box.oro{border-color:#EBD9A4;background:#FFFBEF}
+.box.ambra{border-color:#E5A50A;background:#FFF6E0}
+.box.scuro{background:var(--scuro-2);border-color:#26304F;color:#E8EAF2}
+.box.scuro .et{color:#8F97B8}
+.box.spento{background:#EFEBE1;border-color:#DCD5C3}
+.box.spento .grande{color:#B4AC98}
+.et{
+  font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--tenue);margin:0 0 7px;
+}
+.grande{font-family:var(--tit);font-weight:500;font-size:clamp(27px,5.6vw,40px);line-height:1.05;margin:0}
+.grande .u{font-size:.48em;color:var(--tenue);letter-spacing:.02em}
+.grande sup{font-size:.55em}
+.box.scuro .grande .u{color:#8F97B8}
+.sotto{font-size:14.5px;color:var(--tenue);margin:8px 0 0}
+.terne{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:620px){.terne{grid-template-columns:1fr}}
+.avviso{font-size:14.5px;margin:9px 0 0;line-height:1.55}
+.avviso b{font-weight:600}
+
+/* ---- conti a mano ---- */
+.formulaBox{
+  border-left:3px solid var(--oro);background:#FFFBEF;border-radius:0 10px 10px 0;
+  padding:15px 18px;margin:16px 0;
+}
+.formulaBox .et{color:#A08420}
+pre{
+  font-family:var(--mono);font-size:13px;line-height:1.62;margin:0;
+  white-space:pre-wrap;word-wrap:break-word;color:#4A463F;
+}
+pre b{color:var(--inchiostro);font-weight:400;background:#FBEFC9;padding:0 3px;border-radius:3px}
+
+/* ---- dettagli ---- */
+details{
+  border:1px solid var(--bordo);border-radius:11px;background:var(--panna);
+  margin:14px 0;padding:2px 4px;
+}
+details[open]{background:var(--panna)}
+summary{
+  cursor:pointer;font-family:var(--tit);font-weight:500;font-size:19px;
+  letter-spacing:.01em;padding:13px 15px;list-style:none;min-height:44px;
+  display:flex;align-items:center;
+}
+summary::-webkit-details-marker{display:none}
+summary::before{content:'+ ';color:var(--oro);margin-right:6px;font-family:var(--mono)}
+details[open] summary::before{content:'– '}
+.dettaglio-corpo{padding:2px 17px 17px}
+
+/* ---- sezione onesta ---- */
+.onesta{border-top:1px solid var(--bordo);margin-top:6px;padding-top:2px}
+.onesta li{margin-bottom:15px}
+.onesta ol{padding-left:20px;margin:10px 0}
+.onesta b{font-weight:600}
+
+table{border-collapse:collapse;width:100%;font-size:14px;margin:14px 0}
+th,td{border-bottom:1px solid var(--bordo);padding:8px 9px;text-align:left;vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--tenue);font-weight:400}
+.tab-wrap{overflow-x:auto}
+
+footer{border-top:1px solid var(--bordo);margin-top:44px;padding-top:18px}
+footer p{font-family:var(--mono);font-size:12px;color:var(--tenue);margin:0 0 6px}
+
+</style>
+</head>
+<body>
+<a href="../index.html" style="display:inline-block;margin:14px;font:12px monospace;color:inherit">&larr; All experiments</a>
+
+
+<header class="hero">
+  <div class="wrap">
+<div class="lab-hero-ico" style="width:52px;height:52px;color:#8A6A07;margin:0 0 10px"><svg viewBox="0 0 24 24" width="52" height="52" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="1.5"/><path d="M7 16 12 7l5 9"/><path d="M12 7h.01"/></svg></div>
+    <p class="occhiello" data-i18n="hero_occhiello">Laboratorio di fisica · Esperimento 10</p>
+    <h1 data-i18n="hero_titolo">Quanto corre una cosa chiusa in una scatola</h1>
+    <p class="kicker" data-i18n="hero_kicker">Chiudi qualcosa in uno spazio sempre più piccolo, e quel qualcosa è costretto a
+    muoversi sempre più in fretta. Nessuno lo spinge: non c'è motore, non c'è urto. È la scatola stessa
+    a imporlo. Trascina le pareti e guarda il numero, in basso, che non si abbassa mai.</p>
+    <p class="firme" data-i18n="hero_firme"><b>Werner Heisenberg, 1927</b> (Zeitschrift für Physik 43, 172)
+    · <b>Earle Kennard, 1927</b> (la disuguaglianza rigorosa Δx·Δp ≥ ħ/2)
+    · <b>Louis de Broglie, 1924</b> (la relazione onda-particella usata nel conto)</p>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <p class="passo" data-i18n="passo1">1 · Scegli che cosa chiudere nella scatola</p>
+  <div class="schede" id="sc-ogg"></div>
+  <p class="tenue nota-scelta" id="nota-ogg"></p>
+
+  <p class="passo" data-i18n="passo2">2 · Stringi le pareti</p>
+  <div class="scenaWrap" id="scena" tabindex="0" role="slider"
+       aria-orientation="horizontal" aria-valuemin="0" aria-valuemax="1"
+       aria-label="Larghezza della scatola" data-i18n-aria="aria_scatola">
+    <canvas id="cv-scena"></canvas>
+  </div>
+  <div class="scena-etichetta">
+    <span><span data-i18n="etichetta_L_inline">larghezza L: </span><b id="v-L-inline">—</b></span>
+    <span id="v-t-pct">0%</span>
+  </div>
+  <p class="tenue scena-confronto" id="v-confronto">—</p>
+
+  <p class="passo" data-i18n="passo3">3 · Le due campane che si scambiano larghezza</p>
+  <div class="campane">
+    <div class="campana-box">
+      <p class="et" data-i18n="campana_pos_et">dentro la scatola: dove può essere</p>
+      <p class="tenue" style="margin:0 0 4px;font-size:12.5px" data-i18n="campana_pos_sub">è la stessa immagine della scena qui sopra, vista da vicino</p>
+      <canvas id="cv-pos"></canvas>
+    </div>
+    <div class="campana-box">
+      <p class="et" data-i18n="campana_mom_et">velocità possibili</p>
+      <p class="tenue" style="margin:0 0 4px;font-size:12.5px" data-i18n="campana_mom_sub">forma indicativa: la larghezza vera è Δp qui sotto</p>
+      <canvas id="cv-mom"></canvas>
+    </div>
+  </div>
+  <div class="spia">
+    <span data-i18n="spia_prefix">Δx · Δp = </span><b id="v-prodotto">—</b><span data-i18n="spia_suffix"> ħ</span>
+    <div class="riga-min"><div class="soglia"></div><div class="punto" id="v-punto"></div></div>
+    <div class="didascalia" data-i18n="spia_didascalia">la riga rossa è a 0,5 ħ · questo numero non si muove, qualunque parete tu trascini</div>
+  </div>
+
+  <p class="passo" data-i18n="passo4">4 · I tre numeri, e il quarto che non cambia</p>
+  <div class="terne">
+    <div class="box oro" id="box-L">
+      <p class="et" data-i18n="box_L_et">Larghezza L</p>
+      <p class="grande" id="v-L">—</p>
+    </div>
+    <div class="box oro" id="box-v">
+      <p class="et" data-i18n="box_v_et">Velocità minima v</p>
+      <p class="grande" id="v-v">—</p>
+      <p class="sotto" id="v-v-kmh"></p>
+      <p class="avviso" id="v-avviso" style="display:none"></p>
+    </div>
+    <div class="box oro" id="box-E">
+      <p class="et" data-i18n="box_E_et">Energia minima E</p>
+      <p class="grande" id="v-E">—</p>
+      <p class="sotto" id="v-E-ev"></p>
+    </div>
+  </div>
+  <p class="tenue" id="v-tempomm" style="margin:6px 0 22px"></p>
+
+  <div class="box scuro" id="box-rotto" style="display:none">
+    <p class="et" data-i18n="rotto_et">La formula qui è scaduta</p>
+    <p style="margin:0 0 10px" data-i18n="rotto_corpo">Darebbe una velocità superiore a quella della luce: è il modo in cui una
+    formula annuncia di essere finita. Il conto giusto è relativistico, e dice un'altra cosa — non «più
+    veloce della luce» ma «non è più una sola particella». Per una scatola grande come un nucleo
+    (L = 5 femtometri) il conto relativistico dà <b>124 MeV</b>, 243 volte l'energia di riposo
+    dell'elettrone: a quelle energie la natura preferisce fabbricare coppie elettrone-positrone piuttosto
+    che tenere una particella sola in gabbia.</p>
+  </div>
+
+  <details>
+    <summary data-i18n="summary_conti">Rifai i conti a mano</summary>
+    <div class="dettaglio-corpo">
+      <div class="formulaBox">
+        <p class="et" data-i18n="conti_passo1_et">Passo 1 — l'onda deve entrare nella scatola</p>
+        <pre id="conti1">—</pre>
+      </div>
+      <div class="formulaBox">
+        <p class="et" data-i18n="conti_passo23_et">Passo 2 e 3 — de Broglie, poi la velocità</p>
+        <pre id="conti2">—</pre>
+      </div>
+      <div class="formulaBox">
+        <p class="et" data-i18n="disuguaglianza_et">La disuguaglianza generale</p>
+        <pre data-i18n="disuguaglianza_pre">delta-x  x  delta-p  &gt;=  h-tagliato / 2
+
+delta-x = quanto è incerta la posizione (metri)
+delta-p = quanto è incerta la quantità di moto (kg m/s)
+h-tagliato = h / (2 pi) = 1,054571817×10⁻³⁴ J s
+
+Non è un'equazione: è un pavimento sotto cui non si scende. Per lo stato più
+basso della scatola rigida si calcola delta-x = 0,180756 × L e
+delta-p = h / (2L): il prodotto viene sempre 0,568 × h-tagliato, e non
+dipende né da L né dalla massa. Il pavimento è 0,5. La scatola rigida ci
+sta sopra di un pelo, e non lo attraversa mai.</pre>
+      </div>
+    </div>
+  </details>
+
+  <details>
+    <summary data-i18n="summary_numeri">Da dove vengono i numeri</summary>
+    <div class="dettaglio-corpo">
+      <p data-i18n="numeri_intro">Tutte le costanti fisiche sono valori CODATA 2018 o definizioni esatte del Sistema
+      Internazionale del 2019. Le uniche assunzioni sono dichiarate qui, non nascoste in una formula.</p>
+      <div class="tab-wrap">
+      <table>
+        <tr><th data-i18n="tab1_h1">Grandezza</th><th data-i18n="tab1_h2">Valore usato</th><th data-i18n="tab1_h3">Fonte</th></tr>
+        <tr><td data-i18n="tab1_r1_c1">Costante di Planck h</td><td data-i18n="tab1_r1_c2">6,62607015×10⁻³⁴ J·s</td><td data-i18n="tab1_r1_c3">esatta, definizione SI 2019</td></tr>
+        <tr><td data-i18n="tab1_r2_c1">h tagliato (ħ = h/2π)</td><td data-i18n="tab1_r2_c2">1,054571817×10⁻³⁴ J·s</td><td data-i18n="tab1_r2_c3">CODATA 2018</td></tr>
+        <tr><td data-i18n="tab1_r3_c1">Velocità della luce c</td><td data-i18n="tab1_r3_c2">299 792 458 m/s</td><td data-i18n="tab1_r3_c3">esatta, definizione SI</td></tr>
+        <tr><td data-i18n="tab1_r4_c1">Massa dell'elettrone</td><td data-i18n="tab1_r4_c2">9,1093837015×10⁻³¹ kg</td><td data-i18n="tab1_r4_c3">CODATA 2018</td></tr>
+        <tr><td data-i18n="tab1_r5_c1">Elettronvolt</td><td data-i18n="tab1_r5_c2">1,602176634×10⁻¹⁹ J</td><td data-i18n="tab1_r5_c3">esatta, definizione SI 2019</td></tr>
+        <tr><td data-i18n="tab1_r6_c1">Densità del granello di polvere</td><td data-i18n="tab1_r6_c2">2000 kg/m³</td><td data-i18n="tab1_r6_c3"><i>assunta</i>, ordine di grandezza tipico di un granello minerale</td></tr>
+        <tr><td data-i18n="tab1_r7_c1">Diametro del granello</td><td data-i18n="tab1_r7_c2">10 micrometri</td><td data-i18n="tab1_r7_c3"><i>assunto</i>, la taglia visibile nel raggio di sole</td></tr>
+        <tr><td data-i18n="tab1_r8_c1">Diametro della biglia</td><td data-i18n="tab1_r8_c2">circa 7 millimetri</td><td data-i18n="tab1_r8_c3"><i>assunto</i>, dell'ordine della biglia stessa: la scatola non può stringersi sotto questa taglia</td></tr>
+        <tr><td data-i18n="tab1_r9_c1">Età dell'universo</td><td data-i18n="tab1_r9_c2">13,787 miliardi di anni</td><td data-i18n="tab1_r9_c3">misura Planck 2018, <i>assunta</i></td></tr>
+        <tr><td data-i18n="tab1_r10_c1">Anno</td><td data-i18n="tab1_r10_c2">3,15576×10⁷ s</td><td data-i18n="tab1_r10_c3">anno giuliano, 365,25 giorni</td></tr>
+        <tr><td data-i18n="tab1_r11_c1">Diametro del protone</td><td data-i18n="tab1_r11_c2">circa 1,68 femtometri</td><td data-i18n="tab1_r11_c3">misurato, raggio di carica ×2</td></tr>
+      </table>
+      </div>
+    </div>
+  </details>
+
+  <details open id="det-onesta">
+    <summary data-i18n="summary_onesta">Che cosa questo modello non dice</summary>
+    <div class="dettaglio-corpo onesta">
+      <ol>
+        <li data-i18n="onesta_li1"><b>La scatola rigida non esiste.</b> Pareti che nessuno può attraversare, con energia
+        infinita fuori, sono un modello giocattolo. Un elettrone in un atomo vero non è dentro una
+        scatola: è tenuto dall'attrazione elettrica del nucleo, che è un pozzo morbido e senza spigoli.
+        Si vede nel numero: la scatola da 0,1 nanometri dà <b>37,6 eV</b>, mentre per staccare davvero
+        l'elettrone dall'atomo di idrogeno servono <b>13,6 eV</b>. Fattore 2,8 di errore. Il modello
+        prende l'ordine di grandezza — decine di elettronvolt, migliaia di km/s — e sbaglia il numero
+        preciso. Usarlo per stimare è corretto, usarlo per predire è sbagliato.</li>
+
+        <li data-i18n="onesta_li2"><b>Non è la storia dello strumento che disturba</b>, ed è il punto più frainteso di tutta la
+        fisica del Novecento. Non è che guardando l'elettrone gli diamo una botta. La disuguaglianza
+        Δx·Δp ≥ ħ/2 riguarda com'è fatto lo stato, non come lo si osserva: vale anche se nessuno guarda,
+        anche a strumento spento. La confusione ha una radice storica precisa: lo stesso Heisenberg, nel
+        1927, la spiegò con l'immagine del microscopio a raggi gamma, il fotone che colpisce l'elettrone
+        e lo spinge. Quell'immagine è rimasta nei libri divulgativi per un secolo, ma la disuguaglianza
+        rigorosa la dimostrò Kennard, sempre nel 1927, e non contiene nessuno strumento. La relazione fra
+        errore di misura e disturbo è una faccenda diversa e più recente: nel 2012 due gruppi indipendenti
+        hanno misurato errore e disturbo in una singola misura, e con le definizioni che avevano adottato
+        la relazione ingenua di Heisenberg non ha retto. Su come vadano definiti «errore» e «disturbo» i
+        teorici non sono tuttora d'accordo, e con definizioni diverse una relazione dello stesso tipo si
+        dimostra invece valida: la discussione riguarda le parole prima ancora dei dati. Quello che
+        nessuno mette in dubbio è la disuguaglianza di Kennard, che non parla di misure e non è mai stata
+        scalfita.</li>
+
+        <li data-i18n="onesta_li3"><b>La velocità che leggi sullo schermo non è una velocità in una direzione.</b> La velocità
+        media dell'oggetto nella scatola è zero: non sta andando da nessuna parte. Il numero misura la
+        larghezza tipica della distribuzione delle velocità, quanto ci si sbaglia a dire «è fermo». Non
+        c'è una pallina che rimbalza fra le pareti seguendo una traiettoria: la traiettoria è proprio il
+        concetto che qui smette di funzionare, ed è per questo che il disegno mostra due campane e non un
+        punto in corsa.</li>
+
+        <li data-i18n="onesta_li4"><b>Il limite tecnico.</b> Sotto 1,213 picometri, per l'elettrone, la formula restituisce
+        velocità superiori a quella della luce, che è il modo in cui una formula annuncia di essere
+        scaduta. Lì serve la relatività, e la risposta giusta non è «più veloce della luce» ma qualcosa
+        di più strano: l'energia cresce così tanto che non si ha più una sola particella. Per una scatola
+        grande come un nucleo il conto relativistico dà 124 MeV, 243 volte l'energia di riposo
+        dell'elettrone, e a quelle energie la natura preferisce fabbricare coppie elettrone-positrone
+        piuttosto che tenere una particella sola in gabbia.</li>
+
+        <li data-i18n="onesta_li5"><b>Quello che ancora non sappiamo.</b> Per la biglia c'è un dettaglio onesto: il suo limite
+        quantistico, 6,63×10⁻³⁰ m/s, è sepolto sotto l'agitazione termica, che a temperatura ambiente le
+        dà un tremolio del centro di massa milioni di miliardi di volte più grande. Non è che la
+        meccanica quantistica per la biglia sia falsa: è che è irrilevante rispetto a tutto il resto.
+        Portare oggetti sempre più grandi in condizioni dove l'effetto quantistico si vede davvero è una
+        linea di ricerca aperta oggi, e nessuno sa dove sia il confine, o se un confine ci sia. E la
+        domanda di fondo — perché la natura abbia un ħ, perché esista questo pavimento sotto cui non si
+        scende — non ha risposta dentro la teoria: è un postulato che in cent'anni nessun esperimento ha
+        smentito, il che non è la stessa cosa che averlo capito.</li>
+      </ol>
+
+      <h3 data-i18n="controlli_titolo">I controlli che questa pagina deve superare</h3>
+      <div class="tab-wrap">
+      <table>
+        <tr><th data-i18n="tab2_h1">Caso</th><th data-i18n="tab2_h2">Deve dare</th></tr>
+        <tr><td data-i18n="tab2_r1_c1">Elettrone in una scatola grande come un atomo (0,1 nm)</td><td data-i18n="tab2_r1_c2">3,64×10⁶ m/s (1,21% di c); 37,6 eV</td></tr>
+        <tr><td data-i18n="tab2_r2_c1">Biglia di vetro (0,5 g) in una scatola da 10 cm</td><td data-i18n="tab2_r2_c2">6,63×10⁻³⁰ m/s; 4,78×10¹⁸ anni per un millimetro</td></tr>
+        <tr><td data-i18n="tab2_r3_c1">Granello di polvere (10 µm) in una scatola da 1 mm</td><td data-i18n="tab2_r3_c2">3,16×10⁻¹⁹ m/s; 1,00 milioni di anni per un proprio diametro</td></tr>
+        <tr><td data-i18n="tab2_r4_c1">Lo stesso elettrone in una scatola da 1 mm</td><td data-i18n="tab2_r4_c2">0,364 m/s</td></tr>
+        <tr><td data-i18n="tab2_r5_c1">Tempo dell'elettrone per attraversare l'atomo</td><td data-i18n="tab2_r5_c2">27,5 attosecondi</td></tr>
+        <tr><td data-i18n="tab2_r6_c1">Dove la formula muore (elettrone, v = c)</td><td data-i18n="tab2_r6_c2">L = 1,213 picometri</td></tr>
+        <tr><td data-i18n="tab2_r7_c1">Rapporto v(elettrone) / v(biglia)</td><td data-i18n="tab2_r7_c2">5,49×10³⁵</td></tr>
+        <tr><td data-i18n="tab2_r8_c1">«Tu» (60 kg) in una scatola da 1 metro</td><td data-i18n="tab2_r8_c2">5,52×10⁻³⁶ m/s</td></tr>
+        <tr><td data-i18n="tab2_r9_c1">Δx · Δp, qualunque L</td><td data-i18n="tab2_r9_c2">0,568 ħ</td></tr>
+      </table>
+      </div>
+    </div>
+  </details>
+
+  <h2 data-i18n="h2_paragone">Il paragone corporeo</h2>
+  <p data-i18n="paragone_corpo">Le unghie delle mani crescono di circa 3,5 millimetri al mese, cioè <b>1,33 nanometri al secondo</b>:
+  una velocità che nessuno chiamerebbe velocità. Eppure la biglia chiusa nella scatola da 10 centimetri è
+  <b>2,01×10²⁰ volte più lenta</b> delle tue unghie che crescono. Dall'altra parte, l'elettrone nell'atomo:
+  in un solo battito del tuo cuore percorrerebbe oltre <b>3100 chilometri</b>, più della distanza fra Roma
+  e Mosca, e farebbe il giro completo dell'equatore terrestre in <b>11 secondi</b>. Le due cose escono
+  dalla stessa moltiplicazione, fatta con la stessa calcolatrice.</p>
+
+  <h2 data-i18n="h2_sorpresa">La sorpresa</h2>
+  <p data-i18n="sorpresa_p1">Chiudere qualcosa la costringe a muoversi, e nessuno l'ha spinta. Non c'è motore, non c'è urto, non
+  c'è uno strumento che la disturba: c'è solo la scatola che si stringe. Un elettrone rinchiuso in uno
+  spazio grande come un atomo è costretto a 3637 km/s, l'1,2% della velocità della luce. La stessa
+  identica formula, applicata a una biglia da mezzo grammo in una scatola da 10 centimetri, dà
+  6,63×10⁻³⁰ m/s: quasi cinque miliardi di miliardi di anni per spostarsi di un millimetro.</p>
+
+  <p data-i18n="sorpresa_p2">Fra i due numeri ci sono 35 ordini di grandezza, e non nascondono niente: è esattamente il rapporto
+  delle masse (5,49×10²⁶) moltiplicato per il rapporto dei lati (10⁹). La stessa legge governa l'atomo e
+  la biglia. Sull'atomo si vede, sulla biglia no, e non perché la legge cambi ma perché una biglia è
+  pesante.</p>
+
+  <p data-i18n="sorpresa_p3">È anche il motivo per cui gli atomi hanno la dimensione che hanno. Se l'elettrone potesse posarsi
+  fermo sul nucleo, quel confinamento gli costerebbe più di cento milioni di elettronvolt, oltre duecento
+  volte la sua energia di riposo: un prezzo che l'atomo non regge. Stare più stretti costa troppo.</p>
+
+  
+
+
+<footer style="padding:24px;text-align:center;font:12px monospace;opacity:.7">physics-experiments-lab &middot; MIT License &middot; Copyright (c) 2026 Capitan AI</footer>
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   TESTI — dizionario di tutte le stringhe italiane visibili.
+   Ogni chiave qui sotto è letta dal markup (attributo data-i18n,
+   vedi applyI18n) o dalle funzioni che compongono frasi dinamiche
+   (conti a mano, confronto di scala, unità di misura, note delle
+   quattro schede). Nessuna fisica qui dentro: solo testo.
+   ============================================================ */
+var TESTI = {
+  it: {
+    titolo_pagina: "Quanto corre una cosa chiusa in una scatola",
+    hero_occhiello: "Laboratorio di fisica · Esperimento 10",
+    hero_titolo: "Quanto corre una cosa chiusa in una scatola",
+    hero_kicker: "Chiudi qualcosa in uno spazio sempre più piccolo, e quel qualcosa è costretto a muoversi sempre più in fretta. Nessuno lo spinge: non c'è motore, non c'è urto. È la scatola stessa a imporlo. Trascina le pareti e guarda il numero, in basso, che non si abbassa mai.",
+    hero_firme: "<b>Werner Heisenberg, 1927</b> (Zeitschrift für Physik 43, 172) · <b>Earle Kennard, 1927</b> (la disuguaglianza rigorosa Δx·Δp ≥ ħ/2) · <b>Louis de Broglie, 1924</b> (la relazione onda-particella usata nel conto)",
+    aria_scatola: "Larghezza della scatola",
+    etichetta_L_inline: "larghezza L: ",
+    passo1: "1 · Scegli che cosa chiudere nella scatola",
+    passo2: "2 · Stringi le pareti",
+    passo3: "3 · Le due campane che si scambiano larghezza",
+    passo4: "4 · I tre numeri, e il quarto che non cambia",
+    campana_pos_et: "dentro la scatola: dove può essere",
+    campana_pos_sub: "è la stessa immagine della scena qui sopra, vista da vicino",
+    campana_mom_et: "velocità possibili",
+    campana_mom_sub: "forma indicativa: la larghezza vera è Δp qui sotto",
+    spia_prefix: "Δx · Δp = ",
+    spia_suffix: " ħ",
+    spia_didascalia: "la riga rossa è a 0,5 ħ · questo numero non si muove, qualunque parete tu trascini",
+    box_L_et: "Larghezza L",
+    box_v_et: "Velocità minima v",
+    box_E_et: "Energia minima E",
+    rotto_et: "La formula qui è scaduta",
+    rotto_corpo: "Darebbe una velocità superiore a quella della luce: è il modo in cui una formula annuncia di essere finita. Il conto giusto è relativistico, e dice un'altra cosa — non «più veloce della luce» ma «non è più una sola particella». Per una scatola grande come un nucleo (L = 5 femtometri) il conto relativistico dà <b>124 MeV</b>, 243 volte l'energia di riposo dell'elettrone: a quelle energie la natura preferisce fabbricare coppie elettrone-positrone piuttosto che tenere una particella sola in gabbia.",
+    summary_conti: "Rifai i conti a mano",
+    conti_passo1_et: "Passo 1 — l'onda deve entrare nella scatola",
+    conti_passo23_et: "Passo 2 e 3 — de Broglie, poi la velocità",
+    disuguaglianza_et: "La disuguaglianza generale",
+    disuguaglianza_pre: "delta-x  x  delta-p  >=  h-tagliato / 2\n\ndelta-x = quanto è incerta la posizione (metri)\ndelta-p = quanto è incerta la quantità di moto (kg m/s)\nh-tagliato = h / (2 pi) = 1,054571817×10⁻³⁴ J s\n\nNon è un'equazione: è un pavimento sotto cui non si scende. Per lo stato più\nbasso della scatola rigida si calcola delta-x = 0,180756 × L e\ndelta-p = h / (2L): il prodotto viene sempre 0,568 × h-tagliato, e non\ndipende né da L né dalla massa. Il pavimento è 0,5. La scatola rigida ci\nsta sopra di un pelo, e non lo attraversa mai.",
+    summary_numeri: "Da dove vengono i numeri",
+    numeri_intro: "Tutte le costanti fisiche sono valori CODATA 2018 o definizioni esatte del Sistema Internazionale del 2019. Le uniche assunzioni sono dichiarate qui, non nascoste in una formula.",
+    tab1_h1: "Grandezza", tab1_h2: "Valore usato", tab1_h3: "Fonte",
+    tab1_r1_c1: "Costante di Planck h", tab1_r1_c2: "6,62607015×10⁻³⁴ J·s", tab1_r1_c3: "esatta, definizione SI 2019",
+    tab1_r2_c1: "h tagliato (ħ = h/2π)", tab1_r2_c2: "1,054571817×10⁻³⁴ J·s", tab1_r2_c3: "CODATA 2018",
+    tab1_r3_c1: "Velocità della luce c", tab1_r3_c2: "299 792 458 m/s", tab1_r3_c3: "esatta, definizione SI",
+    tab1_r4_c1: "Massa dell'elettrone", tab1_r4_c2: "9,1093837015×10⁻³¹ kg", tab1_r4_c3: "CODATA 2018",
+    tab1_r5_c1: "Elettronvolt", tab1_r5_c2: "1,602176634×10⁻¹⁹ J", tab1_r5_c3: "esatta, definizione SI 2019",
+    tab1_r6_c1: "Densità del granello di polvere", tab1_r6_c2: "2000 kg/m³", tab1_r6_c3: "<i>assunta</i>, ordine di grandezza tipico di un granello minerale",
+    tab1_r7_c1: "Diametro del granello", tab1_r7_c2: "10 micrometri", tab1_r7_c3: "<i>assunto</i>, la taglia visibile nel raggio di sole",
+    tab1_r8_c1: "Diametro della biglia", tab1_r8_c2: "circa 7 millimetri", tab1_r8_c3: "<i>assunto</i>, dell'ordine della biglia stessa: la scatola non può stringersi sotto questa taglia",
+    tab1_r9_c1: "Età dell'universo", tab1_r9_c2: "13,787 miliardi di anni", tab1_r9_c3: "misura Planck 2018, <i>assunta</i>",
+    tab1_r10_c1: "Anno", tab1_r10_c2: "3,15576×10⁷ s", tab1_r10_c3: "anno giuliano, 365,25 giorni",
+    tab1_r11_c1: "Diametro del protone", tab1_r11_c2: "circa 1,68 femtometri", tab1_r11_c3: "misurato, raggio di carica ×2",
+    summary_onesta: "Che cosa questo modello non dice",
+    onesta_li1: "<b>La scatola rigida non esiste.</b> Pareti che nessuno può attraversare, con energia infinita fuori, sono un modello giocattolo. Un elettrone in un atomo vero non è dentro una scatola: è tenuto dall'attrazione elettrica del nucleo, che è un pozzo morbido e senza spigoli. Si vede nel numero: la scatola da 0,1 nanometri dà <b>37,6 eV</b>, mentre per staccare davvero l'elettrone dall'atomo di idrogeno servono <b>13,6 eV</b>. Fattore 2,8 di errore. Il modello prende l'ordine di grandezza — decine di elettronvolt, migliaia di km/s — e sbaglia il numero preciso. Usarlo per stimare è corretto, usarlo per predire è sbagliato.",
+    onesta_li2: "<b>Non è la storia dello strumento che disturba</b>, ed è il punto più frainteso di tutta la fisica del Novecento. Non è che guardando l'elettrone gli diamo una botta. La disuguaglianza Δx·Δp ≥ ħ/2 riguarda com'è fatto lo stato, non come lo si osserva: vale anche se nessuno guarda, anche a strumento spento. La confusione ha una radice storica precisa: lo stesso Heisenberg, nel 1927, la spiegò con l'immagine del microscopio a raggi gamma, il fotone che colpisce l'elettrone e lo spinge. Quell'immagine è rimasta nei libri divulgativi per un secolo, ma la disuguaglianza rigorosa la dimostrò Kennard, sempre nel 1927, e non contiene nessuno strumento. La relazione fra errore di misura e disturbo è una faccenda diversa e più recente: nel 2012 due gruppi indipendenti hanno misurato errore e disturbo in una singola misura, e con le definizioni che avevano adottato la relazione ingenua di Heisenberg non ha retto. Su come vadano definiti «errore» e «disturbo» i teorici non sono tuttora d'accordo, e con definizioni diverse una relazione dello stesso tipo si dimostra invece valida: la discussione riguarda le parole prima ancora dei dati. Quello che nessuno mette in dubbio è la disuguaglianza di Kennard, che non parla di misure e non è mai stata scalfita.",
+    onesta_li3: "<b>La velocità che leggi sullo schermo non è una velocità in una direzione.</b> La velocità media dell'oggetto nella scatola è zero: non sta andando da nessuna parte. Il numero misura la larghezza tipica della distribuzione delle velocità, quanto ci si sbaglia a dire «è fermo». Non c'è una pallina che rimbalza fra le pareti seguendo una traiettoria: la traiettoria è proprio il concetto che qui smette di funzionare, ed è per questo che il disegno mostra due campane e non un punto in corsa.",
+    onesta_li4: "<b>Il limite tecnico.</b> Sotto 1,213 picometri, per l'elettrone, la formula restituisce velocità superiori a quella della luce, che è il modo in cui una formula annuncia di essere scaduta. Lì serve la relatività, e la risposta giusta non è «più veloce della luce» ma qualcosa di più strano: l'energia cresce così tanto che non si ha più una sola particella. Per una scatola grande come un nucleo il conto relativistico dà 124 MeV, 243 volte l'energia di riposo dell'elettrone, e a quelle energie la natura preferisce fabbricare coppie elettrone-positrone piuttosto che tenere una particella sola in gabbia.",
+    onesta_li5: "<b>Quello che ancora non sappiamo.</b> Per la biglia c'è un dettaglio onesto: il suo limite quantistico, 6,63×10⁻³⁰ m/s, è sepolto sotto l'agitazione termica, che a temperatura ambiente le dà un tremolio del centro di massa milioni di miliardi di volte più grande. Non è che la meccanica quantistica per la biglia sia falsa: è che è irrilevante rispetto a tutto il resto. Portare oggetti sempre più grandi in condizioni dove l'effetto quantistico si vede davvero è una linea di ricerca aperta oggi, e nessuno sa dove sia il confine, o se un confine ci sia. E la domanda di fondo — perché la natura abbia un ħ, perché esista questo pavimento sotto cui non si scende — non ha risposta dentro la teoria: è un postulato che in cent'anni nessun esperimento ha smentito, il che non è la stessa cosa che averlo capito.",
+    controlli_titolo: "I controlli che questa pagina deve superare",
+    tab2_h1: "Caso", tab2_h2: "Deve dare",
+    tab2_r1_c1: "Elettrone in una scatola grande come un atomo (0,1 nm)", tab2_r1_c2: "3,64×10⁶ m/s (1,21% di c); 37,6 eV",
+    tab2_r2_c1: "Biglia di vetro (0,5 g) in una scatola da 10 cm", tab2_r2_c2: "6,63×10⁻³⁰ m/s; 4,78×10¹⁸ anni per un millimetro",
+    tab2_r3_c1: "Granello di polvere (10 µm) in una scatola da 1 mm", tab2_r3_c2: "3,16×10⁻¹⁹ m/s; 1,00 milioni di anni per un proprio diametro",
+    tab2_r4_c1: "Lo stesso elettrone in una scatola da 1 mm", tab2_r4_c2: "0,364 m/s",
+    tab2_r5_c1: "Tempo dell'elettrone per attraversare l'atomo", tab2_r5_c2: "27,5 attosecondi",
+    tab2_r6_c1: "Dove la formula muore (elettrone, v = c)", tab2_r6_c2: "L = 1,213 picometri",
+    tab2_r7_c1: "Rapporto v(elettrone) / v(biglia)", tab2_r7_c2: "5,49×10³⁵",
+    tab2_r8_c1: "«Tu» (60 kg) in una scatola da 1 metro", tab2_r8_c2: "5,52×10⁻³⁶ m/s",
+    tab2_r9_c1: "Δx · Δp, qualunque L", tab2_r9_c2: "0,568 ħ",
+    h2_paragone: "Il paragone corporeo",
+    paragone_corpo: "Le unghie delle mani crescono di circa 3,5 millimetri al mese, cioè <b>1,33 nanometri al secondo</b>: una velocità che nessuno chiamerebbe velocità. Eppure la biglia chiusa nella scatola da 10 centimetri è <b>2,01×10²⁰ volte più lenta</b> delle tue unghie che crescono. Dall'altra parte, l'elettrone nell'atomo: in un solo battito del tuo cuore percorrerebbe oltre <b>3100 chilometri</b>, più della distanza fra Roma e Mosca, e farebbe il giro completo dell'equatore terrestre in <b>11 secondi</b>. Le due cose escono dalla stessa moltiplicazione, fatta con la stessa calcolatrice.",
+    h2_sorpresa: "La sorpresa",
+    sorpresa_p1: "Chiudere qualcosa la costringe a muoversi, e nessuno l'ha spinta. Non c'è motore, non c'è urto, non c'è uno strumento che la disturba: c'è solo la scatola che si stringe. Un elettrone rinchiuso in uno spazio grande come un atomo è costretto a 3637 km/s, l'1,2% della velocità della luce. La stessa identica formula, applicata a una biglia da mezzo grammo in una scatola da 10 centimetri, dà 6,63×10⁻³⁰ m/s: quasi cinque miliardi di miliardi di anni per spostarsi di un millimetro.",
+    sorpresa_p2: "Fra i due numeri ci sono 35 ordini di grandezza, e non nascondono niente: è esattamente il rapporto delle masse (5,49×10²⁶) moltiplicato per il rapporto dei lati (10⁹). La stessa legge governa l'atomo e la biglia. Sull'atomo si vede, sulla biglia no, e non perché la legge cambi ma perché una biglia è pesante.",
+    sorpresa_p3: "È anche il motivo per cui gli atomi hanno la dimensione che hanno. Se l'elettrone potesse posarsi fermo sul nucleo, quel confinamento gli costerebbe più di cento milioni di elettronvolt, oltre duecento volte la sua energia di riposo: un prezzo che l'atomo non regge. Stare più stretti costa troppo.",
+    footer_r1: "Laboratorio di fisica · Esperimento 10 di 10",
+    footer_r2: "Nessuna libreria, nessuna chiamata di rete: tutto quello che vedi è calcolato qui.",
+
+    obj_elettrone_nome: "Un elettrone", obj_elettrone_det: "9,109×10⁻³¹ kg",
+    obj_elettrone_nota: "La particella più leggera fra le quattro. È lei che, chiusa in uno spazio piccolo come un atomo, arriva a percentuali misurabili della velocità della luce.",
+    obj_granello_nome: "Un granello di polvere", obj_granello_det: "1,05×10⁻¹² kg (10 µm)",
+    obj_granello_nota: "Quelli che si vedono danzare in un raggio di sole: sfera di 10 micrometri, densità assunta 2000 kg/m³. La scatola non può stringersi sotto il suo stesso diametro.",
+    obj_biglia_nome: "Una biglia di vetro", obj_biglia_det: "5,0×10⁻⁴ kg",
+    obj_biglia_nota: "Mezzo grammo di vetro. Il suo limite quantistico esiste quanto quello dell’elettrone, solo che è sepolto sotto l’agitazione termica: vedi la sezione onesta.",
+    obj_tu_nome: "Tu", obj_tu_det: "60 kg",
+    obj_tu_nota: "Sessanta chili, chiusi in uno spazio che va da una stanza a un millesimo di millimetro. La formula non conosce l’aggettivo «vivente»: conosce solo la massa e la larghezza.",
+
+    conf_protone: "un protone", conf_atomo: "un atomo", conf_virus: "un virus",
+    conf_globulo: "un globulo rosso", conf_capello: "lo spessore di un capello",
+    conf_moneta: "una moneta da 2 euro", conf_mano: "una mano aperta",
+
+    unit_picometri: "picometri", unit_nanometri: "nanometri", unit_micrometri: "micrometri",
+    unit_millimetri: "millimetri", unit_metro: "metro", unit_metri: "metri",
+    unit_picosecondi: "picosecondi", unit_nanosecondi: "nanosecondi", unit_microsecondi: "microsecondi",
+    unit_millisecondi: "millisecondi", unit_secondi: "secondi", unit_ore: "ore", unit_anni: "anni",
+    frase_volte_eta_universo: "volte l'età dell'universo",
+
+    confronto_template: "Per farsi un'idea: <b>{c}</b>.",
+    confronto_volte: "circa {n} volte {nome}",
+    confronto_esimo: "circa un {n}-esimo di {nome}",
+    confronto_quanto: "quanto {nome}",
+    confronto_approssimativa: " (misura approssimativa)",
+
+    conti_r1_intro1: "Il modo più semplice di far stare un'onda fra due pareti è",
+    conti_r1_intro2: "metterci dentro mezza onda:",
+    conti_r1_formula: "lambda = 2 × L",
+    conti_r1_L: "L = {L} metri  (la larghezza scelta ora)",
+    conti_r1_lambda: "lambda = 2 × {L} = <b>{lam} metri</b>",
+    conti_r2_formula: "p = h / lambda = h / (2L)",
+    conti_r2_h: "h = 6,62607015×10⁻³⁴ J s   (esatta per definizione dal 2019)",
+    conti_r2_p: "p = {H} / {lam} = <b>{p} kg m/s</b>",
+    conti_r2_siccome: "Siccome p = m × v:",
+    conti_r2_v: "   v = p / m = {p} / {m} = <b>{v} m/s</b>",
+    conti_r2_finale: "Tre numeri e due divisioni: si fa a mano.",
+
+    tempomm_template: "Tempo per spostarsi di un millimetro, a questa velocità: <b>{t}</b>.",
+    avviso_beta: "Sopra il 5 per cento della velocità della luce la formula non relativistica comincia a sbagliare in modo visibile: proprio a questa soglia l'energia è già sbagliata di circa due parti su mille, e da qui in poi lo scarto cresce in fretta. La soglia del 5 per cento è una convenzione di comodo, non una costante di natura: serve solo a dire da dove in poi il numero va preso come stima."
+  }
+};
+/* TESTI.en/fr/es/de sono copie dell'italiano in attesa della traduzione  */
+TESTI.en = JSON.parse(JSON.stringify(TESTI.it));
+/* English: reviewed translation merged from the lab translation pass. Keys not listed here fall back to the Italian text. */
+Object.assign(TESTI.en, {"titolo_pagina": "How fast something closed in a box moves", "hero_occhiello": "Physics laboratory · Experiment 10", "hero_titolo": "How fast something closed in a box moves", "hero_kicker": "Close something in a space that gets smaller and smaller, and that something is forced to move faster and faster. Nobody pushes it: there is no motor, there is no collision. It is the box itself that imposes it. Drag the walls and watch the number, at the bottom, which never goes down.", "hero_firme": "<b>Werner Heisenberg, 1927<\/b> (Zeitschrift für Physik 43, 172) · <b>Earle Kennard, 1927<\/b> (the rigorous inequality Δx·Δp ≥ ħ/2) · <b>Louis de Broglie, 1924<\/b> (the wave-particle relation used in the calculation)", "passo1": "1 · Choose what to close in the box", "passo2": "2 · Squeeze the walls", "passo3": "3 · The two bells that exchange width", "passo4": "4 · The three numbers, and the fourth that does not change", "campana_pos_et": "inside the box: where it can be", "campana_pos_sub": "it is the same picture as the scene above, seen up close", "campana_mom_et": "possible speeds", "campana_mom_sub": "indicative shape: the true width is Δp below", "box_L_et": "Width L", "box_v_et": "Minimum speed v", "box_E_et": "Minimum energy E", "rotto_et": "The formula here has expired", "rotto_corpo": "It would give a speed higher than that of light: it is the way a formula announces that it has run out. The right calculation is relativistic, and it says something else — not “faster than light” but “it is no longer a single particle”. For a box as large as a nucleus (L = 5 femtometres) the relativistic calculation gives <b>124 MeV<\/b>, 243 times the rest energy of the electron: at those energies nature prefers to make electron-positron pairs rather than keep a single particle caged.", "summary_conti": "Redo the calculations by hand", "conti_passo1_et": "Step 1 — the wave must fit in the box", "conti_passo23_et": "Steps 2 and 3 — de Broglie, then the speed", "disuguaglianza_et": "The general inequality", "summary_numeri": "Where the numbers come from", "numeri_intro": "All the physical constants are CODATA 2018 values or exact definitions of the 2019 International System. The only assumptions are declared here, not hidden in a formula.", "tab1_h1": "Quantity", "tab1_h2": "Value used", "tab1_h3": "Source", "tab1_r1_c1": "Planck constant h", "tab1_r1_c2": "6.62607015×10⁻³⁴ J·s", "tab1_r1_c3": "exact, SI 2019 definition", "tab1_r2_c1": "reduced h (ħ = h/2π)", "tab1_r2_c2": "1.054571817×10⁻³⁴ J·s", "tab1_r2_c3": "CODATA 2018", "tab1_r3_c1": "Speed of light c", "tab1_r3_c2": "299 792 458 m/s", "tab1_r3_c3": "exact, SI definition", "tab1_r4_c1": "Electron mass", "tab1_r4_c2": "9.1093837015×10⁻³¹ kg", "tab1_r4_c3": "CODATA 2018", "tab1_r5_c1": "Electronvolt", "tab1_r5_c2": "1.602176634×10⁻¹⁹ J", "tab1_r5_c3": "exact, SI 2019 definition", "tab1_r6_c1": "Density of the dust grain", "tab1_r6_c2": "2000 kg/m³", "tab1_r6_c3": "<i>assumed<\/i>, typical order of magnitude of a mineral grain", "tab1_r7_c1": "Diameter of the grain", "tab1_r7_c2": "10 micrometres", "tab1_r7_c3": "<i>assumed<\/i>, the size visible in a sunbeam", "tab1_r8_c1": "Diameter of the marble", "tab1_r8_c2": "about 7 millimetres", "tab1_r8_c3": "<i>assumed<\/i>, of the order of the marble itself: the box cannot squeeze below this size", "tab1_r9_c1": "Age of the universe", "tab1_r9_c2": "13.787 billion years", "tab1_r9_c3": "Planck 2018 measurement, <i>assumed<\/i>", "tab1_r10_c1": "Year", "tab1_r10_c2": "3.15576×10⁷ s", "tab1_r10_c3": "Julian year, 365.25 days", "tab1_r11_c1": "Diameter of the proton", "tab1_r11_c2": "about 1.68 femtometres", "tab1_r11_c3": "measured, charge radius ×2", "summary_onesta": "What this model does not say", "onesta_li1": "<b>The rigid box does not exist.<\/b> Walls nobody can cross, with infinite energy outside, are a toy model. An electron in a real atom is not inside a box: it is held by the electric attraction of the nucleus, which is a soft well without edges. It shows in the number: the 0.1-nanometre box gives <b>37.6 eV<\/b>, while to really detach the electron from the hydrogen atom you need <b>13.6 eV<\/b>. A factor of 2.8 of error. The model gets the order of magnitude — tens of electronvolts, thousands of km/s — and gets the precise number wrong. Using it to estimate is correct, using it to predict is wrong.", "onesta_li2": "<b>It is not the story of the instrument that disturbs<\/b>, and it is the most misunderstood point of all twentieth-century physics. It is not that by looking at the electron we give it a knock. The inequality Δx·Δp ≥ ħ/2 concerns how the state is made, not how it is observed: it holds even if nobody looks, even with the instrument switched off. The confusion has a precise historical root: Heisenberg himself, in 1927, explained it with the image of the gamma-ray microscope, the photon that hits the electron and pushes it. That image stayed in popular books for a century, but the rigorous inequality was proved by Kennard, also in 1927, and contains no instrument. The relation between measurement error and disturbance is a different and more recent matter: in 2012 two independent groups measured error and disturbance in a single measurement, and with the definitions they had adopted the naive Heisenberg relation did not hold. On how “error” and “disturbance” should be defined theorists still do not agree, and with different definitions a relation of the same type is instead shown to be valid: the discussion concerns the words even before the data. What nobody disputes is Kennard’s inequality, which does not talk about measurements and has never been shaken.", "onesta_li3": "<b>The speed you read on the screen is not a speed in one direction.<\/b> The average speed of the object in the box is zero: it is not going anywhere. The number measures the typical width of the distribution of speeds, how wrong one would be to say “it is at rest”. There is no ball bouncing between the walls following a trajectory: the trajectory is exactly the concept that stops working here, which is why the drawing shows two bells and not a moving dot.", "onesta_li4": "<b>The technical limit.<\/b> Below 1.213 picometres, for the electron, the formula returns speeds higher than that of light, which is the way a formula announces it has expired. There relativity is needed, and the right answer is not “faster than light” but something stranger: the energy grows so much that one no longer has a single particle. For a box as large as a nucleus the relativistic calculation gives 124 MeV, 243 times the rest energy of the electron, and at those energies nature prefers to make electron-positron pairs rather than keep a single particle caged.", "onesta_li5": "<b>What we still do not know.<\/b> For the marble there is an honest detail: its quantum limit, 6.63×10⁻³⁰ m/s, is buried under thermal agitation, which at room temperature gives the centre of mass a jitter millions of billions of times larger. It is not that quantum mechanics is false for the marble: it is that it is irrelevant compared with everything else. Bringing ever larger objects into conditions where the quantum effect is really visible is an open line of research today, and nobody knows where the boundary is, or whether there is one. And the basic question — why nature has an ħ, why this floor exists below which one cannot go — has no answer inside the theory: it is a postulate that no experiment has refuted in a hundred years, which is not the same as having understood it.", "controlli_titolo": "The checks this page must pass", "tab2_h1": "Case", "tab2_h2": "Must give", "tab2_r1_c1": "Electron in a box as large as an atom (0.1 nm)", "tab2_r1_c2": "3.64×10⁶ m/s (1.21% of c); 37.6 eV", "tab2_r2_c1": "Glass marble (0.5 g) in a 10 cm box", "tab2_r2_c2": "6.63×10⁻³⁰ m/s; 4.78×10¹⁸ years for one millimetre", "tab2_r3_c1": "Dust grain (10 µm) in a 1 mm box", "tab2_r3_c2": "3.16×10⁻¹⁹ m/s; 1.00 million years for one of its own diameters", "tab2_r4_c1": "The same electron in a 1 mm box", "tab2_r4_c2": "0.364 m/s", "tab2_r5_c1": "Time for the electron to cross the atom", "tab2_r5_c2": "27.5 attoseconds", "tab2_r6_c1": "Where the formula dies (electron, v = c)", "tab2_r6_c2": "L = 1.213 picometres", "tab2_r7_c1": "Ratio v(electron) / v(marble)", "tab2_r7_c2": "5.49×10³⁵", "tab2_r8_c1": "“You” (60 kg) in a 1 metre box", "tab2_r8_c2": "5.52×10⁻³⁶ m/s", "tab2_r9_c1": "Δx · Δp, any L", "tab2_r9_c2": "0.568 ħ", "h2_paragone": "The body comparison", "paragone_corpo": "Fingernails grow about 3.5 millimetres a month, that is <b>1.33 nanometres per second<\/b>: a speed no one would call a speed. Yet the marble closed in the 10-centimetre box is <b>2.01×10²⁰ times slower<\/b> than your growing nails. On the other side, the electron in the atom: in a single beat of your heart it would travel over <b>3100 kilometres<\/b>, more than the distance between Rome and Moscow, and it would go all the way round the Earth’s equator in <b>11 seconds<\/b>. Both come out of the same multiplication, done with the same calculator.", "h2_sorpresa": "The surprise", "sorpresa_p1": "Closing something forces it to move, and nobody has pushed it. There is no motor, there is no collision, there is no instrument disturbing it: there is only the box that tightens. An electron shut in a space as large as an atom is forced to 3637 km/s, 1.2% of the speed of light. The very same formula, applied to a marble of half a gram in a 10-centimetre box, gives 6.63×10⁻³⁰ m/s: almost five billion billion years to move one millimetre.", "sorpresa_p2": "Between the two numbers there are 35 orders of magnitude, and they hide nothing: it is exactly the ratio of the masses (5.49×10²⁶) multiplied by the ratio of the sides (10⁹). The same law governs the atom and the marble. In the atom it shows, in the marble it does not, and not because the law changes but because a marble is heavy.", "sorpresa_p3": "It is also the reason why atoms have the size they have. If the electron could sit still on the nucleus, that confinement would cost it more than a hundred million electronvolts, over two hundred times its rest energy: a price the atom cannot pay. Getting tighter costs too much.", "obj_elettrone_nota": "The lightest of the four particles. It is the one that, closed in a space as small as an atom, reaches measurable percentages of the speed of light.", "aria_scatola": "Width of the box", "etichetta_L_inline": "width L: ", "spia_didascalia": "the red line is at 0.5 ħ · this number does not move, whichever wall you drag", "footer_r1": "Physics laboratory · Experiment 10 of 10", "footer_r2": "No library, no network call: everything you see is computed here.", "obj_elettrone_nome": "An electron", "obj_granello_nome": "A speck of dust", "obj_biglia_nome": "A glass marble", "conf_protone": "a proton", "conf_atomo": "an atom", "conf_virus": "a virus", "conf_globulo": "a red blood cell", "conf_capello": "the thickness of a hair", "conf_moneta": "a 2-euro coin", "conf_mano": "an open hand", "unit_picometri": "picometres", "unit_nanometri": "nanometres", "unit_micrometri": "micrometres", "unit_millimetri": "millimetres", "unit_metro": "metre", "unit_metri": "metres", "unit_picosecondi": "picoseconds", "unit_nanosecondi": "nanoseconds", "unit_microsecondi": "microseconds", "unit_millisecondi": "milliseconds", "unit_secondi": "seconds", "unit_ore": "hours", "unit_anni": "years", "frase_volte_eta_universo": "times the age of the universe", "confronto_template": "To get an idea: <b>{c}<\/b>.", "confronto_volte": "about {n} times {nome}", "confronto_esimo": "about one {n}th of {nome}", "confronto_quanto": "about the size of {nome}", "confronto_approssimativa": " (approximate measure)", "conti_r1_intro1": "The simplest way to fit a wave between two walls is to", "conti_r1_intro2": "put half a wave inside:", "conti_r1_formula": "lambda = 2 × L", "conti_r1_L": "L = {L} metres  (the width chosen now)", "conti_r1_lambda": "lambda = 2 × {L} = <b>{lam} metres<\/b>", "conti_r2_formula": "p = h / lambda = h / (2L)", "conti_r2_h": "h = 6.62607015×10⁻³⁴ J s   (exact by definition since 2019)", "conti_r2_p": "p = {H} / {lam} = <b>{p} kg m/s<\/b>", "conti_r2_siccome": "Since p = m × v:", "conti_r2_finale": "Three numbers and two divisions: it can be done by hand.", "tempomm_template": "Time to move by one millimetre, at this speed: <b>{t}<\/b>.", "obj_elettrone_det": "9.109×10⁻³¹ kg", "obj_granello_det": "1.05×10⁻¹² kg (10 µm)", "obj_biglia_det": "5.0×10⁻⁴ kg", "obj_tu_nome": "You"});
+TESTI.fr = JSON.parse(JSON.stringify(TESTI.it));
+TESTI.es = JSON.parse(JSON.stringify(TESTI.it));
+TESTI.de = JSON.parse(JSON.stringify(TESTI.it));
+
+window.__LINGUE = ['it','en','fr','es','de'];
+var LANG = 'en';
+
+function applyI18n(){
+  var T = TESTI[LANG] || TESTI.it;
+  var nodi = document.querySelectorAll('[data-i18n]');
+  for(var i=0;i<nodi.length;i++){
+    var el = nodi[i];
+    var key = el.getAttribute('data-i18n');
+    if(T[key] === undefined) continue;
+    if(el.tagName === 'TITLE') el.textContent = T[key];
+    else el.innerHTML = T[key];
+  }
+  var nodiAria = document.querySelectorAll('[data-i18n-aria]');
+  for(var j=0;j<nodiAria.length;j++){
+    var elA = nodiAria[j];
+    var keyA = elA.getAttribute('data-i18n-aria');
+    if(T[keyA] === undefined) continue;
+    elA.setAttribute('aria-label', T[keyA]);
+  }
+}
+
+function setLang(l){
+  if(window.__LINGUE.indexOf(l) === -1) return;
+  LANG = l;
+  document.documentElement.lang = LANG;
+  applyI18n();
+  costruisciSchede();
+  aggiorna();
+}
+
+/* ============================================================
+   COSTANTI — CODATA 2018 e definizioni SI 2019. Nessun altro
+   numero magico: ogni costante non fisica ha qui la sua ragione.
+   ============================================================ */
+var H     = 6.62607015e-34;    /* J s — esatta, definizione SI 2019 */
+var HBAR  = 1.054571817e-34;   /* J s — h/(2 pi), CODATA 2018 */
+var C     = 299792458;         /* m/s — esatta, definizione SI */
+var M_E   = 9.1093837015e-31;  /* kg — massa dell'elettrone, CODATA 2018 */
+var EV    = 1.602176634e-19;   /* J — esatta, definizione SI 2019 */
+var MEV   = 1.602176634e-13;   /* J */
+var ANNO  = 3.15576e7;         /* s — anno giuliano, 365,25 giorni */
+var ETA_UNIVERSO_ANNI = 13.787e9;      /* anni, misura Planck 2018, assunta */
+var ETA_UNIVERSO_S = ETA_UNIVERSO_ANNI * ANNO;
+var E_H   = 4.3597447e-18;     /* J — hartree, unità atomica di energia, per il confronto sui tempi */
+var DIAM_PROTONE = 1.68e-15;   /* m — raggio di carica del protone x2, misurato */
+
+/* costante geometrica dello stato fondamentale della scatola rigida:
+   delta-x = L * sqrt(1/12 - 1/(2 pi^2)) = 0,180756... L (calcolo standard
+   di meccanica quantistica, non un dato misurato) */
+var K_DX = 0.180756;
+
+/* soglia convenzionale sulla velocita': a beta=0,05 l'errore relativistico
+   sull'energia cinetica vale circa lo 0,19% (verificabile con
+   (gamma-1) confrontato con 0,5*beta^2). Non e' una costante di natura,
+   e' scelta per comodo di lettura. */
+var SOGLIA_BETA = 0.05;
+
+/* ============================================================
+   I QUATTRO OGGETTI. Ogni file nasce vuoto: questi valori non sono
+   ripresi da nessun altro esperimento del laboratorio.
+   ============================================================ */
+var densitaGranello = 2000;              /* kg/m3, assunta: minerale tipico */
+var diamGranello = 10e-6;                /* m, il granello visibile nel raggio di sole */
+var massaGranello = (Math.PI/6) * Math.pow(diamGranello,3) * densitaGranello;
+
+var OGGETTI = [
+  { id:'elettrone', m:M_E, Lmax:1e-3, Lmin:1e-12 },
+  { id:'granello', m:massaGranello, Lmax:1e-3, Lmin:diamGranello },
+  { id:'biglia', m:5.0e-4, Lmax:1, Lmin:5e-3 },
+  { id:'tu', m:60, Lmax:1, Lmin:1e-6 }
+];
+function objNome(o){ return TESTI[LANG]['obj_'+o.id+'_nome']; }
+function objDet(o){ return TESTI[LANG]['obj_'+o.id+'_det']; }
+function objNota(o){ return TESTI[LANG]['obj_'+o.id+'_nota']; }
+
+/* oggetti di confronto per la scala di L, con dimensione dichiarata */
+var CONFRONTI = [
+  { id:'protone', x:1.7e-15, appross:false },
+  { id:'atomo', x:1.0e-10, appross:false },
+  { id:'virus', x:1.0e-7, appross:false },
+  { id:'globulo', x:7e-6, appross:false },
+  { id:'capello', x:7e-5, appross:true },
+  { id:'moneta', x:25.75e-3, appross:false },
+  { id:'mano', x:0.20, appross:false }
+];
+function confNome(c){ return TESTI[LANG]['conf_'+c.id]; }
+
+/* ============================================================
+   FISICA — le formule della scheda, nient'altro.
+   lambda = 2L  (mezza onda dentro la scatola)
+   p = h / lambda = h / (2L)      (de Broglie, 1924)
+   v = p / m = h / (2 m L)
+   E = h^2 / (8 m L^2)
+   ============================================================ */
+function v_di(m, L){ return H / (2 * m * L); }
+function E_di(m, L){ return (H*H) / (8 * m * L * L); }
+function deltaX_di(L){ return K_DX * L; }
+function deltaP_di(L){ return H / (2 * L); }
+
+/* ============================================================
+   STATO — un solo grado di liberta': t in [0,1], posizione di
+   trascinamento. L = Lmax * (Lmin/Lmax)^t, mappatura logaritmica.
+   ============================================================ */
+var st = { ogg: 0, t: 0.5 };
+
+function oggettoOra(){ return OGGETTI[st.ogg]; }
+function L_ora(){
+  var o = oggettoOra();
+  return o.Lmax * Math.pow(o.Lmin / o.Lmax, st.t);
+}
+function v_ora(){ return v_di(oggettoOra().m, L_ora()); }
+function E_ora(){ return E_di(oggettoOra().m, L_ora()); }
+
+/* ============================================================
+   FORMATTAZIONE — tre cifre significative, virgola italiana,
+   mai piu' di quanto i dati di partenza giustifichino.
+   ============================================================ */
+function it(x, dec){
+  if(!isFinite(x)) return '—';
+  return x.toLocaleString('en-US',{minimumFractionDigits:dec, maximumFractionDigits:dec});
+}
+function tre(x){
+  if(x === 0) return '0';
+  var e = Math.floor(Math.log10(Math.abs(x)));
+  var dec = Math.max(0, 2 - e);
+  if(dec > 6) dec = 6;
+  return it(x, dec);
+}
+function esponenteUnicode(e){
+  var su = {'-':'⁻','0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹'};
+  return String(e).split('').map(function(c){ return su[c] || c; }).join('');
+}
+function sciTesto(x, sig){
+  if(x === 0) return '0';
+  var e = Math.floor(Math.log10(Math.abs(x)));
+  var m = x / Math.pow(10, e);
+  return it(m, (sig||3)-1) + '×10' + esponenteUnicode(e);
+}
+/* per i riquadri grandi: esponente vero in <sup>, come chiede la scheda */
+function sciHTML(x, sig){
+  if(x === 0) return '0';
+  var e = Math.floor(Math.log10(Math.abs(x)));
+  var m = x / Math.pow(10, e);
+  return it(m, (sig||3)-1) + '×10<sup>' + e + '</sup>';
+}
+/* piana se dentro [1e-3, 1e4], altrimenti scientifica con <sup> */
+function numHTML(x, sig){
+  var a = Math.abs(x);
+  if(a >= 1e-3 && a < 1e4) return tre(x);
+  return sciHTML(x, sig);
+}
+function fmtLunghezzaHTML(m){
+  var T = TESTI[LANG];
+  var a = Math.abs(m);
+  if(a < 1e-9)  return { n: numHTML(m*1e12), u:T.unit_picometri };
+  if(a < 1e-6)  return { n: numHTML(m*1e9),  u:T.unit_nanometri };
+  if(a < 1e-3)  return { n: numHTML(m*1e6),  u:T.unit_micrometri };
+  if(a < 1)     return { n: numHTML(m*1e3),  u:T.unit_millimetri };
+  return { n: numHTML(m), u: (Math.abs(m-1)<1e-9 ? T.unit_metro : T.unit_metri) };
+}
+function fmtVelocitaHTML(v){
+  var kmh = v; /* riportato anche in km/s dove conviene */
+  if(Math.abs(v) >= 1000) return { n: numHTML(v), u:'m/s', extra: numHTML(v/1000) + ' km/s' };
+  return { n: numHTML(v), u:'m/s', extra:null };
+}
+function fmtEnergiaEV(J){ return numHTML(J/EV); }
+function fmtTempo(s){
+  var T = TESTI[LANG];
+  if(!isFinite(s)) return '—';
+  var a = Math.abs(s);
+  if(a < 1e-9)  return tre(s*1e12) + ' ' + T.unit_picosecondi;
+  if(a < 1e-6)  return tre(s*1e9)  + ' ' + T.unit_nanosecondi;
+  if(a < 1e-3)  return tre(s*1e6)  + ' ' + T.unit_microsecondi;
+  if(a < 1)     return tre(s*1e3)  + ' ' + T.unit_millisecondi;
+  if(a < 3600)  return tre(s) + ' ' + T.unit_secondi;
+  if(a < 86400*2) return tre(s/3600) + ' ' + T.unit_ore;
+  if(a < ETA_UNIVERSO_S) return tre(s/ANNO) + ' ' + T.unit_anni;
+  return tre(s/ETA_UNIVERSO_S) + ' ' + T.frase_volte_eta_universo;
+}
+function oggettoConfrontoVicino(L){
+  var best = null, bd = Infinity;
+  for(var i=0;i<CONFRONTI.length;i++){
+    var d = Math.abs(Math.log10(L) - Math.log10(CONFRONTI[i].x));
+    if(d < bd){ bd = d; best = CONFRONTI[i]; }
+  }
+  return best;
+}
+
+/* ============================================================
+   SCHEDE DI SCELTA
+   ============================================================ */
+var scOgg = document.getElementById('sc-ogg');
+function costruisciSchede(){
+  scOgg.innerHTML = '';
+  OGGETTI.forEach(function(o, i){
+    var b = document.createElement('button');
+    b.className = 'scheda'; b.type = 'button';
+    b.setAttribute('aria-pressed', i === st.ogg ? 'true' : 'false');
+    var n = document.createElement('span'); n.className='n'; n.textContent = objNome(o);
+    var d = document.createElement('span'); d.className='d'; d.textContent = objDet(o);
+    b.appendChild(n); b.appendChild(d);
+    b.addEventListener('click', function(){ st.ogg = i; costruisciSchede(); aggiorna(); });
+    scOgg.appendChild(b);
+  });
+}
+
+/* ============================================================
+   LA SCENA — canvas con due pareti che convergono. Un solo
+   controllo, con semantica di slider: si trascina in qualunque
+   punto della scena e la posizione orizzontale del dito diventa t.
+   ============================================================ */
+var scena = document.getElementById('scena');
+var cvScena = document.getElementById('cv-scena'), ctxScena = cvScena.getContext('2d');
+var cvPos = document.getElementById('cv-pos'), ctxPos = cvPos.getContext('2d');
+var cvMom = document.getElementById('cv-mom'), ctxMom = cvMom.getContext('2d');
+
+function dimensionaCanvas(cv, ctx){
+  var r = window.devicePixelRatio || 1;
+  var w = cv.clientWidth, h = cv.clientHeight;
+  cv.width = Math.round(w*r); cv.height = Math.round(h*r);
+  ctx.setTransform(r,0,0,r,0,0);
+}
+function dimensionaTutto(){
+  dimensionaCanvas(cvScena, ctxScena);
+  dimensionaCanvas(cvPos, ctxPos);
+  dimensionaCanvas(cvMom, ctxMom);
+  disegnaScena();
+  disegnaCampane();
+}
+
+/* posizioni delle pareti sullo schermo: solo visive, non a scala reale
+   (nessuna rappresentazione a scala potrebbe coprire 9-12 ordini di
+   grandezza sullo stesso schermo). t=0 -> pareti larghe, t=1 -> strette. */
+function halfGapPx(w){
+  var maxHG = w * 0.44, minHG = w * 0.03;
+  return maxHG - (maxHG - minHG) * st.t;
+}
+function disegnaScena(){
+  var w = cvScena.clientWidth, h = cvScena.clientHeight;
+  ctxScena.clearRect(0,0,w,h);
+  ctxScena.fillStyle = '#0A0D18'; ctxScena.fillRect(0,0,w,h);
+  var cx = w/2, hg = halfGapPx(w);
+
+  /* densita' sin^2(pi x/L) campionata su 240 punti, riempie esattamente
+     lo spazio fra le due pareti: e' qui che si vede la campana stringersi */
+  var N = 240, barW = (2*hg) / N;
+  ctxPosCache = ctxPosCache; /* no-op, tiene lo stile leggibile */
+  ctxScena.fillStyle = 'rgba(233,238,255,.55)';
+  for(var i=0;i<N;i++){
+    var xn = (i+0.5)/N;               /* 0..1 dentro la scatola */
+    var dens = Math.pow(Math.sin(Math.PI*xn), 2);
+    var barH = dens * (h*0.62);
+    var x = cx - hg + i*barW;
+    ctxScena.fillRect(x, h - barH - 10, Math.max(1,barW-0.5), barH);
+  }
+
+  /* le due pareti */
+  ctxScena.fillStyle = '#E5A50A';
+  ctxScena.fillRect(cx-hg-3, 8, 5, h-16);
+  ctxScena.fillRect(cx+hg-2, 8, 5, h-16);
+}
+
+/* le due campane affiancate: posizione (identica alla scena, vista da
+   vicino) e quantita' di moto (asse fisso, si allarga con Δp) */
+function disegnaCampane(){
+  var w = cvPos.clientWidth, h = cvPos.clientHeight;
+  ctxPos.clearRect(0,0,w,h);
+  var N = 160;
+  ctxPos.fillStyle = '#7C5CFF';
+  for(var i=0;i<N;i++){
+    var xn = (i+0.5)/N;
+    var dens = Math.pow(Math.sin(Math.PI*xn), 2);
+    var barH = dens * (h*0.82);
+    var bw = w/N;
+    ctxPos.fillRect(i*bw, h-barH, Math.max(1,bw-0.5), barH);
+  }
+
+  /* pannello quantita' di moto: asse fisso da -Pmax a +Pmax, dove Pmax
+     e' il Δp massimo raggiungibile da questo oggetto nel suo intervallo
+     di L (cioe' al valore minimo di L che gli e' concesso) */
+  var w2 = cvMom.clientWidth, h2 = cvMom.clientHeight;
+  ctxMom.clearRect(0,0,w2,h2);
+  var o = oggettoOra();
+  var Pmax = deltaP_di(o.Lmin);
+  var dp = deltaP_di(L_ora());
+  var sigmaPx = Math.min(w2*0.46, (dp/Pmax) * w2*0.46);
+  if(!isFinite(sigmaPx) || sigmaPx < 1.5) sigmaPx = 1.5;
+  var M = 160, cx2 = w2/2;
+  ctxMom.fillStyle = '#2DD4BF';
+  for(var k=0;k<M;k++){
+    var x = (k+0.5)/M * w2 - cx2;
+    var g = Math.exp(-0.5 * Math.pow(x/sigmaPx,2));
+    var barH2 = g * (h2*0.82);
+    var bw2 = w2/M;
+    ctxMom.fillRect(cx2+x-bw2/2, h2-barH2, Math.max(1,bw2-0.5), barH2);
+  }
+}
+var ctxPosCache = null;
+
+/* ============================================================
+   TRASCINAMENTO — pointer + tastiera, un solo controllo con
+   semantica di slider.
+   ============================================================ */
+function tDaEventoX(clientX){
+  var r = scena.getBoundingClientRect();
+  var f = (clientX - r.left) / r.width;
+  return Math.max(0, Math.min(1, f));
+}
+var trascinando = false;
+scena.addEventListener('pointerdown', function(e){
+  trascinando = true;
+  scena.setPointerCapture(e.pointerId);
+  st.t = tDaEventoX(e.clientX);
+  aggiorna();
+});
+scena.addEventListener('pointermove', function(e){
+  if(!trascinando) return;
+  st.t = tDaEventoX(e.clientX);
+  aggiorna();
+});
+function fineTrascinamento(e){
+  trascinando = false;
+  try{ scena.releasePointerCapture(e.pointerId); }catch(err){}
+}
+scena.addEventListener('pointerup', fineTrascinamento);
+scena.addEventListener('pointercancel', fineTrascinamento);
+scena.addEventListener('keydown', function(e){
+  var passo = 0.02, passato = true;
+  if(e.key === 'ArrowRight' || e.key === 'ArrowUp') st.t = Math.min(1, st.t + passo);
+  else if(e.key === 'ArrowLeft' || e.key === 'ArrowDown') st.t = Math.max(0, st.t - passo);
+  else if(e.key === 'PageUp') st.t = Math.min(1, st.t + 0.1);
+  else if(e.key === 'PageDown') st.t = Math.max(0, st.t - 0.1);
+  else if(e.key === 'Home') st.t = 0;
+  else if(e.key === 'End') st.t = 1;
+  else passato = false;
+  if(passato){ e.preventDefault(); aggiorna(); }
+});
+
+/* ============================================================
+   CONTI A MANO — dinamici, con l'oggetto e la L in corso
+   ============================================================ */
+function aggiornaConti(){
+  var o = oggettoOra(), L = L_ora(), lam = 2*L, p = H/lam, v = v_ora();
+  var T = TESTI[LANG];
+  var r1 = [];
+  r1.push(T.conti_r1_intro1);
+  r1.push(T.conti_r1_intro2);
+  r1.push('');
+  r1.push('   ' + T.conti_r1_formula);
+  r1.push('');
+  r1.push(T.conti_r1_L.replace('{L}', sciTesto(L,3)));
+  r1.push(T.conti_r1_lambda.replace('{L}', sciTesto(L,3)).replace('{lam}', sciTesto(lam,3)));
+  document.getElementById('conti1').innerHTML = r1.join('\n');
+
+  var r2 = [];
+  r2.push(T.conti_r2_formula);
+  r2.push('');
+  r2.push(T.conti_r2_h);
+  r2.push(T.conti_r2_p.replace('{H}', sciTesto(H,3)).replace('{lam}', sciTesto(lam,3)).replace('{p}', sciTesto(p,3)));
+  r2.push('');
+  r2.push(T.conti_r2_siccome);
+  r2.push(T.conti_r2_v.replace('{p}', sciTesto(p,3)).replace('{m}', sciTesto(o.m,3)).replace('{v}', sciTesto(v,3)));
+  r2.push('');
+  r2.push(T.conti_r2_finale);
+  document.getElementById('conti2').innerHTML = r2.join('\n');
+}
+
+/* ============================================================
+   AGGIORNAMENTO GENERALE
+   ============================================================ */
+function aggiorna(){
+  var o = oggettoOra(), L = L_ora(), v = v_ora(), E = E_ora();
+  var beta = v / C;
+  var T = TESTI[LANG];
+
+  document.getElementById('nota-ogg').textContent = objNota(o);
+
+  var lx = fmtLunghezzaHTML(L);
+  document.getElementById('v-L-inline').innerHTML = lx.n + ' ' + lx.u;
+  document.getElementById('v-t-pct').textContent = Math.round(st.t*100) + '%';
+  scena.setAttribute('aria-valuenow', st.t.toFixed(2));
+  var conf = oggettoConfrontoVicino(L);
+  var rapp = L / conf.x;
+  var nomeConf = confNome(conf);
+  var testoConf;
+  if(rapp > 1.4) testoConf = T.confronto_volte.replace('{n}', tre(rapp)).replace('{nome}', nomeConf);
+  else if(rapp < 0.7) testoConf = T.confronto_esimo.replace('{n}', tre(1/rapp)).replace('{nome}', nomeConf);
+  else testoConf = T.confronto_quanto.replace('{nome}', nomeConf) + (conf.appross ? T.confronto_approssimativa : '');
+  document.getElementById('v-confronto').innerHTML = T.confronto_template.replace('{c}', testoConf);
+  scena.setAttribute('aria-valuetext', lx.n + ' ' + lx.u + ', ' + testoConf);
+
+  disegnaScena();
+  disegnaCampane();
+
+  /* la spia Δx·Δp: costante per costruzione, non dipende da L ne' dalla massa */
+  var dx = deltaX_di(L), dp = deltaP_di(L);
+  var rapporto = (dx*dp)/HBAR;
+  document.getElementById('v-prodotto').textContent = it(rapporto,3);
+  var pctPos = Math.max(0, Math.min(100, (rapporto/1.0)*100));
+  document.getElementById('v-punto').style.left = 'calc(' + pctPos + '% - 5px)';
+  document.querySelector('.spia .soglia').style.left = '50%';
+
+  /* pannello numeri: tre stati, normale / ambra / spento */
+  var boxL = document.getElementById('box-L'), boxV = document.getElementById('box-v'),
+      boxE = document.getElementById('box-E'), boxRotto = document.getElementById('box-rotto');
+  var avviso = document.getElementById('v-avviso');
+
+  if(beta >= 1){
+    boxL.className = 'box spento'; boxV.className = 'box spento'; boxE.className = 'box spento';
+    document.getElementById('v-L').textContent = '—';
+    document.getElementById('v-v').textContent = '—';
+    document.getElementById('v-E').textContent = '—';
+    document.getElementById('v-v-kmh').textContent = '';
+    document.getElementById('v-E-ev').textContent = '';
+    document.getElementById('v-tempomm').textContent = '';
+    avviso.style.display = 'none';
+    boxRotto.style.display = 'block';
+  } else {
+    boxRotto.style.display = 'none';
+    document.getElementById('v-L').innerHTML = lx.n + ' <span class="u">' + lx.u + '</span>';
+    boxL.className = 'box oro';
+
+    var lv = fmtVelocitaHTML(v);
+    document.getElementById('v-v').innerHTML = lv.n + ' <span class="u">' + lv.u + '</span>';
+    document.getElementById('v-v-kmh').textContent = lv.extra ? ('= ' + lv.extra) : '';
+
+    document.getElementById('v-E').innerHTML = numHTML(E) + ' <span class="u">joule</span>';
+    document.getElementById('v-E-ev').textContent = '= ' + fmtEnergiaEV(E).replace(/<[^>]+>/g,'') + ' eV';
+    /* fmtEnergiaEV puo' contenere <sup>: qui mostriamo il testo semplice
+       per il rigo secondario, che resta leggibile anche senza markup */
+    document.getElementById('v-E-ev').innerHTML = '= ' + fmtEnergiaEV(E) + ' eV';
+
+    document.getElementById('v-tempomm').innerHTML =
+      T.tempomm_template.replace('{t}', fmtTempo(1e-3/v));
+
+    if(beta > SOGLIA_BETA){
+      boxV.className = 'box ambra';
+      avviso.style.display = 'block';
+      avviso.innerHTML = T.avviso_beta;
+    } else {
+      boxV.className = 'box oro';
+      avviso.style.display = 'none';
+    }
+    boxE.className = 'box oro';
+  }
+
+  aggiornaConti();
+}
+
+/* ============================================================
+   AVVIO
+   ============================================================ */
+window.setLang = setLang;
+document.documentElement.lang = LANG;
+applyI18n();
+costruisciSchede();
+dimensionaTutto();
+aggiorna();
+window.addEventListener('resize', dimensionaTutto);
+
+/* ------------------------------------------------------------
+   AUTOCOLLAUDO — gira in console al caricamento. Se un controllo
+   fallisce la pagina sta mostrando un numero sbagliato: si
+   corregge il codice, mai il controllo.
+   ------------------------------------------------------------ */
+(function collaudo(){
+  var esiti = [];
+  function ok(nome, avuto, atteso, toll){
+    var t = (toll===undefined?0.01:toll);
+    var passa = Math.abs(avuto-atteso)/Math.abs(atteso) < t;
+    esiti.push((passa?'OK  ':'NO  ') + nome + '  = ' + avuto + (passa?'':'   atteso ' + atteso));
+    return passa;
+  }
+  var salva = { ogg: st.ogg, t: st.t };
+
+  /* 1) elettrone chiuso in una scatola grande come un atomo */
+  var vE1 = v_di(M_E, 1e-10), E1 = E_di(M_E, 1e-10);
+  ok('elettrone/atomo: v (m/s)', vE1, 3.637e6, 0.001);
+  ok('elettrone/atomo: v/c (%)', vE1/C*100, 1.21, 0.01);
+  ok('elettrone/atomo: E (J)', E1, 6.025e-18, 0.001);
+  ok('elettrone/atomo: E (eV)', E1/EV, 37.6, 0.005);
+
+  /* 2) biglia di vetro da mezzo grammo in una scatola da 10 cm */
+  var vB = v_di(5.0e-4, 0.10);
+  ok('biglia: v (m/s)', vB, 6.63e-30, 0.005);
+  var tB = 1e-3/vB;
+  ok('biglia: tempo per 1mm (anni)', tB/ANNO, 4.78e18, 0.005);
+  ok('biglia: volte l\'età dell\'universo', (tB/ANNO)/ETA_UNIVERSO_ANNI, 3.47e8, 0.01);
+
+  /* 3) granello di polvere in una scatola da 1 mm */
+  ok('granello: massa (kg)', massaGranello, 1.047e-12, 0.005);
+  var vG = v_di(massaGranello, 1e-3);
+  ok('granello: v (m/s)', vG, 3.16e-19, 0.01);
+  var tG = diamGranello / vG;
+  ok('granello: tempo per un diametro (anni)', tG/ANNO, 1.0e6, 0.02);
+
+  /* 4) lo stesso elettrone, ma in una scatola da 1 mm */
+  var vE2 = v_di(M_E, 1e-3);
+  ok('elettrone/1mm: v (m/s)', vE2, 0.364, 0.005);
+
+  /* 5) tempo di attraversamento dell'atomo, confronto con l'unità atomica di tempo */
+  var tAttr = 1e-10/vE1;
+  ok('elettrone: tempo attraversamento atomo (as)', tAttr*1e18, 27.5, 0.01);
+  var uaTempo = HBAR/E_H;
+  var diffPct = Math.abs(tAttr-uaTempo)/uaTempo*100;
+  ok('confronto con unità atomica di tempo: differenza %', diffPct, 13.7, 0.05);
+
+  /* 6) dove la formula muore */
+  var Lc = H/(2*M_E*C);
+  ok('elettrone: L dove v=c (pm)', Lc*1e12, 1.213, 0.005);
+  /* esempio nucleare, ultrarelativistico */
+  var Lnuc = 5e-15, pNuc = H/(2*Lnuc), Enuc = pNuc*C;
+  ok('nucleare: p (kg m/s)', pNuc, 6.626e-20, 0.001);
+  ok('nucleare: E (MeV)', Enuc/MEV, 124, 0.01);
+  var restE = M_E*C*C;
+  ok('nucleare: rapporto a massa a riposo elettrone', (Enuc/MEV)/(restE/MEV), 243, 0.01);
+
+  /* 7) rapporto elettrone / biglia, e la sua scomposizione */
+  var rapportoV = vE1/vB;
+  ok('rapporto v elettrone/biglia', rapportoV, 5.489e35, 0.005);
+  var rapportoMasse = 5.0e-4/M_E, rapportoLati = 0.10/1e-10;
+  ok('scomposizione: masse × lati', rapportoMasse*rapportoLati, rapportoV, 0.001);
+
+  /* 8) il pulsante "tu" */
+  var vTu = v_di(60, 1.0);
+  ok('tu: v (m/s)', vTu, 5.52e-36, 0.005);
+  var spostTu = vTu * ETA_UNIVERSO_S;
+  ok('tu: spostamento in un\'età dell\'universo (m)', spostTu, 2.40e-18, 0.01);
+  ok('tu: rapporto a diametro del protone', DIAM_PROTONE/spostTu, 699, 0.02);
+
+  /* 9) l'invariante Δx·Δp/ħ: deve venire 0,568 SEMPRE, per qualunque L
+     e qualunque massa. E' il cuore dell'esperimento. */
+  [1e-3, 1e-6, 1e-9, 1e-12, 0.5, 1e-1].forEach(function(Lprova){
+    var dx = deltaX_di(Lprova), dp = deltaP_di(Lprova);
+    ok('Δx·Δp/ħ a L=' + Lprova, (dx*dp)/HBAR, 0.568, 0.002);
+  });
+
+  /* 10) invariante di scala: v * m * L = h/2, costante qualunque oggetto */
+  OGGETTI.forEach(function(o){
+    var Lprova = Math.sqrt(o.Lmax*o.Lmin);
+    var vProva = v_di(o.m, Lprova);
+    ok('v·m·L = h/2 per ' + o.id, vProva*o.m*Lprova, H/2, 0.001);
+  });
+
+  /* 11) soglia beta=0,05: errore relativistico sull'energia cinetica ~0,19% */
+  var beta = 0.05, gamma = 1/Math.sqrt(1-beta*beta);
+  var errRel = ((gamma-1) - 0.5*beta*beta) / (gamma-1) * 100;
+  ok('errore relativistico a beta=0,05 (%)', errRel, 0.1875, 0.02);
+
+  /* 12) fatti corporei del paragone */
+  var velUnghie = 3.5e-3/(ANNO/12);
+  ok('velocità unghie (m/s)', velUnghie, 1.33e-9, 0.01);
+  ok('rapporto unghie/biglia', velUnghie/vB, 2.008e20, 0.01);
+  var heartbeat = 60/70;
+  ok('distanza elettrone in un battito (km)', vE1*heartbeat/1000, 3117, 0.005);
+  var equatore = 40075000;
+  ok('tempo giro equatore elettrone (s)', equatore/vE1, 11.0, 0.01);
+
+  /* 13) sanità dei range: Lmin < Lmax per ogni oggetto, e la mappatura
+     t->L raggiunge esattamente gli estremi dichiarati */
+  OGGETTI.forEach(function(o){
+    esiti.push((o.Lmin < o.Lmax ? 'OK  ' : 'NO  ') + 'range valido per ' + o.id);
+    var LatT0 = o.Lmax * Math.pow(o.Lmin/o.Lmax, 0);
+    var LatT1 = o.Lmax * Math.pow(o.Lmin/o.Lmax, 1);
+    ok('L(t=0) = Lmax per ' + o.id, LatT0, o.Lmax, 1e-9);
+    ok('L(t=1) = Lmin per ' + o.id, LatT1, o.Lmin, 1e-6);
+  });
+
+  st.ogg = salva.ogg; st.t = salva.t; aggiorna();
+
+  var falliti = esiti.filter(function(e){ return e.indexOf('NO') === 0; }).length;
+  console.log('%cAutocollaudo esperimento 10 — ' + (falliti ? falliti + ' CONTROLLI FALLITI' : 'tutti i ' + esiti.length + ' controlli passati'),
+              'font-weight:bold;color:' + (falliti ? '#c00' : '#0a0'));
+  esiti.forEach(function(e){ console.log('  ' + e); });
+})();
+
+})();
+
+try{ if(typeof setLang==='function') setLang('en'); }catch(e){}
+</script>
+</body>
+</html>
