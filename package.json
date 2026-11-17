@@ -1,0 +1,15 @@
+{
+  "name": "physics-experiments-lab",
+  "version": "0.1.0",
+  "description": "Ten interactive physics experiments in plain HTML, CSS and JavaScript. No build, no network.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/check_physics.mjs",
+    "smoke": "node tests/smoke.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^26.0.0"
+  }
+}
